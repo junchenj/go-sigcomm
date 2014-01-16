@@ -1,10 +1,104 @@
-\tightsection{Background}
+\tightsection{Background and Motivation}
 
-\begin{packeditemize}
-	\item System components
-	\item GO architecture
-	\item Dataset
-	\item Quality metrics
-	\item Attribute (spatial/temporal)
-	\item Measurement noise: categorize the noise in the dataset that may potentially impact the prediction. 
-\end{packeditemize}
+
+
+\jc{need a better transition from the general idea of prediction-centric to video-specific optimization.}
+
+\tightsubsection{Need of quality prediction}
+
+\myparasum{Today's video quality} Previous research has confirmed the impact of quality on user experience to show that users are quite sensitive to buffering and high startup latency, and prefer higher bitrate content. Moreover, it also has been confirmed that today's end user experience is far from perfect and quality optimization is needed\cite{sigcomm11,12}.
+
+\myparasum{What decisions can be made for a video session} A typical way of Internet video delivery is that during a video session, the video player streams the video object from a server by sequentially downloading chunks in a progressive download fashion or periodically. Today's video delivery infrastructure provides two control knobs -- {\it CDN} in which the server is located, {\it bitrate} in which the object is encoded -- for a video player to adapt against changes in network condition and resource availability. The CDN and bitrate can be chosen from a pre-determined set of options and can be switched at any point during a session. Readers may refer to~\cite{conext11} for more details. 
+
+\myparasum{Previous research has shown prediction is necessary} Therefore, a fundamental challenge for quality optimization is to make the best decision (i.e., CDN, bitrate) for each session. In this context, previous research \cite{sigcomm12,conext13} has shown (1) significant spatial diversity in CDN performance \footnote{CDN performance means the overall video quality that viewers experience if the video is streamed from it.} and availability across different geographical regions and ISPs; (2) substantial temporal variability in the CDN performance and client-side network performance; and (3) that causes of quality issues can be rooted in various attributes of a session (e.g., content provider, player implementation, or a combination). These results have implied that there is no globally best decision which performs better than others for most sessions and for most of time, and therefore, the best decision for any session should be made by predicting the video quality if each decision were to be used. 
+
+\myparasum{Approaches towards quality prediction} In order to accurately predict the outcome of each decision, one approach to modelize the quality changes of decision. However, such quality prediction model can be costly to maintain for each session and highly complex given the complexity of the delivery infrastructure itself. Alternatively, we argue that a data-driven approach that leverages the power of massive measurements from client-side can be more practical and as we will demonstrate later, can be accurate with proper algorithms.
+
+\myparasum{Organization of rest of this section} The next section describes our dataset for trace-driven analysis. Then we present preliminary statistics to motivate that data-driven accurate prediction is also feasible by sharing information and quality measurements from clients. 
+
+\tightsubsection{Dataset (mostly copied from CoNEXT)}
+
+\myparasum{Dataset overview} Our dataset is based on client-side measurements of video quality from over \fillme million sessions or views (both suceessful and failed) over a duration of \fillme days. The data was generated via client-side player instrumentation that monitors the state of player and network condition, collects the statistics regarding the observed video quality (e.g., rebuffering ratio, chosen bitrate) and session attribues (e.g., ASN, chosen CDN, player type). These collected information will be sent back to the backend so that we can maintain up-to-date quality and attribute information of each observed session.
+
+\myparasum{Attributes} The basic unit in our dataset is a {\it quality sample}. A quality sample represents a user viewing a video on one of our affliates's sites for a fixed interval of time\jc{is SessionInterval always for one minute in current implementation?}. Each quality sample is associated with three fields -- attributes, timestamp and quality metrics. 
+We first explain each attribute we observed and then define the quality metrics.
+
+\begin{packedenumerate}
+\item \emph{ASN:} The Autonomous System Number (ASN) that the client IP belongs
+ to. Note that a single ISP (e.g., Comcast) may own different ASNs both
+ for management and business reasons. We focus on the ASN as it is more fine-grained
+ than the ISP granularity.  We observe in aggregate \fillme unique ASNs
+  spanning multiple countries.
+
+\item \emph{CDN:}   In total, we observe
+\fillme unique CDNs spanning popular CDN providers as well as several in-house and
+ISP-run CDNs. (Some providers use proprietary CDN switching logic; in
+this case we pick the segment of the session with the CDN used for the longest
+duration.)
+
+\item \emph{Content provider (Site):} This is the specific affiliate content
+provider from which the client requested some content. We have  \fillme content
+providers that span different genres of content.  We use the terms site and
+content provide interchangeably.
+
+\item \emph{VoD or Live:} Video  content  falls in one
+ of two categories: video-on-demand (VoD) or Live.  We use a binary indicator to
+ see if the particular content was a Live event or a VoD video.
+
+\item \emph{Player type:} We see diverse  players such as  Flash, Silverlight,
+and HTML5.
+
+\item \emph{Browser:} We see diverse client browsers including Chrome, Firefox,
+MSIE, and Safari.
+
+\item \emph{Connection type:} Finally, we  have the type of
+access network connection such  as
+ mobile/fixed wireless, DSL, fiber-to-home. These annotations come from third party services~\cite{quova}.
+
+\end{packedenumerate}
+
+\myparasum{Metrics} We focus on four industry-standard video quality metrics that have been shown to be critical for measuring user engagement~\cite{sigcomm11}:
+\begin{packedenumerate}
+\item \emph{Buffering ratio:}  Given a video session of duration $T$~seconds,
+if the player spent $B$~seconds in buffering (i.e., waiting for the player
+ buffer to replenish midstream, the buffering ratio is defined as
+ $\frac{B}{T}$. Prior work has shown that buffering ratio is a key metric
+ that impacts user engagement~\cite{sigcomm11}.
+\item \emph{Join time:}  This is the time taken for the video to start playing
+ from the time the user clicks on the ``play'' button on the player.
+ While join time may not directly impact the amount of a specific video viewed,
+ it does have long term effects as it reduces the likelihood of repeated
+visits~\cite{sigcomm11,akamai-imc12}.
+\item \emph{Average bitrate:} Many video players today support adaptive bitrate
+selection and midstream bitrate switching to adapt to changing bandwidth
+availability. The average bitrate of a session is simply the time-weighted
+average of the bitrates used in a given session. (Bitrate refers to the video playback rate, rather than throughput or download rate.)
+\item \emph{Start failures:}   Some sessions may not even start playing the
+video; either the content is not available on the CDN server or the CDN is
+under overload or other unknown reasons. We mark as a session as a join failure
+if no content was played during this session.\footnote{Start failures are
+reported by the client-side measurement module that sends a ``heartbeat'' on
+the player status.}
+\end{packedenumerate}
+
+\myparasum{Timestamp} The timestamp is the system at backend when the sample is received from client. There are two sources of measurement noise in our implementation: (1) The backend system time is different from when the sample is actually collected. (2) Some quality metrics (e.g., join time) reflect the quality at the beginning of a session of rather than the current time point. 
+
+
+\tightsubsection{Quality similarity between close sessions}
+
+This section presents preliminary statistics based on real-trace analysis to demonstrate the feasibility of predicting quality of a decision by looking at quality samples that are close to it. The closeness between an existing quality sample and a session with its potential decision can be characterized in two aspects. First, along {\it spatial} dimension, they are close if they share same value on one or multiple attributes. For example, two sessions could be from the same ASN, or using the same CDN or from the same ASN to the same CDN. Second, along {\it temporal} dimension, two sessions are close if they happen at closely in time.
+
+In order to demonstrate that prediction based on close sessions is possible, we show that quality samples that are spatially and temporally close should be with similar quality. 
+
+\myparasum{Intra-session similarity} Intra-session similarity is between the quality samples collected during the cause of a session is. \jc{Figure: x-Fraction of time less/greater than mean by various factor, y: CDF}
+
+\myparasum{Spatial similarity} Spatial similarity is between the quality samples collected at the same time interval from sessions that share certain attribute values. \jc{Figure: x-Fraction of time less/greater than mean by various factor, y: CDF}
+
+\myparasum{Temporal similarity} Temporal similarity is between the average quality collected in different time interval of the same group of sessions that share certain attribute values. \jc{Figure: x-Fraction of time less/greater than mean by various factor, y: CDF}
+
+\myparasum{Summary of key observations} \jc{mostly based on my previous experience. subject to change after formal results are generated.}
+\begin{packedenumerate}
+	\item The three similairty between quality samples all shows that it is feasible to predict the quality of a new session and its decision by looking at quality samples that are spatially and temporally close to it.
+	\item Spatial similarity varies across different attributes.
+	\item TODO
+\end{packedenumerate}
