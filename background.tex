@@ -17,11 +17,13 @@
 \myparasum{Organization of rest of this section} In the rest of the section, we will describe our dataset for trace-driven analysis, and then present preliminary statistics to motivate that data-driven accurate prediction is also feasible by sharing information and quality measurements from clients. 
 
 \tightsubsection{Dataset (mostly copied from CoNEXT)}
+\label{subsec:dataset}
 
 \myparasum{Dataset overview} Our dataset is based on client-side measurements of video quality from over \fillme million sessions or views (both suceessful and failed) over a duration of \fillme days. The data was generated via client-side player instrumentation that monitors the state of player and network condition, collects the statistics regarding the observed video quality (e.g., rebuffering ratio, chosen bitrate) and session attribues (e.g., ASN, chosen CDN, player type). These collected information will be sent back to the backend so that we can maintain up-to-date quality and attribute information of each observed session.
 
-\myparasum{Attributes} The basic unit in our dataset is a {\it quality sample}. A quality sample represents a user viewing a video on one of our affliates's sites for a fixed interval of time\jc{is SessionInterval always for one minute in current implementation?}. Each quality sample is associated with three fields -- attributes, timestamp and quality metrics. 
-We first explain each attribute we observed and then define the quality metrics.
+\myparatight{Quality sample} The basic unit in our dataset is a {\it quality sample}\jc{quality sample is just more expressive way of SessionInterval.}. A quality sample represents a user viewing a video on one of our affliates's sites for a fixed interval of time\jc{is SessionInterval always for one minute in current implementation?}. Each quality sample is associated with four fields -- session ID, attributes, timestamp and quality metrics. 
+
+\myparatight{Attributes} There are \fillme attributes that we observe and collect at client-side. 
 
 \begin{packedenumerate}
 \item \emph{ASN:} The Autonomous System Number (ASN) that the client IP belongs
@@ -55,9 +57,11 @@ MSIE, and Safari.
 access network connection such  as
  mobile/fixed wireless, DSL, fiber-to-home. These annotations come from third party services~\cite{quova}.
 
+Notice that decision (i.e., CDN, bitrate) is also counted as attributes in quality samples.
+
 \end{packedenumerate}
 
-\myparasum{Quality metrics} We focus on four industry-standard video quality metrics that have been shown to be critical for measuring user engagement~\cite{sigcomm11}:
+\myparatight{Quality metrics} We focus on four industry-standard video quality metrics that have been shown to be critical for measuring user engagement~\cite{sigcomm11}:
 \begin{packedenumerate}
 \item \emph{Buffering ratio:}  Given a video session of duration $T$~seconds,
 if the player spent $B$~seconds in buffering (i.e., waiting for the player
@@ -81,7 +85,7 @@ reported by the client-side measurement module that sends a ``heartbeat'' on
 the player status.}
 \end{packedenumerate}
 
-\myparasum{Timestamp} The timestamp is the system at backend when the sample is received from client. There are two sources of measurement noise in our implementation: (1) The backend system time is different from when the sample is actually collected. (2) Some quality metrics (e.g., join time) reflect the quality at the beginning of a session of rather than the current time point. 
+\myparatight{Timestamp} The timestamp is the system at backend when the sample is received from client. There are two sources of measurement noise in our implementation: (1) The backend system time is different from when the sample is actually collected. (2) Some quality metrics (e.g., join time) reflect the quality at the beginning of a session of rather than the current time point. \jc{The impact of each of these noise should be discussed later.}
 
 
 \tightsubsection{Quality similarity between close sessions}
