@@ -6,15 +6,15 @@
 
 \tightsubsection{Need of quality prediction}
 
-\myparasum{Today's video quality} Previous research has confirmed the impact of quality on user experience to show that users are quite sensitive to buffering and high startup latency, and prefer higher bitrate content. Moreover, it also has been confirmed that today's end user experience is far from perfect and quality optimization is needed\cite{sigcomm11,12}.
+\myparasum{Today's video quality} Previous research has confirmed the impact of quality on user experience that users are quite sensitive to buffering and high startup latency, and prefer higher bitrate content. Moreover, it also has been confirmed that today's end user experience is far from perfect and quality optimization is needed\cite{sigcomm12,conext13}.
 
-\myparasum{What decisions can be made for a video session} A typical way of Internet video delivery is that during a video session, the video player streams the video object from a server by sequentially downloading chunks in a progressive download fashion or periodically. Today's video delivery infrastructure provides two control knobs -- {\it CDN} in which the server is located, {\it bitrate} in which the object is encoded -- for a video player to adapt against changes in network condition and resource availability. The CDN and bitrate can be chosen from a pre-determined set of options and can be switched at any point during a session. Readers may refer to~\cite{conext11} for more details. 
+\myparasum{What decisions can be made for a video session} A typical way of Internet video delivery is that during a video session, the video player streams the video object from a server by sequentially downloading chunks in a progressive download fashion or periodically. In this context, today's video delivery infrastructure provides two control knobs -- {\it CDN} in which the server is located, {\it bitrate} in which the object is encoded -- for a video player to adapt against changes in network condition and resource availability. The CDN and bitrate can be chosen from a pre-determined set of options and can be switched at any point during a session. Readers may refer to~\cite{conext12} for more details. 
 
 \myparasum{Previous research has shown prediction is necessary} Therefore, a fundamental challenge for quality optimization is to make the best decision (i.e., CDN, bitrate) for each session. In this context, previous research \cite{sigcomm12,conext13} has shown (1) significant spatial diversity in CDN performance \footnote{CDN performance means the overall video quality that viewers experience if the video is streamed from it.} and availability across different geographical regions and ISPs; (2) substantial temporal variability in the CDN performance and client-side network performance; and (3) that causes of quality issues can be rooted in various attributes of a session (e.g., content provider, player implementation, or a combination). These results have implied that there is no globally best decision which performs better than others for most sessions and for most of time, and therefore, the best decision for any session should be made by predicting the video quality if each decision were to be used. 
 
-\myparasum{Approaches towards quality prediction} In order to accurately predict the outcome of each decision, one approach to modelize the quality changes of decision. However, such quality prediction model can be costly to maintain for each session and highly complex given the complexity of the delivery infrastructure itself. Alternatively, we argue that a data-driven approach that leverages the power of massive measurements from client-side can be more practical and as we will demonstrate later, can be accurate with proper algorithms.
+\myparasum{Approaches towards quality prediction} In order to accurately predict the outcome of each decision, one approach to modelize the quality changes of decision. However, such quality prediction model can be costly to maintain for each session and highly complex given the complexity of the delivery infrastructure itself. Alternatively, we argue that a data-driven approach that leverages the power of massive measurements from clients is more practical and as we will demonstrate later, can predict quality accurately with proper algorithms.
 
-\myparasum{Organization of rest of this section} The next section describes our dataset for trace-driven analysis. Then we present preliminary statistics to motivate that data-driven accurate prediction is also feasible by sharing information and quality measurements from clients. 
+\myparasum{Organization of rest of this section} In the rest of the section, we will describe our dataset for trace-driven analysis, and then present preliminary statistics to motivate that data-driven accurate prediction is also feasible by sharing information and quality measurements from clients. 
 
 \tightsubsection{Dataset (mostly copied from CoNEXT)}
 
@@ -57,7 +57,7 @@ access network connection such  as
 
 \end{packedenumerate}
 
-\myparasum{Metrics} We focus on four industry-standard video quality metrics that have been shown to be critical for measuring user engagement~\cite{sigcomm11}:
+\myparasum{Quality metrics} We focus on four industry-standard video quality metrics that have been shown to be critical for measuring user engagement~\cite{sigcomm11}:
 \begin{packedenumerate}
 \item \emph{Buffering ratio:}  Given a video session of duration $T$~seconds,
 if the player spent $B$~seconds in buffering (i.e., waiting for the player
@@ -90,15 +90,14 @@ This section presents preliminary statistics based on real-trace analysis to dem
 
 In order to demonstrate that prediction based on close sessions is possible, we show that quality samples that are spatially and temporally close should be with similar quality. 
 
-\myparasum{Intra-session similarity} Intra-session similarity is between the quality samples collected during the cause of a session is. \jc{Figure: x-Fraction of time less/greater than mean by various factor, y: CDF}
-
 \myparasum{Spatial similarity} Spatial similarity is between the quality samples collected at the same time interval from sessions that share certain attribute values. \jc{Figure: x-Fraction of time less/greater than mean by various factor, y: CDF}
 
 \myparasum{Temporal similarity} Temporal similarity is between the average quality collected in different time interval of the same group of sessions that share certain attribute values. \jc{Figure: x-Fraction of time less/greater than mean by various factor, y: CDF}
 
 \myparasum{Summary of key observations} \jc{mostly based on my previous experience. subject to change after formal results are generated.}
 \begin{packedenumerate}
-	\item The three similairty between quality samples all shows that it is feasible to predict the quality of a new session and its decision by looking at quality samples that are spatially and temporally close to it.
+	\item Both similairty of quality samples show that it is feasible to predict the quality of a new session and its decision by looking at quality samples that are spatially and temporally close to it.
 	\item Spatial similarity varies across different attributes.
-	\item TODO
+	\item Different quality metrics have different level of similarity, especially, buffering ratio has the largest similarity.
 \end{packedenumerate}
+
