@@ -1,47 +1,38 @@
-\tightsection{GO Overview and Challenges}
+\tightsection{Predictability of quality outcomes}
+Quality outcomes intuitively result from a diverse set of factors -- user behavior, network behavior, and CDN behavior, to name a few.  Many of these factors are out of our control; in other cases, a factor may be impacted in principle but its dependence on our decisions is unpredictable.  Our hope in approaching this problem is that some of them, and their causal dependence on decisions we can take, are consistently associated with characteristics we observe about sessions.  As shorthand we say that quality is {\it predictable} to extent that the impact of available decisions can be predicted, with low average error, using the available information about attributes of a session.  The first empirical question we must answer is whether quality is predictable in our dataset.  In this section, we provide some rough statistics that indicate that quality is somewhat predictable, and then raise some challenges that must be solved by a practical algorithm for prediction.
 
-\comment{
-\begin{packeditemize}
-	\item System overview.
-	\item Workflow of GO backend -- grouping, simplest form
-	\item Limitations
-\end{packeditemize}
-}
+\tightsubsection{Quality similarity between close sessions}
+We observe {\it spatial} and {\it temporal} attributes of each session.  These attributes can be used to define a distance between sessions.  Intuitively, sessions that match exactly on all observable attributes are most likely to be similar.  If we have a large number of sessions exactly matching the session whose quality we would like to predict (which we will call the {\it session under prediction}), the obvious algorithm to predict quality outcomes given a particular decision simply returns the actual distribution (i.e. the CDF) of quality outcomes for those matching sessions for which that decision was taken.  Since we would like to compare decisions quickly, it is useful to summarize a prediction in a single number like the mean of this distribution; this is the approach we take.  Thus in the presence of infinite data we would take as our prediction the mean quality outcome of sessions exactly matching the session under prediction.  For reasons we will discuss shortly, we may want to relax the requirement of exact matching to mere closeness.  Along {\it spatial} dimensions, two sessions are close if they share same value on one or multiple attributes. For example, two sessions could be from the same ASN, or using the same CDN or from the same ASN to the same CDN. The spatial attributes we observe are mostly categorical, so the only useful distinction with respect to a single attribute is between a match and a non-match. Two sessions are temporally close if they occur at roughly the same time.
 
-\myparasum{Motivated by last section, we have built a real system} The trace-driven preliminary analysis in last section has shown that sharing client-side measurement to predict quality of a new session is feasible. Motivated by these results, we have implemented a working prototype called Video Global Optimization (GO) to realize the goal of accurately predicting the outcome of each decision by sharing measured quality samples from other clients in a {\it centralized} backend, and making best decisions for each session based on the prediction in order to actually improve video quality in the wild.
+Happily, quality samples that are spatially and temporally close typically have similar quality; quality is somewhat predictable using the available attributes.
 
-\myparasum{Organization of this section} This section begins with a design overview of GO. We also introduce the basic workflow of quality prediction and decision making in GO, and highlight the challenges faced by quality prediction algorithms. 
+\myparasum{Spatial similarity} Spatial similarity is between the quality samples collected at the same time interval from sessions that share certain attribute values. \jc{Figure: x-Fraction of time less/greater than mean by various factor, y: CDF}
 
+\myparasum{Temporal similarity} Temporal similarity is between the average quality collected in different time interval of the same group of sessions that share certain attribute values. \jc{Figure: x-Fraction of time less/greater than mean by various factor, y: CDF}
 
-\tightsubsection{GO overview}
-
-\begin{figure}[h!]
-\centering
- \includegraphics[width=0.5\textwidth] {figures/go-overview.pdf}
-\tightcaption{Architecture of GO.}
-\label{fig:go-overview}
-\end{figure}
-
-\myparasum{Highlevel components} Physically, in order to collect statistics from client and make decision in a centralized manner, GO has two parts: intrumentation code running within players during the cause of a video session at client-side, and GO backend running in publicly available clusters for centralized processing. Logically, there are three components of GO system (see Figure~\ref{fig:go-overview}). 
-
-\myparatight{Quality sample collection} To collect feedback from client-side video sessions, the instrumentation code monitors the state of player and network condition, summarizes them in the form of quality samples (see details in \Section~\ref{subsec:dataset}) and send the quality samples back to GO backend for storage. Quality samples are then stored in a Hadoop File System for storage. \jc{in reality, the raw input from client is in log format of heartbeat, and later processed into quality samples by the backend. we may decide whether to expose it in scalability section.}
-
-\begin{figure}[h!]
-\centering
- \includegraphics[width=0.5\textwidth] {figures/backend.pdf}
-\tightcaption{Schematic overview of GO backend.}
-\label{fig:backend}
-\end{figure}
-
-\myparatight{Quality prediction} Given a query for prediction on the quality of a session and one of its possible decision, the quality prediction uses the following three steps (see Figure~\ref{fig:backend}) to predict the outcome (quality) of the decision if it were to be used by the session at this moment.
+\myparasum{Summary of key observations} \jc{mostly based on my previous experience. subject to change after formal results are generated.}
 \begin{packedenumerate}
-	\item We aggregate together quality samples that share one or more attributes into {\it session group}s. The list of attributes used to aggregate samples is called {\it attribuet combination} (AC). Therefore, each session group is identified by an AC with value on each attribute. For example, if a session group is generated by aggregating by AC ``[CDN, ASN]'', the session group ``[$CDN-1, ASN-1$]'' describes all quality samples where the user belongs to $ASN-1$ and the session was assigned to a server from $CDN-1$.
-	\item Each session group will generate a {\it group prediction} with respect to each quality metric. A simple way is to look at the mean of the quality of all samples within the group. The use of mean as prediction is motivated by  \Section~\ref{subsec:similarity} which shows that most quality values in a session group will not deviate too much away from the mean value of the group.
-	\item A {\it prediction algorithm} is used to weight the group predictions, and merge them into the quality prediction of the query. The weight assigned to each group should reflect how similar this group is with the session in the query. For instance, given a query of a session that belongs to $ASN-1$, the group prediction of the session group $ASN-1$ should be given more weight than groups of other ASNs because its quality samples are supposed to be more similar to the queried session.
+	\item Both similarity of quality samples show that it is feasible to predict the quality of a new session and its decision by looking at quality samples that are spatially and temporally close to it.
+	\item Spatial similarity varies across different attributes.  Using more attributes can improve things.
+	\item Different quality metrics have different level of similarity, especially, buffering ratio has the largest similarity.
 \end{packedenumerate}
 
-\myparatight{Decision making} The best decision for a query will be determined based on the predicted quality of each metric and a utility function. A utility function can be a linear combination of multiple metrics or just one single metric. The choice of utility function is not the focus of this work. The best decision is then the one that gives the best utility function value given its predicted quality.
+\tightsubsection{Predicting from finite data}
+Unfortunately, we do not have access to infinite data.  This is problematic because the mean quality outcome of a small sample of similar sessions (for example, $10$ such sessions) is subject to considerable random noise.  If we use that number for prediction, the prediction will be subject to the same noise and consequently to high average error.  As the number of attributes grows, quality grows more predictable (as we have seen) but the number of perfectly-matched sessions may drop exponentially.
 
+Of course, prediction in the presence of limited information is the domain of statistics, and there are many potential solutions to this problem.  Any solution will deal with, and potentially trade off, four sources of prediction error:
 
+\begin{packedenumerate}
+  \item \emph{Estimation error:} In the statistical literature, prediction error due to limited data is often called {\it estimation error}.  Other things being equal, more data produce more accurate prediction: (Figure: X -- bin of number of samples of finest group, Y -- prediction error with error bar)  In fact, estimation error is a serious practical problem for video quality prediction.  Using all available attributes, many sessions have very few matches, as we would expect given the exponential explosion in combinations of attribute values.  (Figure: X -- number of samples of same minute+customer+dma+asn+CDN+bitrate+os+ connectiontype, Y -- CDF. 2 lines -- one for US, one for global)
+  \item \emph{Bias} due to missing or unused information: When grouping sessions according to attributes we observe, we of course may not observe attributes that are important for prediction.  Say we do not observe (or use) important attribute X.  Then, even if we have infinitely many sessions that match the current session on all observed attributes, the average outcome for all of those sessions may be different from the average outcome for the subset of sessions that match the current session on attribute X.  This is a form of bias.  Predictability, as we have defined it, simply means low bias.  Importantly, it is not alleviated by gathering more session data; as we have seen, it may be alleviated by gathering more attributes about each session.
+  \item \emph{Unavailability of recent data:} In a practical system, there are delays in sending and processing quality samples, so they are not available instantly.  If conditions change rapidly, there may be no quality samples sufficiently close to the session under prediction.  This is an extreme example of estimation error.  In this case it may be necessary to model the evolution of the video ecosystem over time in order to extrapolate to the current time.
+  (Figure: X -- time (minute), Y -- mean of quality samples. Pick a finest group which always has more than 100 sessions in each minute)
+  \item \emph{Noise:} Even if we observed all conceivable attributes of a session and had infinitely many examples of exactly quality samples, outcomes may be affected by inputs that are practically random.  For example, performance may be affected by randomized algorithms in the networking layer.  This implies that some degree of prediction error is inevitable.
+\end{packedenumerate}
 
-\tightsection{Video Quality Prediction Algorithms}
+\tightsubsection{Aggregation}
+A simple strategy to reduce estimation error is {\it aggregation}.  By aggregation we mean putting sessions into coarser groups that match on only a subset of observed attributes.  Aggregation increases the number of samples in each group but reduces the number of attributes, thus reducing estimation error at the cost of increased bias.  Thus it makes sense to look for an optimal degree of aggregation.  Figures \fillme show that the optimal AC (the aggregation that gives minimal prediction error) can be neither the finest nor the coarsest aggregations.
+Spatial aggregation: (Figure: X -- DMA, City, State, Country, Y -- Prediction error, number of sessions, pick one minute, one customer+asn+CDN+bitrate+os+connectiontype)
+Temporal aggregation: (Figure: X -- 1 minute, 5 minute, 10 minute, 30 minute, 1 hr, Y -- Prediction error, number of sessions, pick customer+dma+asn+CDN+bitrate+os+connectiontype)
+
+Unfortunately, the optimal degree of aggregation changes dynamically across time and space.  When estimation error is small (say, when a fine-grained group contains many sessions) we want to eliminate bias by using a fine-grained group.  When estimation error is large, we want to aggregate more.  Figure \fillme demonstrates this for \fillme.  This indicates that a prediction algorithm that uses aggregation should pay attention to its error rate to determine the right degree of aggregation.

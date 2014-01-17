@@ -12,18 +12,18 @@
 
 \myparasum{Previous research has shown prediction is necessary} Therefore, a fundamental challenge for quality optimization is to make the best decision (i.e., CDN, bitrate) for each session. In this context, previous research \cite{sigcomm12,conext13} has shown (1) significant spatial diversity in CDN performance \footnote{CDN performance means the overall video quality that viewers experience if the video is streamed from it.} and availability across different geographical regions and ISPs; (2) substantial temporal variability in the CDN performance and client-side network performance; and (3) that causes of quality issues can be rooted in various attributes of a session (e.g., content provider, player implementation, or a combination). These results have implied that there is no globally best decision which performs better than others for most sessions and for most of time, and therefore, the best decision for any session should be made by predicting the video quality if each decision were to be used. 
 
-\myparasum{Approaches towards quality prediction} In order to accurately predict the outcome of each decision, one approach to modelize the quality changes of decision. However, such quality prediction model can be costly to maintain for each session and highly complex given the complexity of the delivery infrastructure itself. Alternatively, we argue that a data-driven approach that leverages the power of massive measurements from clients is more practical and as we will demonstrate later, can predict quality accurately with proper algorithms.
+\myparasum{Approaches towards quality prediction} In order to accurately predict the outcome of each decision, one approach to model the quality changes of decision. However, such quality prediction model can be costly to maintain for each session and highly complex given the complexity of the delivery infrastructure itself. Alternatively, we argue that a data-driven approach that leverages the power of massive measurements from clients is more practical and as we will demonstrate later, can predict quality accurately with proper algorithms.
 
 \myparasum{Organization of rest of this section} In the rest of the section, we will describe our dataset for trace-driven analysis, and then present preliminary statistics to motivate that data-driven accurate prediction is also feasible by sharing information and quality measurements from clients. 
 
 \tightsubsection{Dataset (mostly copied from CoNEXT)}
 \label{subsec:dataset}
 
-\myparasum{Dataset overview} Our dataset is based on client-side measurements of video quality from over \fillme million sessions or views (both suceessful and failed) over a duration of \fillme days. The data was generated via client-side player instrumentation that monitors the state of player and network condition, collects the statistics regarding the observed video quality (e.g., rebuffering ratio, chosen bitrate) and session attribues (e.g., ASN, chosen CDN, player type). These collected information will be sent back to the backend so that we can maintain up-to-date quality and attribute information of each observed session.
+\myparasum{Dataset overview} Our dataset is based on client-side measurements of video quality from over \fillme million sessions or views (both successful and failed) over a duration of \fillme days. The data was generated via client-side player instrumentation that monitors the state of player and network condition, collects the statistics regarding the observed video quality (e.g., rebuffering ratio, chosen bitrate) and session attributes (e.g., ASN, chosen CDN, player type). These collected information will be sent back to the backend so that we can maintain up-to-date quality and attribute information of each observed session.
 
-\myparatight{Quality sample} The basic unit in our dataset is a {\it quality sample}\jc{quality sample is just more expressive way of SessionInterval.}. A quality sample represents a user viewing a video on one of our affliates's sites for a fixed interval of time\jc{is SessionInterval always for one minute in current implementation?}. Each quality sample is associated with four fields -- session ID, attributes, timestamp and quality metrics. 
+\myparatight{Quality sample} The basic unit in our dataset is a {\it quality sample}\jc{quality sample is just more expressive way of SessionInterval.}. A quality sample represents a user viewing a video on one of our affiliates' sites for a fixed interval of time\jc{is SessionInterval always for one minute in current implementation?}. Each quality sample is associated with four fields -- session ID, attributes, timestamp and quality metrics. 
 
-\myparatight{Attributes} There are \fillme attributes that we observe and collect at client-side. 
+\myparatight{Attributes} There are \fillme attributes that we observe and collect at client-side:
 
 \begin{packedenumerate}
 \item \emph{ASN:} The Autonomous System Number (ASN) that the client IP belongs
@@ -87,22 +87,28 @@ the player status.}
 
 \myparatight{Timestamp} The timestamp is the system at backend when the sample is received from client. There are two sources of measurement noise in our implementation: (1) The backend system time is different from when the sample is actually collected. (2) Some quality metrics (e.g., join time) reflect the quality at the beginning of a session of rather than the current time point. \jc{The impact of each of these noise should be discussed later.}
 
+\tightsubsection{GO system overview}
 
-\tightsubsection{Quality similarity between close sessions}
-\label{subsec:similarity}
+\myparasum{We have built a real system} The richness of our dataset allows us to make more informed decisions. We have implemented a working prototype called Video Global Optimization (GO) to realize this goal and to actually improve video quality in the wild.  Here we describe its architecture for gathering data and making decisions; the remainder of this paper will focus on the mapping from data to decisions via prediction.
 
-This section presents preliminary statistics based on real-trace analysis to demonstrate the feasibility of predicting quality of a decision by looking at quality samples that are close to it. The closeness between an existing quality sample and a session with its potential decision can be characterized in two aspects. First, along {\it spatial} dimension, they are close if they share same value on one or multiple attributes. For example, two sessions could be from the same ASN, or using the same CDN or from the same ASN to the same CDN. Second, along {\it temporal} dimension, two sessions are close if they happen at closely in time.
+\begin{figure}[h!]
+\centering
+ \includegraphics[width=0.5\textwidth] {figures/go-overview.pdf}
+\tightcaption{Architecture of GO.}
+\label{fig:go-overview}
+\end{figure}
 
-In order to demonstrate that prediction based on close sessions is possible, we show that quality samples that are spatially and temporally close should be with similar quality. 
+\myparasum{Highlevel components} Physically, in order to collect statistics from client and make decision in a centralized manner, GO has two parts: instrumentation code running within players during the cause of a video session at client-side, and GO backend running in publicly available clusters for centralized processing. Logically, there are three components of GO system (see Figure~\ref{fig:go-overview}). 
 
-\myparasum{Spatial similarity} Spatial similarity is between the quality samples collected at the same time interval from sessions that share certain attribute values. \jc{Figure: x-Fraction of time less/greater than mean by various factor, y: CDF}
+\myparatight{Quality sample collection} To collect feedback from client-side video sessions, the instrumentation code monitors the state of player and network condition, summarizes them in the form of quality samples (see details in \Section~\ref{subsec:dataset}) and send the quality samples back to GO backend for storage. Quality samples are then stored in a Hadoop File System for storage. \jc{in reality, the raw input from client is in log format of heartbeat, and later processed into quality samples by the backend. we may decide whether to expose it in scalability section.}
 
-\myparasum{Temporal similarity} Temporal similarity is between the average quality collected in different time interval of the same group of sessions that share certain attribute values. \jc{Figure: x-Fraction of time less/greater than mean by various factor, y: CDF}
+\begin{figure}[h!]
+\centering
+ \includegraphics[width=0.5\textwidth] {figures/backend.pdf}
+\tightcaption{Schematic overview of GO backend.}
+\label{fig:backend}
+\end{figure}
 
-\myparasum{Summary of key observations} \jc{mostly based on my previous experience. subject to change after formal results are generated.}
-\begin{packedenumerate}
-	\item Both similairty of quality samples show that it is feasible to predict the quality of a new session and its decision by looking at quality samples that are spatially and temporally close to it.
-	\item Spatial similarity varies across different attributes.
-	\item Different quality metrics have different level of similarity, especially, buffering ratio has the largest similarity.
-\end{packedenumerate}
+\myparatight{Quality prediction} Quality samples are mapped to predictions about quality outcomes of future sessions for each possible decision.  We postpone discussion of the details of this mapping for now.  For efficiency reasons, this step cannot rely on all available quality samples; they must be sampled or aggregated in some fashion.
 
+\myparatight{Decision making} A simple procedure is used to decide on the optimal CDN or bitrate for a video session: A predicted quality metric is computed for each possible decision, and then the decision maximizing predicted quality is taken.  Since there are multiple quality metrics, they must be combined into a single figure of merit via a \emph{utility function}.  For example, a utility function may return a linear combination of several quality metrics.
