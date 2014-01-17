@@ -7,7 +7,21 @@ We observe {\it spatial} and {\it temporal} attributes of each session.  These a
 
 Happily, quality samples that are spatially and temporally close typically have similar quality; quality is somewhat predictable using the available attributes.
 
+\begin{figure}[h!]
+\centering
+ \includegraphics[width=0.4\textwidth] {figures/spatial-similarity.pdf}
+\tightcaption{Spatial similarity of quality samples with respect to average bitrate for the sampe (CDN, Starting Bitrate, OS, Site, ConnectionType, Object).}
+\label{fig:backend}
+\end{figure}
+
 \myparasum{Spatial similarity} Spatial similarity is between the quality samples collected at the same time interval from sessions that share certain attribute values. \jc{Figure: x-Fraction of time less/greater than mean by various factor, y: CDF}
+
+\begin{figure}[h!]
+\centering
+ \includegraphics[width=0.4\textwidth] {figures/temporal-similarity.pdf}
+\tightcaption{Temporal similarity of quality samples with respect to average bitrate for the sampe (CDN, Starting Bitrate, OS, Site, ConnectionType, Object).}
+\label{fig:backend}
+\end{figure}
 
 \myparasum{Temporal similarity} Temporal similarity is between the average quality collected in different time interval of the same group of sessions that share certain attribute values. \jc{Figure: x-Fraction of time less/greater than mean by various factor, y: CDF}
 
