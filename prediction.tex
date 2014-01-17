@@ -1,2 +1,37 @@
 \tightsection{Prediction algorithms}
 \label{prediction}
+The tradeoff between estimation error and bias via aggregation naturally leads us to consider a class of algorithms that compute average quality outcomes for groups of sessions under different attribute sets, and then {\it dynamically} choose the attribute set, or a weighted combination of sets, that seems to work well for a particular session under prediction.  We follow the work of George et al \cite{george2008value} in choosing the weights as follows:
+\fillme
+
+However, we find a few practical deficiencies in the algorithm of George et al.  That algorithm assumes that bias and variance can be computed exactly, while in practice variance cannot be estimated accurately when groups are very small.  To alleviate this, we use a simple idea from Bayesian statistics: We incorporate a prior distribution on quality outcomes within each group.  This amounts to adding a few fake ``pseudocount'' observations to each group.  \fillme.
+
+Another deficiency is that there is no clear way to choose an ACS.  We investigate a few possibilities: \fillme . The following figure compares 5 designs:
+ACS selection (pick one ACS for each session + exhaustive search) + current GO
+ACS selection (pick one ACS for each session + greedy search) + current GO
+ACS selection (pick one ACS for each finest group + exhaustive search) + current GO
+ACS selection (pick one ACS for all sessions + exhaustive search) + current GO
+ACS selection (pick one ACS for all sessions + full ACS) + current GO
+ACS selection (pick one ACS for all sessions + no intelligence (always CDN)) + current GO
+
+\tightsubsection{Predictive performance}
+We present evidence that MGP predicts quality more accurately than a few alternatives.  We consider:
+\begin{packedenumerate}
+  \item The simplest possible data-informed prediction algorithm, which always returns the average quality for a decision over a fixed time window, ignoring other attributes.
+  \item A prediction algorithm using the best single attribute set, chosen via cross-validation.
+  \item The algorithm of George et al without the addition of pseudocount priors.
+  \item MGP with several alternative schemes to choose its ACS.
+\end{packedenumerate}
+Figure \fillme demonstrates that MGP substantially outperforms these alternatives.
+
+\tightsubsection{Interactions between decisions}
+The reader may be bothered by a simplifying assumption implicit in the above formulation of prediction.  If we allocated all traffic to 1 CDN, its performance might degrade, but our session-wise prediction does not capture that.  We might instead want to know the following: Given a set of decisions about sessions (say, all the sessions we observe in a 1-hour interval), what is the predicted performance for that set of sessions?  We do not wish to say that such a question is impossible to answer, but rather point out some difficulties in answering it, and some reasons why it is less critical to answer it than it may appear.
+Joint prediction is statistically difficult because existing statistical prediction algorithms typically assume the performance of training examples are independent and experience identical randomness (i.e. they are IID).  We observe very few IID instances of whole sets of sessions; in our example, we observe only one per 1-hour interval.  It is possible to model explicitly the dependence of each session’s performance on the set of joint decisions.  For example, Bayesian graphical model learning could do this.  However, this requires modeling choices that we may not make well, and the models are computationally expensive to learn.
+If conditions change slowly enough, the independence assumption is not so bad.
+The rate of change is naturally limited for our problem by the rate of session arrivals.  Spikes in the rate of new sessions are not typically high enough to necessitate special handling.  [Need some data and experiments for this.  Davis or Florin have done some of the experiments, I think.]
+
+\tightsubsection{Alternative approaches}
+The reader should not leave with the impression that the algorithm described above is the only possible one for predicting video quality, or even the best.  The scope of this paper is merely to establish a reasonable approach and show that it results in improvements.  Other possible approaches might include:
+\begin{packedenumerate}
+  \item \emph{Linear regression:} After encoding categorical attributes as binary features, simple linear regression can be applied to predict quality outcomes.  Temporal attributes can be passed through nonlinear functions to achieve reasonable time-series prediction.  Interaction terms (e.g. the indicator for a session coming from ASN $100$ multiplied by the indicator for the session having Object ``foo'') can simulate attribute combinations, at the cost of a combinatorial explosion in the size of the learned model.  However, recent developments in optimization for $\ell_1$-regularized linear regression allow models to be learned quickly online and provide the guarantee that the learned model is \emph{sparse}, i.e. that only a few important features are selected for inclusion in the model \cite{duchi2010composite}.  One downside is that linear models are harder to interpret than a model based on averaging group averages.
+  \item \emph{Hierarchical Bayesian modeling:} In this approach, groups are placed in the natural tree, and each is associated with a probability distribution over quality outcomes, such as a Gaussian distribution.  Each group inherits information from the distribution of its parent group in the form of a prior.  Such models deal very naturally with data sparsity \cite{gelman2003bayesian}, but learning them from data is often computationally intractable.
+\end{packedenumerate}
