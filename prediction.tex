@@ -32,8 +32,10 @@ Figure \fillme demonstrates that MGP substantially outperforms these alternative
 
 We consider a few alternatives to the weighting algorithm of George et al.  For each of these we should have a CDF of errors and also the average prediction error:
 Pick max weight
-Using standard weighted average of group means (1/(bias^2 + variance))
-Use ridge regression, min ||Ax - b||_2^2 + gamma*||x||_2^2 [TODO]
+\begin{itemize}
+	\item Using standard weighted average of group means ($\frac{1}{(bias^2 + variance)}$)
+	\item Use ridge regression, min $||Ax - b||_2^2 + \gamma*||x||_2^2$ [TODO]
+\end{itemize}
 
 
 \tightsubsection{Pseudocount priors}
