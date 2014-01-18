@@ -91,14 +91,7 @@ the player status.}
 
 \myparasum{We have built a real system} The richness of our dataset allows us to make more informed decisions. We have implemented a working prototype called Video Global Optimization (GO) to realize this goal and to actually improve video quality in the wild.  Here we describe its architecture for gathering data and making decisions; the remainder of this paper will focus on the mapping from data to decisions via prediction.
 
-\begin{figure}[h!]
-\centering
- \includegraphics[width=0.5\textwidth] {figures/go-overview.pdf}
-\tightcaption{Architecture of GO.}
-\label{fig:go-overview}
-\end{figure}
-
-\myparasum{Highlevel components} Physically, in order to collect statistics from client and make decision in a centralized manner, GO has two parts: instrumentation code running within players during the cause of a video session at client-side, and GO backend running in publicly available clusters for centralized processing. Logically, there are three components of GO system (see Figure~\ref{fig:go-overview}). 
+\myparasum{Highlevel components} Physically, in order to collect statistics from client and make decision in a centralized manner, GO has two parts: instrumentation code running within players during the cause of a video session at client-side, and GO backend running in publicly available clusters for centralized processing. Logically, there are three components of GO system (see Figure \fillme). 
 
 \myparatight{Quality sample collection} To collect feedback from client-side video sessions, the instrumentation code monitors the state of player and network condition, summarizes them in the form of quality samples (see details in \Section~\ref{subsec:dataset}) and send the quality samples back to GO backend for storage. Quality samples are then stored in a Hadoop File System for storage. \jc{in reality, the raw input from client is in log format of heartbeat, and later processed into quality samples by the backend. we may decide whether to expose it in scalability section.}
 

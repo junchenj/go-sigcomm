@@ -1,7 +1,6 @@
 \tightsection{Prediction algorithms}
 \label{prediction}
-The tradeoff between estimation error and bias via aggregation naturally leads us to consider a class of algorithms that compute average quality outcomes for groups of sessions under different attribute sets, and then {\it dynamically} choose the attribute set, or a weighted combination of sets, that seems to work well for a particular session under prediction.  We follow the work of George et al \cite{george2008value} in choosing the weights as follows:
-\fillme
+The tradeoff between estimation error and bias via aggregation naturally leads us to consider a class of algorithms that compute average quality outcomes for groups of sessions under different attribute sets, and then {\it dynamically} choose the attribute set, or a weighted combination of sets, that seems to work well for a particular session under prediction.  We follow the work of George et al \cite{george2008value} in choosing the weights as follows: \fillme
 
 However, we find a few practical deficiencies in the algorithm of George et al.  That algorithm assumes that bias and variance can be computed exactly, while in practice variance cannot be estimated accurately when groups are very small.  To alleviate this, we use a simple idea from Bayesian statistics: We incorporate a prior distribution on quality outcomes within each group.  This amounts to adding a few fake ``pseudocount'' observations to each group.  \fillme.
 
