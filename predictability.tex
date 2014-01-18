@@ -37,8 +37,23 @@ Unfortunately, we do not have access to infinite data.  This is problematic beca
 
 Of course, prediction in the presence of limited information is the domain of statistics, and there are many potential solutions to this problem.  Any solution will deal with, and potentially trade off, four sources of prediction error:
 
+
+\begin{figure}[h!]
+\centering
+\subfigure[Prediction error vs. group size]
+{
+        \includegraphics[width=110pt]{figures/count-err.pdf}
+}
+\subfigure[Distribution of group size]
+{
+        \includegraphics[width=110pt]{figures/count-cdf.pdf}
+}
+\tightcaption{Impact of group size (i.e., number of samples in a group).}
+\label{fig:group-size-impact}
+\end{figure}
+
 \begin{packedenumerate}
-  \item \emph{Estimation error:} In the statistical literature, prediction error due to limited data is often called {\it estimation error}.  Other things being equal, more data produce more accurate prediction: (Figure: X -- bin of number of samples of finest group, Y -- prediction error with error bar)  In fact, estimation error is a serious practical problem for video quality prediction.  Using all available attributes, many sessions have very few matches, as we would expect given the exponential explosion in combinations of attribute values.  (Figure: X -- number of samples of same minute+customer+dma+asn+CDN+bitrate+os+ connectiontype, Y -- CDF. 2 lines -- one for US, one for global)
+  \item \emph{Estimation error:} In the statistical literature, prediction error due to limited data is often called {\it estimation error}.  Other things being equal, more data produce more accurate prediction. For example, Figure~\ref{fig:group-size-impact}-(a) presents the prediction error of using a group as a function of its (i.e., number of samples). To show  In fact, estimation error is a serious practical problem for video quality prediction.  Using all available attributes, many sessions have very few matches, as we would expect given the exponential explosion in combinations of attribute values.  
   \item \emph{Bias} due to missing or unused information: When grouping sessions according to attributes we observe, we of course may not observe attributes that are important for prediction.  Say we do not observe (or use) important attribute X.  Then, even if we have infinitely many sessions that match the current session on all observed attributes, the average outcome for all of those sessions may be different from the average outcome for the subset of sessions that match the current session on attribute X.  This is a form of bias.  Predictability, as we have defined it, simply means low bias.  Importantly, it is not alleviated by gathering more session data; as we have seen, it may be alleviated by gathering more attributes about each session.
   \item \emph{Unavailability of recent data:} In a practical system, there are delays in sending and processing quality samples, so they are not available instantly.  If conditions change rapidly, there may be no quality samples sufficiently close to the session under prediction.  This is an extreme example of estimation error.  In this case it may be necessary to model the evolution of the video ecosystem over time in order to extrapolate to the current time.
   (Figure: X -- time (minute), Y -- mean of quality samples. Pick a finest group which always has more than 100 sessions in each minute)
@@ -47,7 +62,8 @@ Of course, prediction in the presence of limited information is the domain of st
 
 \tightsubsection{Aggregation}
 A simple strategy to reduce estimation error is {\it aggregation}.  By aggregation we mean putting sessions into coarser groups that match on only a subset of observed attributes.  Aggregation increases the number of samples in each group but reduces the number of attributes, thus reducing estimation error at the cost of increased bias.  Thus it makes sense to look for an optimal degree of aggregation.  Figures \fillme show that the optimal AC (the aggregation that gives minimal prediction error) can be neither the finest nor the coarsest aggregations.
-Spatial aggregation: (Figure: X -- DMA, City, State, Country, Y -- Prediction error, number of sessions, pick one minute, one customer+asn+CDN+bitrate+os+connectiontype)
-Temporal aggregation: (Figure: X -- 1 minute, 5 minute, 10 minute, 30 minute, 1 hr, Y -- Prediction error, number of sessions, pick customer+dma+asn+CDN+bitrate+os+connectiontype)
 
-Unfortunately, the optimal degree of aggregation changes dynamically across time and space.  When estimation error is small (say, when a fine-grained group contains many sessions) we want to eliminate bias by using a fine-grained group.  When estimation error is large, we want to aggregate more.  Figure \fillme demonstrates this for \fillme.  This indicates that a prediction algorithm that uses aggregation should pay attention to its error rate to determine the right degree of aggregation.
+Figure~\fillme-(a) shows for each AC, the fraction of sessions for which it is the optimal AC with respect to average bitrate. We use ``CDN, starting bitrate, connection type, ASN'' as attributes and always look at one-minute history, in order to avoid impact of temporal aggregation. The figure shows that there is no dominant AC that is optimal for most of the sessions; Even the top five most frequent optimal ACs only count for less than \fillme of sessions. Figure~\fillme-(b) shows the frequency of the top five most frequent optimal AC over the period of \fillme hours. The figure shows that their frequency also changes with substential variability, which suggests that optimal AC must be chosen adaptively.
+Therefore, there is no universal optimal AC or a set of ACs that can produce best prediction for even most of sessions. Moreover, in most cases, the optimal AC is neither the finest nor the coarsest AC.
+
+When estimation error is small (say, when a fine-grained group contains many sessions) we want to eliminate bias by using a fine-grained group.  When estimation error is large, we want to aggregate more.  Figure \fillme demonstrates this for \fillme.  This indicates that a prediction algorithm that uses aggregation should pay attention to its error rate to determine the right degree of aggregation.
