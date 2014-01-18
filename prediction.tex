@@ -5,6 +5,8 @@ The tradeoff between estimation error and bias via aggregation naturally leads u
 
 However, we find a few practical deficiencies in the algorithm of George et al.  That algorithm assumes that bias and variance can be computed exactly, while in practice variance cannot be estimated accurately when groups are very small.  To alleviate this, we use a simple idea from Bayesian statistics: We incorporate a prior distribution on quality outcomes within each group.  This amounts to adding a few fake ``pseudocount'' observations to each group.  \fillme.
 
+\tightsubsection{ACS selection}
+
 Another deficiency is that there is no clear way to choose an ACS.  We investigate a few possibilities: \fillme . The following figure compares 5 designs:
 ACS selection (pick one ACS for each session + exhaustive search) + current GO
 ACS selection (pick one ACS for each session + greedy search) + current GO
@@ -13,6 +15,7 @@ ACS selection (pick one ACS for all sessions + exhaustive search) + current GO
 ACS selection (pick one ACS for all sessions + full ACS) + current GO
 ACS selection (pick one ACS for all sessions + no intelligence (always CDN)) + current GO
 
+\comment{
 \tightsubsection{Predictive performance}
 We present evidence that MGP predicts quality more accurately than a few alternatives.  We consider:
 \begin{packedenumerate}
@@ -22,6 +25,33 @@ We present evidence that MGP predicts quality more accurately than a few alterna
   \item MGP with several alternative schemes to choose its ACS.
 \end{packedenumerate}
 Figure \fillme demonstrates that MGP substantially outperforms these alternatives.
+}
+
+
+\tightsubsection{Weighting algorithm}
+
+We consider a few alternatives to the weighting algorithm of George et al.  For each of these we should have a CDF of errors and also the average prediction error:
+Pick max weight
+Using standard weighted average of group means (1/(bias^2 + variance))
+Use ridge regression, min ||Ax - b||_2^2 + gamma*||x||_2^2 [TODO]
+
+
+\tightsubsection{Pseudocount priors}
+Pseudocount priors are important.  Here we explain why and show a comparison of prediction accuracy.  For each of these we should have a CDF of errors and also the average prediction error.
+\begin{itemize}
+	\item GO with greedy ACS selection and pseudocount priors
+	\item GO with greedy ACS selection and no pseudocounts
+\end{itemize}
+
+\tightsubsection{Mini-evaluation of prediction accuracy}
+Given an ACS selection algorithm, we’re going to use all attributes we have and test GO prediction accuracy against two simple baselines.
+\begin{itemize}
+	\item GO with greedy ACS selection and pseudocount priors
+	\item Predict using average of last 2 hours on all traffic for this CDN
+	\item Predict using average of last 2 hours on the finest group that has any data
+\end{itemize}
+For each of these we should have a CDF and also display the average prediction error.
+
 
 \tightsubsection{Interactions between decisions}
 The reader may be bothered by a simplifying assumption implicit in our characterization of the causes of prediction error.  If we allocated all traffic to a single CDN, its performance might degrade, but our session-wise prediction does not capture that.  We might instead want to know the following: Given a set of decisions about sessions (say, all the sessions we observe in a 1-hour interval), what is the predicted performance for that set of sessions?  We do not wish to say that such a question is impossible to answer, but rather point out some difficulties in answering it, and some reasons why it is less critical to answer it than it may appear.
