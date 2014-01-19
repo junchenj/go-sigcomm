@@ -98,15 +98,21 @@ Therefore, there is no universal optimal AC or a set of ACs that can produce bes
 
 \begin{figure}[h!]
 \centering
-\subfigure[Distribution of optimal AC. No single or small set of ACs can be used as optimal AC for most quries.]
+\subfigure[Distribution of coverage of top five optimal ACs (w.r.t averge bitrate).]
 {
         \includegraphics[width=0.4\textwidth]{figures/optimal_AC_distribution.pdf}
 }
-\subfigure[Prevalence of pair of (finest group, optimal AC). 70\% pairs of (finest group, optimal AC) only last for less than 20\% of time.]
+\subfigure[Prevalence of pair of (finest group, optimal AC).]
 {
-        \includegraphics[width=0.4\textwidth]{figures/optimal-prevalence.pdf}
+        \includegraphics[width=0.22\textwidth]{figures/optimal-prevalence.pdf}
 }
-\tightcaption{Dynamics of the optimal AC. Prevalence of pair of (finest group, optimal AC) is the fraction of time that the finest group has this optimal AC.}
+\subfigure[Persistence of pair of (finest group, optimal AC).]
+{
+        \includegraphics[width=0.22\textwidth]{figures/optimal-persistence.pdf}
+}
+\tightcaption{Dynamics of the optimal AC. (a) gives coverage of optimal ACs (for each AC, the fraction of sessions of which this AC is the optimal AC), and it shows that the finest group only has coverage about 20\% and no coarsest grain AC (single attribute) is among the top 5. This implies that the optimal AC often occurs between the finest and coarsest grainular.
+(b) gives prevalence of pair of [finest group, optimal AC] (the fraction of time that the finest group has this optimal AC), and it shows that 70\% pairs of [finest group, optimal AC] only last for less than 20\% of time. This implies that no single or a small set of optimal AC that can cover most sessions and used statically.
+(c) gives persistence of pair of [finest group, optimal AC] (the longest continous duration where a finest group has the same optimal AC) and it shows that there is at most 40\% of pair of [finest group, optimal AC] last more than 10 minutes. This implies that even a reactive strategy will miss many optimal AC.}
 \label{fig:optimal-ac-dynamics}
 \end{figure}
 
