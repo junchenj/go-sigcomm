@@ -2,43 +2,35 @@
 \label{prediction}
 The tradeoff between estimation error and bias via aggregation naturally leads us to consider a class of algorithms that compute average quality outcomes for groups of sessions under different attribute sets, and then {\it dynamically} choose the attribute set, or a weighted combination of sets, that seems to work well for a particular session under prediction.  We follow the work of George et al \cite{george2008value} in choosing the weights as follows: \fillme
 
-However, we find a few practical deficiencies in the algorithm of George et al.  That algorithm assumes that bias and variance can be computed exactly, while in practice variance cannot be estimated accurately when groups are very small.  To alleviate this, we use a simple idea from Bayesian statistics: We incorporate a prior distribution on quality outcomes within each group.  This amounts to adding a few fake ``pseudocount'' observations to each group.  \fillme.
+George et al call this algorithm \fillme.  We find a few practical deficiencies with this algorithm; we now present empirical evaluations of some fixes for these issues.
 
 \tightsubsection{ACS selection}
 
-Another deficiency is that there is no clear way to choose an ACS.  We investigate a few possibilities: \fillme . The following figure compares 5 designs:
-ACS selection (pick one ACS for each session + exhaustive search) + current GO
-ACS selection (pick one ACS for each session + greedy search) + current GO
-ACS selection (pick one ACS for each finest group + exhaustive search) + current GO
-ACS selection (pick one ACS for all sessions + exhaustive search) + current GO
-ACS selection (pick one ACS for all sessions + full ACS) + current GO
-ACS selection (pick one ACS for all sessions + no intelligence (always CDN)) + current GO
-
-\comment{
-\tightsubsection{Predictive performance}
-We present evidence that MGP predicts quality more accurately than a few alternatives.  We consider:
+One deficiency is that there is no clear way to choose an ACS.  We investigate a few possibilities:
 \begin{packedenumerate}
-  \item The simplest possible data-informed prediction algorithm, which always returns the average quality for a decision over a fixed time window, ignoring other attributes.
-  \item A prediction algorithm using the best single attribute set, chosen via cross-validation.
-  \item The algorithm of George et al without the addition of pseudocount priors.
-  \item MGP with several alternative schemes to choose its ACS.
+  \item ACS selection (pick one ACS for each session + exhaustive search) + current GO
+  \item ACS selection (pick one ACS for each session + greedy search) + current GO
+  \item ACS selection (pick one ACS for each finest group + exhaustive search) + current GO
+  \item ACS selection (pick one ACS for all sessions + exhaustive search) + current GO
+  \item ACS selection (pick one ACS for all sessions + full ACS) + current GO
+  \item ACS selection (pick one ACS for all sessions + no intelligence (always CDN)) + current GO
 \end{packedenumerate}
-Figure \fillme demonstrates that MGP substantially outperforms these alternatives.
-}
-
+\fillme
 
 \tightsubsection{Weighting algorithm}
 
 We consider a few alternatives to the weighting algorithm of George et al.  For each of these we should have a CDF of errors and also the average prediction error:
-Pick max weight
 \begin{itemize}
-	\item Using standard weighted average of group means $$\frac{1}{(bias^2 + variance)}$$
-	\item Use ridge regression, min $||Ax - b||_2^2 + \gamma*||x||_2^2$ [TODO]
+  \item Pick max weight
+	\item Using standard weighted average of group means, where weights are $$\frac{1}{(bias^2 + variance)}$$
+	\item Use ridge regression, min $||Ax - b||_2^2 + \gamma||x||_2^2$ [TODO]
 \end{itemize}
 
 
 \tightsubsection{Pseudocount priors}
-Pseudocount priors are important.  Here we explain why and show a comparison of prediction accuracy.  For each of these we should have a CDF of errors and also the average prediction error.
+That algorithm assumes that bias and variance can be computed exactly, while in practice variance cannot be estimated accurately when groups are very small.  To alleviate this, we use a simple idea from Bayesian statistics: We incorporate a prior distribution on quality outcomes within each group.  This amounts to adding a few fake ``pseudocount'' observations to each group.  \fillme.
+
+For each of these we should have a CDF of errors and also the average prediction error.
 \begin{itemize}
 	\item GO with greedy ACS selection and pseudocount priors
 	\item GO with greedy ACS selection and no pseudocounts

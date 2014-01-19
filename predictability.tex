@@ -60,8 +60,20 @@ Of course, prediction in the presence of limited information is the domain of st
   \item \emph{Noise:} Even if we observed all conceivable attributes of a session and had infinitely many examples of exactly quality samples, outcomes may be affected by inputs that are practically random.  For example, performance may be affected by randomized algorithms in the networking layer.  This implies that some degree of prediction error is inevitable.
 \end{packedenumerate}
 
+More formally, we can derive this as follows (see \cite{domingos2000unified} for a less specialized discussion of the decomposition of prediction error).  Let $D$ be a set of quality samples from which a prediction algorithm learns its predictions.  Let $p_i$ be predicted quality for session $i$ and $q_i$ be its actual quality.  We further assume that $q_i$ is fixed except for an independent additive noise component, i.e. $q_i = \hat{q}_i + \epsilon_i$, where $\hat{q}_i$ is nonrandom and $\epsilon_i$ is a random variable with mean $0$, independent of $p_i$.  Then the expected squared prediction error, with respect to randomness in the observed data $D$ used to compute $p_i$, is:
+\begin{align*}
+  \E_D[(p_i - q_i)^2] &= \Var_D[p_i - q_i] + (\E_D[p_i - q_i])^2 \\
+  &= \Var_D[p_i - \hat{q}_i - \epsilon_i] + (\E_D[p_i - \hat{q}_i - \epsilon_i])^2 \\
+  &= \Var_D[p_i - \hat{q}_i] + \Var_D[\epsilon_i] + (\E_D[p_i - \hat{q}_i - \epsilon_i])^2
+  &= \Var_D[p_i] + \Var_D[\epsilon_i] + (\E_D[p_i - \hat{q}_i - \epsilon_i])^2
+  &= \Var_D[p_i] + \Var_D[\epsilon_i] + (\E_D[p_i - \hat{q}_i] - \E_D[\epsilon_i])^2
+  &= \Var_D[p_i] + \Var_D[\epsilon_i] + (\E_D[p_i] - \hat{q})^2
+\end{align*}
+
+The first term is estimation error -- the variability in predictions across possible sets of observed data.  It will increase as the number of sessions similar to session $i$ in $D$ decreases; as a special case it may be very large if only a few quality samples in $D$ are temporally close to session $i$.  The second term is noise.  The third term is the squared bias of the predictor, which does not generally decrease with the size of $D$.  The prediction algorithm's average prediction error is simply the average over all sessions $i$ of the sum of these three terms.
+
 \tightsubsection{Aggregation}
-A simple strategy to reduce estimation error is {\it aggregation}.  By aggregation we mean putting sessions into coarser groups that match on only a subset of observed attributes.  Aggregation increases the number of samples in each group but reduces the number of attributes, thus reducing estimation error at the cost of increased bias.  Thus it makes sense to look for an optimal degree of aggregation.  Figures \fillme show that the optimal AC (the aggregation that gives minimal prediction error) can be neither the finest nor the coarsest aggregations.
+A simple strategy to reduce estimation error is {\it aggregation}.  By aggregation we mean putting sessions into coarser groups that match on only a subset of observed attributes.  Aggregation increases the number of samples in each group but reduces the number of attributes, thus reducing estimation error at the cost of increased bias.  Thus it makes sense to look for an optimal degree of aggregation.  Figures \fillme show that the optimal AC (the aggregation that gives minimal prediction error) is in many cases neither the finest nor the coarsest one.
 
 Figure~\fillme-(a) shows for each AC, the fraction of sessions for which it is the optimal AC with respect to average bitrate. We use ``CDN, starting bitrate, connection type, ASN'' as attributes and always look at one-minute history, in order to avoid impact of temporal aggregation. The figure shows that there is no dominant AC that is optimal for most of the sessions; Even the top five most frequent optimal ACs only count for less than \fillme of sessions. Figure~\fillme-(b) shows the frequency of the top five most frequent optimal AC over the period of \fillme hours. The figure shows that their frequency also changes with substential variability, which suggests that optimal AC must be chosen adaptively.
 Therefore, there is no universal optimal AC or a set of ACs that can produce best prediction for even most of sessions. Moreover, in most cases, the optimal AC is neither the finest nor the coarsest AC.
