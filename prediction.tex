@@ -17,8 +17,28 @@ $e_{g}(a_i)$ is estimated by separately estimating (squared) bias and estimation
 
 George et al call the resulting prediction algorithm WIMSE.  Inverse-mean-squared-error weighting has the following nice property: If each $\bar{q}_{g}(a_i)$ is statistically independent, then $\bar{q}$ is an optimal estimator in the sense that it has minimal mean squared error among all functions of \cite{}.  However, in our setting (and in the original motivating setting) the $\bar{q}_{g}(a_i)$ are based on overlapping data and are therefore not independent.  Further, our estimates of both the bias and variance components of $e_{g}(a_i)$ are imprecise.  Thus we have no neat theoretical guarantee of optimality for WIMSE.  George et al find that WIMSE can work well nevertheless.  The deficiencies of the algorithm necessitate a few tweaks in our setting, which we now present.
 
+\begin{figure*}[t!]
+\centering
+\subfigure[Exhaustive vs. greedy (GO) search]
+{
+        \includegraphics[width=0.3\textwidth]{figures/prediction-comparisons/example-exhaustive-metric1.pdf}
+}
+\subfigure[GO vs. variants]
+{
+        \includegraphics[width=0.3\textwidth]{figures/prediction-comparisons/example-acs-metric1.pdf}
+}
+\subfigure[GO vs. oracle (optimal AC)]
+{
+        \includegraphics[width=0.3\textwidth]{figures/prediction-comparisons/example-oracle-metric1.pdf}
+}
+\tightcaption{Comparison between GO ACS selection with other strawmans (considerd quality metric is average bitrate).}
+\label{fig:optimal-ac-dynamics}
+\end{figure*}
+
 \tightsubsection{ACS selection}
 
+TODO: Henry, please fillin the methodology we talked about.
+\comment{
 One deficiency is that there is no clear way to choose an ACS.  ACS choice has implications for both prediction error and the computational efficiency of WIMSE.  We investigate a few possibilities:
 \begin{packedenumerate}
   \item ACS selection (pick one ACS for each session + exhaustive search) + current GO
@@ -29,19 +49,32 @@ One deficiency is that there is no clear way to choose an ACS.  ACS choice has i
   \item ACS selection (pick one ACS for all sessions + no intelligence (always CDN)) + current GO
 \end{packedenumerate}
 \fillme
+}
 
+
+\jc{Second subsection should be dropped?}
+\comment{
 \tightsubsection{Weighting algorithm}
-
 We consider a few alternatives to the weighting algorithm of George et al.  For each of these we should have a CDF of errors and also the average prediction error:
 \begin{itemize}
   \item Pick max weight
 	\item Using standard weighted average of group means, where weights are $$\frac{1}{(bias^2 + variance)}$$
 	\item Use ridge regression, min $||Ax - b||_2^2 + \gamma||x||_2^2$ [TODO]
 \end{itemize}
+}
+
 
 
 \tightsubsection{Pseudocount priors}
 That algorithm assumes that bias and variance can be computed exactly, while in practice variance cannot be estimated accurately when groups are very small.  To alleviate this, we use a simple idea from Bayesian statistics: We incorporate a prior distribution on quality outcomes within each group.  This amounts to adding a few fake ``pseudocount'' observations to each group.  \fillme.
+
+
+\begin{figure}[h!]
+\centering
+ \includegraphics[width=0.4\textwidth] {figures/prediction-comparisons/example-pcount-metric1.pdf}
+\tightcaption{GO with pseudocount vs. without pseudocount (considerd quality metric is average bitrate).}
+\label{fig:quality-variability}
+\end{figure}
 
 For each of these we should have a CDF of errors and also the average prediction error.
 \begin{itemize}
@@ -58,6 +91,27 @@ Given an ACS selection algorithm, we’re going to use all attributes we have an
 \end{itemize}
 For each of these we should have a CDF and also display the average prediction error.
 
+\begin{figure*}[t!]
+\centering
+\subfigure[Buffering ratio]
+{
+        \includegraphics[width=0.22\textwidth]{figures/prediction-comparisons/example-naive-metric0.pdf}
+}
+\subfigure[Average bitrate]
+{
+        \includegraphics[width=0.22\textwidth]{figures/prediction-comparisons/example-naive-metric1.pdf}
+}
+\subfigure[Join time]
+{
+        \includegraphics[width=0.22\textwidth]{figures/prediction-comparisons/example-naive-metric2.pdf}
+}
+\subfigure[Start failure]
+{
+        \includegraphics[width=0.22\textwidth]{figures/prediction-comparisons/example-naive-metric3.pdf}
+}
+\tightcaption{Comparison between GO and two baseline approaches where the selection and use of ACS is statically used -- (1) no attributes considered except (CDN, bitrate), (2) all attributes considered.}
+\label{fig:compare-to-naive}
+\end{figure*}
 
 \tightsubsection{Interactions between decisions}
 The reader may be bothered by a simplifying assumption implicit in our characterization of the causes of prediction error.  If we allocated all traffic to a single CDN, its performance might degrade, but our session-wise prediction does not capture that.  We might instead want to know the following: Given a set of decisions about sessions (say, all the sessions we observe in a 1-hour interval), what is the predicted performance for that set of sessions?  We do not wish to say that such a question is impossible to answer, but rather point out some difficulties in answering it, and some reasons why it is less critical to answer it than it may appear.
