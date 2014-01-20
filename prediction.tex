@@ -1,12 +1,25 @@
 \tightsection{Prediction algorithms}
 \label{prediction}
-The tradeoff between estimation error and bias via aggregation naturally leads us to consider a class of algorithms that compute average quality outcomes for groups of sessions under different attribute sets, and then {\it dynamically} choose the attribute set, or a weighted combination of sets, that seems to work well for a particular session under prediction.  We follow the work of George et al \cite{george2008value} in choosing the weights as follows: \fillme
+The tradeoff between estimation error and bias via aggregation naturally leads us to consider a class of algorithms that compute average quality outcomes for groups of sessions under different attribute sets, and then {\it dynamically} choose the attribute set that seems to work well for a particular session under prediction.  Since it is difficult to find the best attribute set, it is useful to hedge our bets by taking a weighted combination of averages.  George et al \cite{george2008value} consider this problem and propose the following algorithm for choosing the weights.  For each attribute set $g$ in our collection of attribute sets $G$, compute the average quality outcome:
+\begin{align*}
+  \bar{q}_{g}(a_i) &= \frac{1}{N_{g}(a_i)} \sum_{j \in N_{g}(a_i)} q_j, \text{ where} \\
+  N_{g}(a_i) &= |\{j: v(a_j) = v(a_i), j < N\}|
+\end{align*}
+Then, considering $\bar{q}_{g}(a_i)$ as an estimate of $q_i$, estimate its mean squared prediction error $e_{g}(a_i)$.  This estimation step is not simple, so we will briefly postpone its description.  Having computed $\bar{q}_{g}(a_i)$ and $e_{g}(a_i)$ for each attribute set, our final quality prediction, which we denote $\bar{q}(a_i)$, is the weighted average of $\bar{q}_{g}(a_i)$, where the weights are equal to the inverse of $e_{g}(a_i)$, normalized to sum to $1$:
+\begin{align*}
+  \bar{q}(a_i) = (\sum_{g \in G} e_{g}(a_i)^{-1})^{-1} \sum_{g \in G} e_{g}(a_i)^{-1} \bar{q}_{g}(a_i) .
+\end{align*}
 
-George et al call this algorithm \fillme.  We find a few practical deficiencies with this algorithm; we now present empirical evaluations of some fixes for these issues.
+$e_{g}(a_i)$ is estimated by separately estimating (squared) bias and estimation error and summing them, plugging them into equation \eqref{eqn:biasvariance}.  Bias is heuristically taken to be the difference between the finest-granularity estimate of $q_i$ (i.e. $\bar{q}_{g'}(a_i)$, where $g'$ is the finest-grained ACS) and $\bar{q}_{g}(a_i)$.  Variance is estimated by a standard formula:
+\begin{align*}
+  \frac{1}{N_{g}(a_i)} \sum_{j \in N_{g}(a_i)} (q_j - \bar{q}_{g}(a_i))^2
+\end{align*}
+
+George et al call the resulting prediction algorithm WIMSE.  Inverse-mean-squared-error weighting has the following nice property: If each $\bar{q}_{g}(a_i)$ is statistically independent, then $\bar{q}$ is an optimal estimator in the sense that it has minimal mean squared error among all functions of \cite{}.  However, in our setting (and in the original motivating setting) the $\bar{q}_{g}(a_i)$ are based on overlapping data and are therefore not independent.  Further, our estimates of both the bias and variance components of $e_{g}(a_i)$ are imprecise.  Thus we have no neat theoretical guarantee of optimality for WIMSE.  George et al find that WIMSE can work well nevertheless.  The deficiencies of the algorithm necessitate a few tweaks in our setting, which we now present.
 
 \tightsubsection{ACS selection}
 
-One deficiency is that there is no clear way to choose an ACS.  We investigate a few possibilities:
+One deficiency is that there is no clear way to choose an ACS.  ACS choice has implications for both prediction error and the computational efficiency of WIMSE.  We investigate a few possibilities:
 \begin{packedenumerate}
   \item ACS selection (pick one ACS for each session + exhaustive search) + current GO
   \item ACS selection (pick one ACS for each session + greedy search) + current GO
