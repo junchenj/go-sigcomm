@@ -6,19 +6,40 @@ In this section, we present the implementation of GO including the GO backend an
 \jc{rest of this section has to be written by Conviva engineers but the content is better organized in the same way previous sections present the system.}
 
 \tightsection{Scalability}
-The goal of this section is to show that our implementation of the GO backend is scalable for centralized processing, including to continuously collect and process massive client-side measurement and based on the result, make decision for each video session of a large number of viewers. 
+The goal of this section is to show that our implementation of the GO backend is scalable for centralized processing, including to continuously collect and process massive client-side measurement and based on the result, make decision for each video session of a large number of viewers. That said, we need to examine 
+\begin{packeditemize}
+\item The general scalability of handling updates and queries of the GO backend, and
+\item The scalability of GO decision making which gets quality samples from quality sample storage and answers query for best decision to querying sessions.
+\end{packeditemize}
+%Note that our implementation leverages several existing techniques (e.g., quality sample aggregation uses Spark). We will also discuss the impact of our particular implementation on the performance.
 
-There are four parts in GO backend that can potentially become performance bottleneck -- user-facing gateway, quality sample storage, quality sample aggregation using ACS, and making individual decisions. To show the scalability, we use micro-benchmark to test their performance as a function of workload (e.g., number of quality samples and queries).
-Note that our implementation leverages several existing techniques (e.g., quality sample aggregation uses Spark). We will also discuss the impact of our particular implementation on the performance.
+\tightsubsection{Backend throughput}
 
-\tightsection{Quality sample storage}
-Show that quality samples can be processed and stored in an HDFS in parallel. Show runtime as a function number of quality sample updates. \fillme
+We need to show that performance (using certain metric) as a function of the number of quality samples (i.e., heartbeats), and the number of session under prediction (i.e., GO precision queries) (and other factors that might impact the scalability of backend throughput). This is to confirm that the backend (excluding GO) is not the bottleneck.
 
-\tightsection{Quality sample aggregation}
-Show that quality sample aggregation can be finished in one minute, so that it can be carried every minute. Show both of its running time and memory requirement as a function of number of quality samples and choices of ACS. \fillme
+\tightsubsection{GO scalability}
 
-\tightsection{Making individual decisions}
-Show that once quality samples are aggregated, GO backend can make decsion based on this aggregated information in parallel. Show running time and memory requirement as a function of number of sessions under prediction. \fillme
+The GO implementation has two separate jobs that run in parallel: (1) creating group table -- to fetch the quality samples from quality sample storage, process them into a group table and broadcast the group table to query responders, and (2) decision making -- to answer the query by responders. 
 
-\tightsection{User-facing gateway}
-Show that all quality sample updates and queries for best decision will be received and processed immediately. \fillme
+The delay of creating group table determines the freshness of information based on which the decisions are made. If this step takes $t$ second, the decision has to be made based only information that was at least $t$ seconds ago. Delay of decision making is a critical part of the responsiveness of GO backend and potentially a bottleneck of how quickly the client video gets the decision which is very sensitive to video quality when making initial decisions. 
+We should show the performance of both metrics and memory requirement as a function of workload and computational resource as welll. \fillme
+
+
+\myparatight{Creating group table} We first examine the delay of creating group table. We should decompose it into (a) data fetching from hdfs, (b) ACS-based aggregation and (c) group table broadcast, and show impact of number of quality samples on (a), impact of number of quality samples and number of groups on (b) and impact of number of groups on (c).
+
+\myparatight{Decision making} We then examine the delay of decision making. \fillme
+
+%There are four parts in GO backend that can potentially become performance bottleneck -- user-facing gateway, quality sample storage, quality sample aggregation using ACS, and making individual decisions. To show the scalability, we use micro-benchmark to test their performance as a function of workload (e.g., number of quality samples and queries).
+
+
+%\tightsection{Quality sample storage}
+%Show that quality samples can be processed and stored in an HDFS in parallel. Show runtime as a function number of quality sample updates. \fillme
+
+%\tightsection{Quality sample aggregation}
+%Show that quality sample aggregation can be finished in one minute, so that it can be carried every minute. Show both of its running time and memory requirement as a function of number of quality samples and choices of ACS. \fillme
+
+%\tightsection{Making individual decisions}
+%Show that once quality samples are aggregated, GO backend can make decsion based on this aggregated information in parallel. Show running time and memory requirement as a function of number of sessions under prediction. \fillme
+
+%\tightsection{User-facing gateway}
+%Show that all quality sample updates and queries for best decision will be received and processed immediately. \fillme
