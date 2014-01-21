@@ -15,7 +15,7 @@ $e_{g}(a_i)$ is estimated by separately estimating (squared) bias and estimation
   \frac{1}{N_{g}(a_i)} \sum_{j \in N_{g}(a_i)} (q_j - \bar{q}_{g}(a_i))^2
 \end{align*}
 
-George et al call the resulting prediction algorithm WIMSE.  Inverse-mean-squared-error weighting has the following nice property: If each $\bar{q}_{g}(a_i)$ is statistically independent, then $\bar{q}$ is an optimal estimator in the sense that it has minimal mean squared error among all functions of \cite{}.  However, in our setting (and in the original motivating setting) the $\bar{q}_{g}(a_i)$ are based on overlapping data and are therefore not independent.  Further, our estimates of both the bias and variance components of $e_{g}(a_i)$ are imprecise.  Thus we have no neat theoretical guarantee of optimality for WIMSE.  George et al find that WIMSE can work well nevertheless.  The deficiencies of the algorithm necessitate a few tweaks in our setting, which we now present.
+George et al call the resulting prediction algorithm WIMSE (Inverse-mean-squared-error). WIMSE  weighting has the following nice property: If each $\bar{q}_{g}(a_i)$ is statistically independent, then $\bar{q}$ is an optimal estimator in the sense that it has minimal mean squared error among all functions of \cite{}.  However, in our setting (and in the original motivating setting) the $\bar{q}_{g}(a_i)$ are based on overlapping data and are therefore not independent.  Further, our estimates of both the bias and variance components of $e_{g}(a_i)$ are imprecise.  Thus we have no neat theoretical guarantee of optimality for WIMSE.  George et al find that WIMSE can work well nevertheless.  The deficiencies of the algorithm necessitate a few tweaks in our setting, which we now present.
 
 \begin{figure*}[t!]
 \centering
@@ -32,25 +32,22 @@ George et al call the resulting prediction algorithm WIMSE.  Inverse-mean-square
         \includegraphics[width=0.3\textwidth]{figures/prediction-comparisons/example-oracle-metric1.pdf}
 }
 \tightcaption{Comparison between GO ACS selection with other strawmans (considerd quality metric is average bitrate).}
-\label{fig:optimal-ac-dynamics}
+\label{fig:acs-comparison}
 \end{figure*}
 
 \tightsubsection{ACS selection}
 
-TODO: Henry, please fillin the methodology we talked about.
-\comment{
-One deficiency is that there is no clear way to choose an ACS.  ACS choice has implications for both prediction error and the computational efficiency of WIMSE.  We investigate a few possibilities:
-\begin{packedenumerate}
-  \item ACS selection (pick one ACS for each session + exhaustive search) + current GO
-  \item ACS selection (pick one ACS for each session + greedy search) + current GO
-  \item ACS selection (pick one ACS for each finest group + exhaustive search) + current GO
-  \item ACS selection (pick one ACS for all sessions + exhaustive search) + current GO
-  \item ACS selection (pick one ACS for all sessions + full ACS) + current GO
-  \item ACS selection (pick one ACS for all sessions + no intelligence (always CDN)) + current GO
-\end{packedenumerate}
-\fillme
-}
+\myparasum{Why ACS selection instead of the full ACS?} One statistical reason is that with more ACs, WIMSE does not necessarily perform better. In fact, \jc{Henry, \fillme} Another practical reason is that to store groups of all possible values of all possible ACs, the memory requirement will be prohibitively high, which will be a potential bottleneck of the whole system as \Section~\ref{sec:scalability}. 
 
+\myparasum{Greedy static ACS selection and strawmans} We take a data-driven approach to ACS selection. We separate part of historical sessions as test set and best ACS selection is the one that gives the best average accuracy over the test set using WIMSE. 
+
+\myparasum{Justify greedy algorithm} One problem with this approach is that even in offline analysis, the potential space to search for the best ACS is too huge (with $k$ attributes, there will be $2^k$ ACs, and in total $2^{2^k}$ ACSes). Instead, we first examine a greedy algorithm which find a good ACS in $O(2^k)$ amount of steps, and compare it against exhaustive search result with $k=3$ attributes (i.e., 256 ACSes). Figure~\ref{fig:acs-comparison}-(a) presents the CDF of prediction accuracy w.r.t average bitrate of the ACS that obtained by exhaustive search and greedy search. It shows that the ACS they choose, though different, can offer similar quality of prediction.
+
+\jc{Pesudo code of greedy ACS selection.}
+
+\myparasum{Per-finest group selection vs. one global ACS} One strawman for our algorithm to compare with is one where the selected ACS can be different for different sessions. Especially, if two sessions differ in at least one attribute, they can use different ACS. \fillme. \jc{Results shown in Figure~\ref{fig:acs-comparison}-(b), and they perform similarly and the global ACS performs even slightly better, possibly because per-finest-group ACS has side-effect of overfitting.}
+
+\myparasum{Oracle approach vs. historical based} \fillme. \jc{Results shown in Figure~\ref{fig:acs-comparison}-(b). Result needs to be changed after discussion today.}
 
 \jc{Second subsection should be dropped?}
 \comment{
