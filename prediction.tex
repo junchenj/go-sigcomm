@@ -28,13 +28,13 @@ George et al call the resulting prediction algorithm WIMSE, for Weighted Inverse
 {
         \includegraphics[width=0.3\textwidth]{figures/prediction-comparisons/example-exhaustive-metric1.pdf}
 }
-\subfigure[GO vs. variants]
-{
-        \includegraphics[width=0.3\textwidth]{figures/prediction-comparisons/example-acs-metric1.pdf}
-}
-\subfigure[GO vs. oracle (optimal AC)]
+\subfigure[GO vs. oracle]
 {
         \includegraphics[width=0.3\textwidth]{figures/prediction-comparisons/example-oracle-metric1.pdf}
+}
+\subfigure[Granular of ACS selection]
+{
+        \includegraphics[width=0.3\textwidth]{figures/prediction-comparisons/example-granular-metric1.pdf}
 }
 \tightcaption{Comparison between GO ACS selection with other strawmans (considerd quality metric is average bitrate).}
 \label{fig:acs-comparison}
@@ -59,7 +59,7 @@ That algorithm assumes that bias and variance can be computed exactly, while in 
 
 \begin{figure}[h!]
 \centering
- \includegraphics[width=0.4\textwidth] {figures/prediction-comparisons/example-pcount-metric1.pdf}
+ \includegraphics[width=0.4\textwidth] {figures/prediction-comparisons/example-pcount-metric3.pdf}
 \tightcaption{GO with pseudocount vs. without pseudocount (considerd quality metric is average bitrate).}
 \label{fig:quality-variability}
 \end{figure}
