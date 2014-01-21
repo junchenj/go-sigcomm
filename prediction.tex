@@ -19,7 +19,7 @@ $e_{g}(a_i)$ is estimated by separately estimating (squared) bias and estimation
   \frac{1}{N_{g}(a_i)} \sum_{j \in N_{g}(a_i)} (q_j - \bar{q}_{g}(a_i))^2
 \end{align*}
 
-George et al call the resulting prediction algorithm WIMSE, for Weighted Inverse Mean Squared Error.  Inverse-mean-squared-error weighting has the following nice property: If each $\bar{q}_{g}(a_i)$ is statistically independent, then $\bar{q}$ is an optimal estimator in the sense that it has minimal mean squared error among all functions of \cite{}.  However, in our setting (and in the original motivating setting) the $\bar{q}_{g}(a_i)$ are based on overlapping data and are therefore not independent.  Further, our estimates of both the bias and variance components of $e_{g}(a_i)$ are imprecise.  Thus we have no neat theoretical guarantee of optimality for WIMSE.  George et al find that WIMSE can nevertheless work well.  The deficiencies of the algorithm necessitate a few tweaks in our setting, which we now present.
+George et al call the resulting prediction algorithm WIMSE, for Weighted Inverse Mean Squared Error.  Inverse-mean-squared-error weighting has the following nice property: If each $\bar{q}_{g}(a_i)$ is statistically independent, then $\bar{q}$ is an optimal estimator in the sense that it has minimal mean squared error among all functions of \cite{}.  However, in our setting (and in the original motivating setting) the $\bar{q}_{g}(a_i)$ are based on overlapping data and are therefore not independent.  Further, our estimates of both the bias and variance components of $e_{g}(a_i)$ are imprecise.  Thus we have no neat theoretical guarantee of optimality for WIMSE, though George et al find that WIMSE can nevertheless work well.  The deficiencies of the algorithm necessitate a few tweaks in our setting, which we now present.
 
 \begin{figure*}[t!]
 \centering
@@ -40,8 +40,7 @@ George et al call the resulting prediction algorithm WIMSE, for Weighted Inverse
 \end{figure*}
 
 \tightsubsection{ACS selection}
-
-\myparasum{Why ACS selection instead of the full ACS?} One statistical reason is that with more ACs, WIMSE does not necessarily perform better. In fact, \jc{Henry, \fillme} Another practical reason is that to store groups of all possible values of all possible ACs, the memory requirement will be prohibitively high, which will be a potential bottleneck of the whole system as \Section~\ref{sec:scalability}. 
+One difficulty faced by a user of WIMSE is selection of the ACS.  WIMSE may not perform best when given the power set of possible ACs because the independence assumption is dramatically violated.  For example, if two ACs produce similar groups, then both will receive similar weights; including both ACs doubles the weight of the corresponding groups for no principled reason.  Another reason to choose ACs carefully is that many of the computational costs of WIMSE scale with the number of groups; we discuss this further in \Section~\ref{sec:scalability}.
 
 \myparasum{Greedy static ACS selection and strawmans} We take a data-driven approach to ACS selection. We separate part of historical sessions as test set and best ACS selection is the one that gives the best average accuracy over the test set using WIMSE. 
 
