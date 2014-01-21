@@ -2,7 +2,8 @@
 \label{prediction}
 The tradeoff between estimation error and bias via aggregation naturally leads us to consider a class of algorithms that compute average quality outcomes for groups of sessions under different attribute sets, and then {\it dynamically} choose the attribute set that seems to work well for a particular session under prediction.  Since it is difficult to find the best attribute set, it is useful to hedge our bets by taking a weighted combination of averages.  George et al \cite{george2008value} consider this problem and propose the following algorithm for choosing the weights.  For a session under prediction having index $i$, let $a_i$ be the tuple of all attributes observed for that session and let $q_i$ be its quality outcome.  For each attribute set $g$ in our collection of attribute sets $G$, define a function $v_g$ that picks out those attributes:
 \begin{equation*}
-  v_g(\cdot): a \mapsto \text{[the subtuple of $a$ containing attribute values for the attributes in g]} .
+  v_g(\cdot): a \mapsto \text{[the subtuple of $a$ containing attribute values} \\
+  \text{for the attributes in $g$]} .
 \end{equation*}
 We first compute the single-group average quality outcome for each $g$:
 \begin{align*}

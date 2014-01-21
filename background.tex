@@ -9,11 +9,18 @@ decisions that the client or the server can make to optimize the
 transmission protocols. Furthermore, we argue for a global
 performance optimization architecture that continuously collects
 performance information of ongoing sessions and use this information to
-predict outcomes of different decisions (see Figure~\fillme). This
+predict outcomes of different decisions (see Figure~\ref{fig:global-control--overview}). This
 performance information can be collected at the client, at the server,
 or at different network elements such as routers or caches. Predicting
 the outcome of every possible decision enables us to make the best
 decision, i.e., the decision that leads to the best outcome. 
+
+\begin{figure}[h!]
+\centering
+ \includegraphics[width=0.5\textwidth] {figures/global-control-overview.pdf}
+\tightcaption{Global performance optimization architecture.}
+\label{fig:global-control--overview}
+\end{figure}
 
 \tightsubsection{Predictive Decision Model}
 

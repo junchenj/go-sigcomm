@@ -1,1 +1,24 @@
-\tightsection{System Scalability}
+\tightsection{Implementation}
+In this section, we present the implementation of GO including the GO backend and instrumentation video player. The GO backend collects information (including quality samples) sent back by client, processes the information periodically to aggregation the information so that on receiving a new session under prediction, the best decision can be quickly made by predicting the outcome of each possible decision.
+
+
+
+\jc{rest of this section has to be written by Conviva engineers but the content is better organized in the same way previous sections present the system.}
+
+\tightsection{Scalability}
+The goal of this section is to show that our implementation of the GO backend is scalable for centralized processing, including to continuously collect and process massive client-side measurement and based on the result, make decision for each video session of a large number of viewers. 
+
+There are four parts in GO backend that can potentially become performance bottleneck -- user-facing gateway, quality sample storage, quality sample aggregation using ACS, and making individual decisions. To show the scalability, we use micro-benchmark to test their performance as a function of workload (e.g., number of quality samples and queries).
+Note that our implementation leverages several existing techniques (e.g., quality sample aggregation uses Spark). We will also discuss the impact of our particular implementation on the performance.
+
+\tightsection{Quality sample storage}
+Show that quality samples can be processed and stored in an HDFS in parallel. Show runtime as a function number of quality sample updates. \fillme
+
+\tightsection{Quality sample aggregation}
+Show that quality sample aggregation can be finished in one minute, so that it can be carried every minute. Show both of its running time and memory requirement as a function of number of quality samples and choices of ACS. \fillme
+
+\tightsection{Making individual decisions}
+Show that once quality samples are aggregated, GO backend can make decsion based on this aggregated information in parallel. Show running time and memory requirement as a function of number of sessions under prediction. \fillme
+
+\tightsection{User-facing gateway}
+Show that all quality sample updates and queries for best decision will be received and processed immediately. \fillme
