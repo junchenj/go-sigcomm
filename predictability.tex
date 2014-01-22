@@ -1,6 +1,59 @@
 \tightsection{Predictability of quality outcomes}
 \label{predictability}
-Quality outcomes intuitively result from a diverse set of factors -- user behavior, network behavior, and CDN behavior, to name a few.  Many of these factors are out of our control; in other cases, a factor may be impacted in principle but its dependence on our decisions is unpredictable.  Our hope in approaching this problem is that some of them, and their causal dependence on decisions we can take, are consistently associated with characteristics we observe about sessions.  As shorthand we say that quality is {\it predictable} to extent that the impact of available decisions can be predicted, with low average error, using the available information about attributes of a session.  The first empirical question we must answer is whether quality is predictable in our dataset.  In this section, we provide some rough statistics that indicate that quality is somewhat predictable, and then raise some challenges that must be solved by a practical algorithm for prediction.
+
+\jc{There is a serious problem of inconsistent use of quality sample and session. Need to clean up as soon as possible.}
+
+The quality outcome of a session which we would like to predict (which we will call the {\it session under prediction}) intuitively result from a diverse set of factors -- user behavior, network behavior, and CDN behavior, to name a few.  Many of these factors are out of our control; in other cases, a factor may be impacted in principle but its dependence on our decisions is unpredictable.  Our hope in approaching this problem is that some of them, and their causal dependence on decisions we can take, are consistently associated with characteristics we observe about sessions.  As shorthand we say that quality is {\it predictable} to extent that the impact of available decisions can be predicted, with low average error, using the available information about attributes of a session.  The first empirical question we must answer is whether quality is predictable in our dataset. 
+
+In this section, we first introduce the {\it predictability} and its upper bound of a set of sessions against a simple abstract model of prediction algorithm (\Section~\ref{subsec:upperbound}). Note that since the predictability is defined against a class of prediction algorithms that we consider rather than one specific design, its upper bound provides the insight of the intrinsic difficulty in predicting a set of sessions. We also quantify the predictability upper bound of video quality using our dataset (\Section~\ref{subsec:videoupperbound}). 
+
+
+\tightsubsection{Definition and model}
+\label{subsec:upperbound}
+
+First, we define {\it prediction accuracy} of a set of sessions $s_1,\dots,s_n$ as follows. Given the a quality metric\footnote{In this section, we only consider one quality metric at a time.}, let $q(s_i)$ be the actual quality and $p(s_i)$ be the prediction on the quality. Then, the prediction accuracy $R((q_i,p_i)_{i=1,\dots,n})$ is defined as the correlation coefficient between $(q_1,\dots,q_n)$ and $(p_1,\dots,p_n)$~\cite{?}.
+
+Then, we define attribute combination and attribute-based prediction algorithms.
+An {\it attribute combination} ({\it AC}) $g$ is a tuple of attributes. Given an AC $g$, function $v_g$ takes a session $s$ as input and returns an array of values of $s$ on each attribute in $g$. For instance, if $g=[\textrm{ASN, CDN}]$, $v_g(s)=[ASN_s,CDN_s]$ where the client of $s$ belongs to $ASN_s$ and the server belongs to $CDN_s$.
+
+An {\it attribute-based prediction algorithm} $P$ is defined by an AC $g$. $P$ takes a session $s$, and returns $P_g(s)$ as the prediction of quality outcome. 
+The goal of prediction model is to identify the limitation of prediction accuracy when using only the information provided by these attributes. To generalize as much as possible, the only constraint of attribute-based prediction algorithm is that it has to give same prediction for all sessions under prediction if their values on every attributes in $g$ is identical. We call a set of sessions an {\it identical group} of $g$ if they have same value on all attributes in $g$. For instance, if $g=[\textrm{ASN, CDN}]$, then for two sessions $s_1,s_2$ in the identical group of $g$, i.e., $v_g(s_1)=v_g(s_2)$, the predicted quality of both of them must be the same, i.e., $P_g(s_1)=P_g(s_2)$. 
+
+
+The predictability upper bound of a set of sessions is a measure of the capacity of a class of prediction algorithms, defined as the maximum prediction accuracy. The predictability upper bound of an AC on a set of sessions is defined as following. 
+For an identical group of $g$, $s_1,\dots,s_n$, let their actual quality be $q_1,\dots,q_n$. Then, any attribute-based prediction algorithm of $g$ is going to give same prediction, $p$. The best prediction is $p^*=\textrm{argmax}_p R((q_i,p)_{i=1,\dots,n})$, so $p^*$ is the average value of $\bar{q_i}$. Now, the upper bound of prediction accuracy (which we will call {\it predictability upper bound}) of $g$ on an identical set of $g$, $s_1,\dots,s_n$, is $$R^*_g(s_{i,i=1,\dots,n})=R((q_i,p)_{i=1,\dots,n})$$. This definition can be easily extended to any set of sessions by dividing sessions into identical groups of $g$. 
+
+The predictability upper bound quantifies the dispersion in quality of the sessions that an AC cannot differentiate. Ideally, if the attributes in AC $g$ selected reflect all the factors that determine the quality of a session, then the sessions in an identical group of $g$ should produce the same quality and the upper bound is exactly one. 
+
+\tightsubsection{Predictability upper bound of video quality}
+
+In this section, we quantify the predictability upper bound of the attributes in we observe on our dataset. 
+
+
+There are two types of attributes to aggregate sessions. Given the same spatial attributes, temporal attributes (e.g., 1 minute) indicate the granularity in time which we use to differentiate sessions. Given the same temporal attributes, the spatial attributes (e.g., ASN, CDN) indicate the aspects of a session that we believe can make an impact on the quality.
+We first quantify the impact of different spatial (e.g., full set or a subset) and temporal (1 hour or 10 second) attributes on predictability upper bound. Then we show that the predictability upper bound varies significantly among different partition of the dataset (e.g., Site).
+
+\myparatight{Temporal attributes} 
+
+\myparatight{Spatial attributes}
+
+\myparatight{Predictability upper bound of different partitions}
+
+
+\tightsubsection{Summary of observations}
+\begin{packedenumerate}
+	\item The overall prediction accuracy
+\end{packedenumerate}
+
+
+\tightsection{Challenges of A Practical Prediction Algorithm}
+
+\comment{
+We then investigate a naive prediction algorithm that make prediction by only looking at sessions sharing exact values on all attributes, and categorize its reasons and limitations. 
+
+%In this section, we provide some rough statistics that indicate that quality is somewhat predictable, and then raise some challenges that must be solved by a practical algorithm for prediction.
+
+
 
 \tightsubsection{Quality similarity between close sessions}
 We observe {\it spatial} and {\it temporal} attributes of each session.  These attributes can be used to define a distance between sessions.  Intuitively, sessions that match exactly on all observable attributes are most likely to be similar.  If we have a large number of sessions exactly matching the session whose quality we would like to predict (which we will call the {\it session under prediction}), the obvious algorithm to predict quality outcomes given a particular decision simply returns the actual distribution (i.e. the CDF) of quality outcomes for those matching sessions for which that decision was taken.  Since we would like to compare decisions quickly, it is useful to summarize a prediction in a single number like the mean of this distribution; this is the approach we take.  Thus in the presence of infinite data we would take as our prediction the mean quality outcome of sessions exactly matching the session under prediction.  For reasons we will discuss shortly, we may want to relax the requirement of exact matching to mere closeness.  Along {\it spatial} dimensions, two sessions are close if they share same value on one or multiple attributes. For example, two sessions could be from the same ASN, or using the same CDN or from the same ASN to the same CDN. The spatial attributes we observe are mostly categorical, so the only useful distinction with respect to a single attribute is between a match and a non-match. Two sessions are temporally close if they occur at roughly the same time.
@@ -33,6 +86,7 @@ Happily, quality samples that are spatially and temporally close typically have 
 	\item Spatial similarity varies across different attributes.  Using more attributes can improve things.
 	\item Different quality metrics have different level of similarity, especially, buffering ratio has the largest similarity.
 \end{packedenumerate}
+}
 }
 
 \tightsubsection{Predicting from finite data}
