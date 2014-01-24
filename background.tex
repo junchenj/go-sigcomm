@@ -1,19 +1,21 @@
 \tightsection{Motivation and System Overview}
 
-In this section, we present the motivation, and an overview of our
+In this section, we present the motivation and an overview of our
 system design.
 
 The tenet of our work is that improving application performance in
 today's Internet requires one to predict the outcome of different
 decisions that the client or the server can make to optimize the
-transmission protocols. Furthermore, we argue for a global
-performance optimization architecture that continuously collects
-performance information of ongoing sessions and use this information to
-predict outcomes of different decisions (see Figure~\ref{fig:global-control--overview}). This
+transmission protocols. In order to predict these decision outcomes,
+we argue for a global architecture that (1) continuously collects
+performance information of ongoing sessions, and (2) use this
+information to create an accurate \emph{model} that predicts the
+performance of a session for a give configuration setting or protocol
+decision (see Figure~\ref{fig:global-control--overview}). This
 performance information can be collected at the client, at the server,
 or at different network elements such as routers or caches. Predicting
 the outcome of every possible decision enables us to make the best
-decision, i.e., the decision that leads to the best outcome. 
+decision, i.e., the decision that leads to the best outcome.
 
 \begin{figure}[h!]
 \centering
@@ -28,18 +30,18 @@ At the high level, any protocol designer aims to implicitly or
 explicitly build a model of the environment (or world) in which the
 protocol operates. Then the protocol takes the decision that optimizes
 the utility of the predicted outcome.  For example, if it were
-possible to perfectly predict whether packet loss would occur given a
-particular TCP initial window size, we could maximize the QoS and user
-experience by choosing the highest initial window size that wouldn't
-cause a packet loss.  Similarly, if we could perfectly predict whether
-a client could sustain a particular bitrate, we could choose the
-highest sustainable bitrate.
+possible to predict whether packet loss would occur given a particular
+TCP initial window size, we can maximize the QoS and user experience
+by choosing the highest initial window size that wouldn't cause a
+packet loss.  Similarly, if it were possible to predict whether a
+client could sustain a particular bitrate, we can choose the highest
+sustainable bitrate.
 
 The challenge is to come up with a model that accurately describe the
-world. Unfortunately, coming up with an analytical model of a complex 
-environment such as Internet is infeasible. As a result, we must
-use direct measurements or observations of real world to inform our
-model. This is the approach we take in this paper. In particular, the main idea is to
+world. Unfortunately, coming up with an analytical model of a complex
+environment such as Internet is infeasible. As a result, we must use
+direct measurements or observations of real world to inform our
+model. This is the approach we take in this paper. In particular, we
 use the performance of existing clients to predict the performance of
 another client. For example, when a new client starts streaming a
 video, we can use the quality experienced by other clients to predict
@@ -118,8 +120,8 @@ on multiple CDNs). The CDN and bitrate are chosen from a
 pre-determined set of options and they can be changed at any point
 during a session. Note that to play a video that is encoded at $n$
 different bitrates and stored on $m$ CDNs, there are $m\times n$
-options to chose from.  Readers may refer to~\cite{conext12} for more
-details.
+options to chose from.  
+%Readers may refer to~\cite{conext12} for more details.
 
 To pick one of these options, GO predicts the quality metric for each
 option, and then picks the one that corresponds to the highest
