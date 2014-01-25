@@ -34,16 +34,26 @@ In any scenario, we would like to quantify the quality improvement of GO based o
 \tightsubsubsection{Behavioral study}
 To build confidence in this algorithm, we use controlled synthetic input to show how decision-making based on prediction behaves in some simple synthetic scenarios where the optimal decisions are clear:
 \begin{packedenumerate}
-  \item {\it CDN performance degradation.} A sudden change in CDN performance causes relative performance to change.
-  \item {\it Client-side vs. server-side bottleneck.} 
+  \item {\it CDN performance degradation.} A sudden change in performance of one group causes GO to switch decision accordingly. Figure~\ref{subfig:behavioral:cdn} shows the behavior of sessions in one ASN when provided with two CDNs to choose from. Assume that buffering ratio is the only considered quality metric. The average buffering ratio of CDN1 is stably at 0.2 and that of CDN2 changes between 0.1 and 0.25.
+  \item {\it Dynamic bottleneck.} Performance of group A is decided by client-side problem, and that group B is decided by CDN-side problem, so when CDN changes its performance, only group B will switch decision.
 \end{packedenumerate}
 
-\begin{figure}[h!]
+\begin{figure*}[t!]
 \centering
- \includegraphics[width=0.5\textwidth] {figures/behavior-evaluation/simple-change.pdf}
-\tightcaption{Behavioral study: CDN performance degradation.}
-\label{fig:cdn-degradation}
-\end{figure}
+\subfigure[CDN performance degradation]
+{
+        \includegraphics[width=0.4\textwidth]{figures/behavior-evaluation/simple-change.pdf}
+	\label{subfig:behavioral:cdn}
+}
+\subfigure[Impact of bottlenecks]
+{
+        \includegraphics[width=0.4\textwidth]{figures/placeholder.pdf}
+	\label{subfig:behavioral:bottleneck}
+}
+\tightcaption{Behavioral study.}
+\label{fig:behavioral}
+\end{figure*}
+
 
 \tightsubsubsection{Evaluation under real trace}
 We show how GO works in practice in a real trace, in comparison to a naive baseline algorithm that makes random decisions.  Here we use a methodology similar to A/B testing, which we call {\it counterfactual testing}; the methodology is described in detail in section \ref{sec:counterfactualtesting}.  The dataset is described in section \ref{subsec:dataset}.  Results are displayed in figure \fillme; we can see that \fillme.
