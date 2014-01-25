@@ -1,4 +1,4 @@
-\tightsection{Predictability of quality outcomes}
+\tightsection{Attribute-based Predictability}
 \label{predictability}
 
 \jc{There is a serious problem of inconsistent use of quality sample and session. Need to clean up as soon as possible.}
@@ -30,45 +30,82 @@ set to quantify this upper bound
 %In this section, we first introduce the {\it predictability} and its upper bound of a set of sessions against a simple abstract model of prediction algorithm (\Section~\ref{subsec:upperbound}). Note that since the predictability is defined against a class of prediction algorithms that we consider rather than one specific design, its upper bound provides the insight of the intrinsic difficulty in predicting a set of sessions. We also quantify the predictability upper bound of video quality using our dataset (\Section~\ref{subsec:videoupperbound}). 
 
 
+
 \tightsubsection{Definition and model}
 \label{subsec:upperbound}
 
-First, we define {\it prediction accuracy} of a set of sessions $s_1,\dots,s_n$ as follows. Given the a quality metric\footnote{In this section, we only consider one quality metric at a time.}, let $q(s_i)$ be the actual quality and $p(s_i)$ be the prediction on the quality. Then, the prediction accuracy $R((q_i,p_i)_{i=1,\dots,n})$ is defined as the correlation coefficient between $(q_1,\dots,q_n)$ and $(p_1,\dots,p_n)$~\cite{?}.
+First, we define {\it prediction error}. 
+Given one session (which we will call the {\it session under prediction}), let $q$ be the actual quality and $p$ be the prediction on the quality. Then, the prediction error $e_{p,q}$ is defined according to the quality metric\footnote{In this section, we only consider one quality metric at a time.}.
+\begin{packeditemize}
+	\item $e_{p,q}=|p-q|$, in case of buffering ratio and start failure (1 is failure and 0 is success).
+	\item $e_{p,q}=|p-q|/q$, in case of average bitrate and join time.
+\end{packeditemize}
+For a set of sessions under prediction $S=\{s_1,\dots,s_n\}$ and $P=\{p_i\}$ and $Q=\{q_i\}$ be their prediction and actual quality ($p_i$ and $q_i$ is prediction and actual quality of $s_i$). The overall prediction error $E_{P,Q}=\left(\frac{1}{n}\sum e_{p_i,q_i}^2\right)^{1/2}$.
+\jc{some justification. Henry, i still don't think this is a good way of quantifying error...}
 
 Then, we define attribute combination and attribute-based prediction algorithms.
-An {\it attribute combination} ({\it AC}) $g$ is a tuple of attributes. Given an AC $g$, function $v_g$ takes a session $s$ as input and returns an array of values of $s$ on each attribute in $g$. For instance, if $g=[\textrm{ASN, CDN}]$, $v_g(s)=[ASN_s,CDN_s]$ where the client of $s$ belongs to $ASN_s$ and the server belongs to $CDN_s$.
-
-An {\it attribute-based prediction algorithm} $P$ is defined by an AC $g$. $P$ takes a session $s$, and returns $P_g(s)$ as the prediction of quality outcome. 
-The goal of prediction model is to identify the limitation of prediction accuracy when using only the information provided by these attributes. To generalize as much as possible, the only constraint of attribute-based prediction algorithm is that it has to give same prediction for all sessions under prediction if their values on every attributes in $g$ is identical. We call a set of sessions an {\it identical group} of $g$ if they have same value on all attributes in $g$. For instance, if $g=[\textrm{ASN, CDN}]$, then for two sessions $s_1,s_2$ in the identical group of $g$, i.e., $v_g(s_1)=v_g(s_2)$, the predicted quality of both of them must be the same, i.e., $P_g(s_1)=P_g(s_2)$. 
-
-
-The predictability upper bound of a set of sessions is a measure of the capacity of a class of prediction algorithms, defined as the maximum prediction accuracy. The predictability upper bound of an AC on a set of sessions is defined as following. 
-For an identical group of $g$, $s_1,\dots,s_n$, let their actual quality be $q_1,\dots,q_n$. Then, any attribute-based prediction algorithm of $g$ is going to give same prediction, $p$. The best prediction is $p^*=\textrm{argmax}_p R((q_i,p)_{i=1,\dots,n})$, so $p^*$ is the average value of $\bar{q_i}$. Now, the upper bound of prediction accuracy (which we will call {\it predictability upper bound}) of $g$ on an identical set of $g$, $s_1,\dots,s_n$, is $$R^*_g(s_{i,i=1,\dots,n})=R((q_i,p)_{i=1,\dots,n})$$. This definition can be easily extended to any set of sessions by dividing sessions into identical groups of $g$. 
-
-The predictability upper bound quantifies the dispersion in quality of the sessions that an AC cannot differentiate. Ideally, if the attributes in AC $g$ selected reflect all the factors that determine the quality of a session, then the sessions in an identical group of $g$ should produce the same quality and the upper bound is exactly one. 
-
-\tightsubsection{Predictability upper bound of video quality}
-
-In this section, we quantify the predictability upper bound of the attributes in we observe on our dataset. 
+An {\it attribute combination} ({\it AC}) $g$ is a tuple of attributes. Given an AC $g$, function $v_g$ takes a session $s$ (including both client-side and server-side information) as input and returns an array of values of $s$ on each attribute in $g$. For instance, if $g=[\textrm{ASN, CDN}]$, $v_g(s)=[ASN_s,CDN_s]$ where the client of $s$ belongs to $ASN_s$ and the server belongs to $CDN_s$.
+An {\it attribute-based prediction algorithm} $P$ is defined by an AC $g$. $P$ takes a session $s$ as input, and returns $P_g(s)$ as the prediction of quality.
+ 
+To identify the limitation of prediction accuracy when using only the information provided by these attributes, we have the observation that attribute-based prediction algorithm gives the same prediction for all sessions under prediction if their values on every attributes in $g$  is identical. The reason is that any attribute-based prediction algorithm of $g$ does not differentiate two sessions $s_1$ and $s_2$ if $v_g(s_1)=v_g(s_2)$. We call a set of sessions an {\it identical group} of $g$ if they have same value on all attributes in $g$. Then the prediction on any session from an identical group should be the same, i.e., $P_g(s_1)=P_g(s_2)$ if $s_1$ and $s_2$ are from the same identical group of $g$ ($v_g(s_1)=v_g(s_2)$). 
 
 
-There are two types of attributes to aggregate sessions. Given the same spatial attributes, temporal attributes (e.g., 1 minute) indicate the granularity in time which we use to differentiate sessions. Given the same temporal attributes, the spatial attributes (e.g., ASN, CDN) indicate the aspects of a session that we believe can make an impact on the quality.
-We first quantify the impact of different spatial (e.g., full set or a subset) and temporal (1 hour or 10 second) attributes on predictability upper bound. Then we show that the predictability upper bound varies significantly among different partition of the dataset (e.g., Site).
+The {\it predictability} of an AC $g$ over a set of sessions $S$, defined as the minimal prediction error, is a measure of the capacity of all attribute-based prediction algorithms that use $g$ as AC. We first consider an identical group of $g$, $S=s_1,\dots,s_n$, and let their quality be $q_1,\dots,q_n$ and the prediction should be the same value $p$. Then, we will have an optimal prediction $p^*=\textrm{argmax}E_{P,Q}=\textrm{argmax}_p\left(\frac{1}{n}\sum e_{p,q_i}^2\right)^{1/2}$. For example, in the case of buffering ratio, $p^*$ is the mean of $q_i$. Therefore, the predicability of $g$ over a session set $S$ is the minimal overall prediction error $R_g(S)=E_{P^*,Q}$ where $P^*$ gives the same optimal prediction $p^*$ for each session in $S$.
+This definition can be extended to any set of sessions $S$ by dividing sessions into identical groups of $g$, and use the optimal prediction for each identical group to be the prediction of sessions in it, i.e., $R_g(S)=E_{P^*,Q}$ where prediction of $s_i$ in $P^*$ is the optimal prediction of the identical group that $s_i$ belongs to.
 
-\myparatight{Temporal attributes} 
+The predictability quantifies the dispersion in quality of the sessions that an AC cannot differentiate. Ideally, if the attributes in AC $g$ selected reflect all the factors that determine the quality of a session, then the sessions in an identical group of $g$ should produce the same quality and the upper bound is exactly one. 
 
-\myparatight{Spatial attributes}
-
-\myparatight{Predictability upper bound of different partitions}
+\jc{The current definition predictability is weird as it gives smaller value to more predictable set of sessions. }
 
 
+\begin{figure*}[t!]
+\centering
+\subfigure[Predictability of temporal attributes]
+{
+	\includegraphics[width=0.2\textwidth]{figures/placeholder.pdf}
+	\label{subfig:predictability:temporal}
+}
+\subfigure[Predictability of spatial attributes]
+{
+	\includegraphics[width=0.2\textwidth]{figures/placeholder.pdf}
+	\label{subfig:predictability:temporal}
+}
+\subfigure[Rank of predictability among ASN]
+{
+	\includegraphics[width=0.2\textwidth]{figures/placeholder.pdf}
+	\label{subfig:predictability:asn}
+}
+\subfigure[Rank of predictability among Site]
+{
+	\includegraphics[width=0.2\textwidth]{figures/placeholder.pdf}
+	\label{subfig:predictability:site}
+}
+\tightcaption{Quantifying predictability over our dataset.}
+\label{fig:predictability}
+\end{figure*}
+
+
+\tightsubsection{Predictability over video quality samples}
+
+In this section, we quantify the predictability of the attributes in we observe over our dataset of quality samples. Note that, the predictability is an oracle approach as it assumes the knowledge of all sessions under prediction, and it is not necessarily a tight lower bound of overall prediction error (as it does not guarantee the existance of a prediction algorithm that uses history/neighboring information to reach the same minimal overall quality error). However, the bound of predictability shows at least the limitation of using the attributes we collect regardless of how algorithms use them.
+
+We use attributes introduced in \Section~\ref{subsec:dataset} as spatal attributes. In addition, we use different temporal interval as temporal attributes.
+Given the same spatial attributes, temporal attributes (e.g., 1 minute) indicate the granularity in time which we use to differentiate sessions. Given the same temporal attributes, the spatial attributes (e.g., ASN, CDN) indicate the aspects of a session that we believe can make an impact on the quality.
+
+\myparatight{Temporal attributes} Figure~\ref{subfig:predictability:temporal} shows the predictability of different temporal attributes (time granular) combined with all spatial attributes. For instance, one example AC with 5-minute tempral attribute is [5-minute, ASN, Object, Site, Initial CDN, Initial Bitrate, OS, ConnectionType]. Each point in the figure represents the overall predictability of the period of time that ends at certain minute. The figure shows that with different granulars do have impact on predictability. Smaller intervals are more predictable, but the predictability becomes similar after granular is less than about 5 minutes.
+
+\myparatight{Spatial attributes} Figure~\ref{subfig:predictability:temporal} shows the predictability of different spatial attributes combined with 5 minute interval as temporal attributes (i.e., every session having the same spatial attribute values within the same 5 minute period is treated equally). Again, the finest spatial attribute combination is ASN, Object, Site, Initial CDN, Initial Bitrate, OS and ConnectionType.  Instead of showing all ACs with these attributes (in total $2^7-1=127$ ACs), we group them by number of attributes in it and show the one with best mean of predictability. We can, therefore, see the changes in predictability by using different number of attributes. The figure shows clear improvement with more attributes, but again, the improvement slowed when closing to using all 7 attributes.
+
+\myparatight{Predictability upper bound of different partitions} In all above distributions, we see a clear diversity in predictability. Therefore, we present the predictability of different partition of the dataset (e.g., ASN, Site). Figure~\ref{subfig:predictability:asn} (/\ref{subfig:predictability:site}) shows the distribution of the mean predictability among top-$k$ and last-$k$ ASNs (/Sites). The figures do confirm that predictability does vary largely across different partitions. More importantly, this suggests that for some classes of clients, the video quality is more predictable than for other classes of clients by using the attributes we collect.
+
+\comment{
 \tightsubsection{Summary of observations}
 \begin{packedenumerate}
 	\item The overall prediction accuracy
 \end{packedenumerate}
+}
 
-
-\tightsection{Challenges of A Practical Prediction Algorithm}
+\tightsection{Challenges of Prediction Algorithms}
 
 \comment{
 We then investigate a naive prediction algorithm that make prediction by only looking at sessions sharing exact values on all attributes, and categorize its reasons and limitations. 
@@ -111,31 +148,45 @@ Happily, quality samples that are spatially and temporally close typically have 
 }
 }
 
+
+
+
+
+
+
+
+
+Having shown that with the attributes we collect, it is possible to achieve good predictability (i.e., low overall prediction error), we now present the challenges in designing a prediction algorithm that can reach such prediction error in practice. In particular, a practical algorithm can only use the information (quality samples) collected before the minute that the session under prediction belongs to.
+
+First, we categorize the sources of difficulty in predicting video quality accurately (\Section~\ref{subsec:challenges}) which inform the choice of aggregating identical groups of all attributes (i.e., the finest identical groups) by ignoring (hopefully, less important) attributes so that more samples will be used(\Section~\ref{subsec:aggregation}) to counteract the noise and estimation error brought by sparse data.
+
 \tightsubsection{Predicting from finite data}
+\label{subsec:challenges}
 Although the figures show that in many cases, quality is similar among quality samples that share the same attribute values and same temporal interval, there are still a lot of quality sample groups that have high dispersion as shown in the figure making it challenging for quality prediction. 
 In this part, we enumerate the potential reasons that causes the dispersion we observe. To give an intuition, in case of small number of similar sessions, the mean quality outcome of a small sample of similar sessions (for example, $10$ such sessions) is subject to considerable random noise.  If we use that number for prediction, the prediction will be subject to the same noise and consequently to high average error.  As the number of attributes grows, quality grows more predictable (as we have seen) but the number of perfectly-matched sessions may drop exponentially.
 
 Of course, prediction in the presence of limited information is the domain of statistics, and there are many potential solutions to this problem.  Any solution will deal with, and potentially trade off, four sources of prediction error:
 
 \begin{packedenumerate}
-  \item \emph{Estimation error:} In the statistical literature, prediction error due to limited data is often called {\it estimation error}.  Other things being equal, more data produce more accurate prediction. For example, Figure~\ref{fig:group-size-impact}-(a) presents the prediction error of using a group as a function of its (i.e., number of samples). To show  In fact, estimation error is a serious practical problem for video quality prediction.  Using all available attributes, many sessions have very few matches, as we would expect given the exponential explosion in combinations of attribute values.  
+  \item \emph{Estimation error:} In the statistical literature, prediction error due to limited data is often called {\it estimation error}.  Other things being equal, more data produce more accurate prediction. For example, Figure~\ref{fig:group-size-impact} presents the prediction error of using a group as a function of its (i.e., number of samples). In fact, estimation error is a serious practical problem for video quality prediction.  Using all available attributes, many sessions have very few matches, as we would expect given the exponential explosion in combinations of attribute values.  
 
 \begin{figure}[h!]
 \centering
 \subfigure[Prediction error vs. group size (w.r.t average bitrate)]
 {
         \includegraphics[width=110pt]{figures/count-err.pdf}
+	\label{subfig:group-size-impact:count-err}
 }
 \subfigure[Distribution of group size]
 {
         \includegraphics[width=110pt]{figures/count-cdf.pdf}
 }
-\tightcaption{Impact of group size (i.e., number of samples in a group). They show that more samples give more accuracy, and most of groups do not have sufficient samples for accurate prediction.}
+\tightcaption{Impact of group size (i.e., number of samples in a group). They show that more samples give more accuracy, but most of groups do not have sufficient samples for accurate prediction.}
 \label{fig:group-size-impact}
 \end{figure}
 
   \item \emph{Bias} due to missing or unused information: When grouping quality samples according to attributes we observe, we of course may not observe attributes that are important for prediction.  Say we do not observe (or use) important attribute X.  Then, even if we have infinitely many sessions that match the current session on all observed attributes, the average outcome for all of those sessions may be different from the average outcome for the subset of sessions that match the current session on attribute X.  This is a form of bias.  Predictability, as we have defined it, simply means low bias.  Importantly, it is not alleviated by gathering more session data; as we have seen, it may be alleviated by gathering more attributes about each session.
-  \item \emph{Unavailability of recent data:} In a practical system, there are delays in measuring, sending and processing quality samples, so they are not available instantly.  If conditions change rapidly, there may be no quality samples sufficiently close to the session under prediction.  This is an extreme example of estimation error.  In this case it may be necessary to model the evolution of the video ecosystem over time in order to extrapolate to the current time. Figure~\ref{quality-variability} shows per-minute quality variability. It shows that even with sufficient data, the mean value of a group of quality samples could vary significantly.
+  \item \emph{Unavailability of recent data:} In a practical system, there are delays in measuring, sending and processing quality samples, so they are not available instantly.  If conditions change rapidly, there may be no quality samples sufficiently close to the session under prediction.  This is an extreme example of estimation error.  In this case it may be necessary to model the evolution of the video ecosystem over time in order to extrapolate to the current time. Figure~\ref{fig:quality-variability} shows per-minute quality variability. It shows that even with sufficient data, the mean value of a group of quality samples could vary significantly.
 
 \begin{figure}[h!]
 \centering
@@ -161,17 +212,13 @@ More formally, we can derive this as follows (see \cite{domingos2000unified} for
   &= \Var_D[p_i] + \Var_D[\epsilon_i] + (\E_D[p_i] - \hat{q})^2
 \end{align*}
 
-The first term in equation \eqref{eqn:biasvariancelong} is estimation error -- the variability in predictions across possible sets of observed data.  It will increase as the number of sessions similar to session $i$ in $D$ decreases; as a special case it may be very large if only a few quality samples in $D$ are temporally close to session $i$.  The second term is noise.  The third term is the squared bias of the predictor, which does not generally decrease with the size of $D$.  The prediction algorithm's average prediction error is simply the average over all sessions $i$ of the sum of these three terms.
+The first term in equation \eqref{eqn:biasvariance} is estimation error -- the variability in predictions across possible sets of observed data.  It will increase as the number of sessions similar to session $i$ in $D$ decreases; as a special case it may be very large if only a few quality samples in $D$ are temporally close to session $i$.  The second term is noise.  The third term is the squared bias of the predictor, which does not generally decrease with the size of $D$.  The prediction algorithm's average prediction error is simply the average over all sessions $i$ of the sum of these three terms.
 
 \tightsubsection{Aggregation}
-A simple strategy to reduce estimation error is {\it aggregation}~\cite{any citation?}.  By aggregation we mean putting quality samples into coarser groups that match on only a subset of observed attributes.  Aggregation increases the number of samples in each group but reduces the number of attributes, thus reducing estimation error at the cost of increased bias. 
-Intuitively, when estimation error is small (say, when a fine-grained group contains many sessions) we want to eliminate bias by using a fine-grained group.  When estimation error is large, we want to aggregate more.  Figure \fillme demonstrates this for \fillme\jc{nice to have a figure to confirm such tradeoff does happen in our dataset.}.  This indicates that a prediction algorithm that uses aggregation should pay attention to its error rate to determine the right degree of aggregation.
-Thus it makes sense to look for an optimal attribute combination, optimal AC (i.e., optimal degree of aggregation) \jc{remember to define AC earlier}. 
-
-The optimal AC is defined with the assumption that all sessions under prediction sharing the same values on all attributes (i.e., identical under the finest AC) are given the same prediction and the optimal AC is the degree of aggregation that gives the prediction value which minimizes the standard deviation (i.e., the prediction values closest to the mean of the actual quality of these sessions). For instance, Figure~\ref{fig-optimal-AC.pdf} gives the hierarchy before time $t$ which consists of different degrees of aggregation (i.e., ACs) of the same finest group ``$ASN-1,CDN-1,Site-1$'' with all attributes specified. Now, givem a set of sessions at time $t$ and the mean of their real quality is 0.2, the optimal AC (colored in red) is the one with the closest prediction to 0.2, i.e., (ASN,CDN). The optimal AC is effectively an oracle approach since we assume the knowledge of actual quality. Except that, the optimal AC is operational as it makes prediction purely based on attribute. We will compare our practical algorithm with this oracle in \Section~\ref{sec:prediction}
-
-By studying the distribution of optimal AC, we find that the optimal AC (the aggregation that gives minimal prediction error) is in many cases neither the finest nor the coarsest one and is highly dynamic. 
-
+\label{subsec:aggregation}
+A simple strategy to reduce estimation error is {\it aggregation}~\cite{any citation?}.  By aggregation we mean putting quality samples into coarser groups that match on only a subset of observed attributes.  Aggregation increases the number of samples in each identical group by reducing the number of attributes, thus reducing estimation error at the cost of increased bias. 
+Intuitively, when estimation error is small (say, when a fine-grained identical group contains many sessions) we want to eliminate bias by using a fine-grained group.  When estimation error is large, we want to aggregate more.  \comment{Figure \fillme demonstrates this for \fillme\jc{nice to have a figure to confirm such tradeoff does happen in our dataset.}.}  This indicates that a prediction algorithm that uses aggregation should pay attention to its error rate to determine the right degree of aggregation.
+ \jc{remember to define AC earlier}. 
 
 
 \begin{figure}[h!]
@@ -181,9 +228,10 @@ By studying the distribution of optimal AC, we find that the optimal AC (the agg
 \label{fig:example-optimal-ac}
 \end{figure}
 
-Figure~\ref{fig:optimal-ac-dynamics}-(a) gives coverage of optimal ACs (for each AC, the fraction of sessions of which this AC is the optimal AC), and it shows that the finest group only has coverage about 20\% and no coarsest grain AC (single attribute) is among the top 5. This implies that the optimal AC often occurs between the finest and coarsest grainular.
-Figure~\ref{fig:optimal-ac-dynamics}-(b) gives prevalence of pair of (session under prediction, optimal AC) (the fraction of time that the finest group has this optimal AC), and it shows that 70\% pairs of (session under prediction, optimal AC) only last for less than 20\% of time. This implies that no single or a small set of optimal AC that can cover most sessions and used statically.
-Figure~\ref{fig:optimal-ac-dynamics}-(c) gives persistence of pair of (session under prediction, optimal AC) (the longest continuous duration where a finest group has the same optimal AC) and it shows that there is at most 40\% of pair of (session under prediction, optimal AC) last more than 10 minutes. This implies that even a reactive strategy will miss many optimal AC.
+We use a simple methodology, called {\it optimal AC}, to show the dynamics of the right degree aggregation. For a finest identical group at $t$-th minute, we first build a hierarchy that consists of all degrees of aggregation over the quality samples we collects before the $t$-th minute. Figure~\ref{fig:example-optimal-ac} shows an example of three attributes. 
+Then, the optimal AC for this identical group is the degree of aggregation that gives the prediction value closest to the optimal prediction for the finest identical group at $t$-th minute which yields to minimal prediction error.
+For instance, if the optimal prediction of the targeted identical group is 0.2, the optimal AC (colored in red) is the one with the closest prediction to 0.2, i.e., (ASN,CDN). 
+
 
 \begin{figure}[h!]
 \centering
@@ -193,15 +241,24 @@ Figure~\ref{fig:optimal-ac-dynamics}-(c) gives persistence of pair of (session u
 }
 \subfigure[Prevalence of pair of (session under prediction, optimal AC).]
 {
-        \includegraphics[width=0.3\textwidth]{figures/optimal-prevalence.pdf}
+        \includegraphics[width=0.33\textwidth]{figures/optimal-prevalence.pdf}
 }
 \subfigure[Persistence of pair of (session under prediction, optimal AC).]
 {
-        \includegraphics[width=0.3\textwidth]{figures/optimal-persistence.pdf}
+        \includegraphics[width=0.33\textwidth]{figures/optimal-persistence.pdf}
 }
 \tightcaption{Dynamics of the optimal AC. (a) gives coverage of optimal ACs (for each AC, the fraction of sessions of which this AC is the optimal AC).
 (b) gives prevalence of pair of (session under prediction, optimal AC) (the fraction of time that the finest group has this optimal AC).
 (c) gives persistence of pair of (session under prediction, optimal AC) (i.e., the longest continuous duration where a finest group has the same optimal AC).}
 \label{fig:optimal-ac-dynamics}
 \end{figure}
+
+\myparatight{Dynamics of the optimal AC} We find that the optimal AC (the aggregation that gives minimal prediction error) is in many cases neither the finest nor the coarsest one and is highly dynamic: 
+\begin{packeditemize}
+	\item {\it No one-fit-all optimal AC.} Figure~\ref{fig:optimal-ac-dynamics}-(a) gives coverage of optimal ACs (for each AC, the fraction of sessions of which this AC is the optimal AC), and it shows that the finest group only has coverage about 20\% and no coarsest grain AC (single attribute) is among the top 5. This implies that the optimal AC often occurs between the finest and coarsest grainular.
+	\item {\it No temporally prevalent optimal AC.} Figure~\ref{fig:optimal-ac-dynamics}-(b) gives prevalence of pair of (session under prediction, optimal AC) (the fraction of time that the finest group has this optimal AC), and it shows that 70\% pairs of (session under prediction, optimal AC) only last for less than 20\% of time. This implies that no single or a small set of optimal AC that can cover most sessions and used statically.
+	\item {\it Reactive does not help (much).} Figure~\ref{fig:optimal-ac-dynamics}-(c) gives persistence of pair of (session under prediction, optimal AC) (the longest continuous duration where a finest group has the same optimal AC) and it shows that there is at most 40\% of pair of (session under prediction, optimal AC) last more than 10 minutes. This implies that even a reactive strategy will miss many optimal AC.
+\end{packeditemize}
+
+
 
