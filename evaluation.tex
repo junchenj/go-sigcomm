@@ -1,1 +1,36 @@
 \tightsection{Evaluation}
+
+In this section, we evaluate the performance of the GO system. High level summary:
+
+\tightsubsection{Setup}
+
+We evaluate the performance on one content provider, short-form videos, iOS device (both iPhone and iPad), HLS protocol.
+Adaptive bitrate switching algorithm from Apple player.
+
+We evaluate two algorithms: random and optimized.
+
+\tightsubsection{Rebuffering Rate and Average Bitrate}
+
+\xi{florin's analysis on performance benefits}
+\xi{show things do change and GO can react accordingly}
+
+\tightsubsection{Adaptive Bitrate Stability}
+
+\tightsubsubsection{When Do Bitrate Switching Happen?}
+
+In this section, we empirically study when do bitrate switching happen. Figure XX shows when adaptive bitrate switch happen, where
+x-axis is the percentage of actual video play time instead of content length. This is a conservative approach.
+
+It shows that the majority of switches happen at 
+the beginning of the video plays, i.e., X of the switches happen within Y of the video duration. 
+
+\xi{we may add more algorithms if have time, also this may move from evaluation to previous sections since it is not really performance evaluation of algorithms.}
+
+\tightsubsubsection{Reducing Number of Bitrate Switch}
+
+Figure XX shows the number of bitrate switches for optimized and random decisions within the first minute. 
+It shows that GO can reduce the number of switches.
+
+\tightsubsubsection{Initial vs. Dominant Bitrate}
+
+Figure XX shows the ratio of initial bitrate to dominant bitrate (1 is best). It shows that GO is close to dominant bitrate.
