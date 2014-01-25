@@ -1,15 +1,15 @@
 \tightsection{Quality Improvement via Prediction}
 \label{improvement}
 %Now we can fill in the details of section 3 a bit more.  Figure~\ref{fig:go-overview} shows how prediction and decision-making work in GO.
-Having shown that with the attributes we collect, our prediction algorithms can provide close-to-optimal prediction accuracy, we now examine the quality improvement resulting from the prediction algorithms. Providing that our prediction algorithm is roughly accurate, GO's ``transition'' from prediction accuracy to quality improvement is straightforward -- it simply chooses the decision that has the best predicted quality. 
+Having shown that with the attributes we collect, our prediction algorithms can provide close-to-optimal prediction accuracy, we now evaluate the quality improvement resulting from the prediction algorithms. GO's ``transition'' from prediction accuracy to quality improvement is straightforward -- the decision making algorithm simply selects the decision that has the best predicted quality. 
 
-Since improving video quality is the ultimate goal of GO, we would like to quantify the impact of prediction algorithms on quality improvement. Specifically, we would like to answer two questions:
+This section quantifies the impact of prediction algorithms on quality improvement. Specifically, we would like to answer two questions:
 \begin{packedenumerate}
 	\item How much quality improvement does GO make under various scenarios?
 	\item How does prediction accuracy impact quality improvement under realistic scenarios?
 \end{packedenumerate}
 
-The difference between two questions is that the first question quantifies the impact of different scenarios on quality improvement with a fixed solution, i.e., GO. The second question quantifies the impact of the goodness of solution (i.e., prediction accuracy) on quality improvement, in realistic scenarios. This section begins with our methodology to answer the two questions. Then, we present our results and observations of each question.
+The difference between two questions is that the first question quantifies the impact of parameters of scenarios (e.g., performance heterogeneity) on quality improvement with a fixed prediction algorithm, i.e., GO. The second question quantifies the impact of the goodness of prediction algorithm (i.e., prediction accuracy) on quality improvement, in realistic scenarios. This section begins with a description of our methodology to answer the two questions. Then, we present our results and observations regarding each question.
 
 \tightsubsection{Methodology}
 To answer these two questions, we need to have three types of input. Here we briefly describe their intuition and difference. We will present the parameters and setup in detail when using them to answer particular questions.
@@ -38,7 +38,7 @@ To build confidence in this algorithm, we use controlled synthetic input to show
   \item {\it Dynamic bottleneck.} Performance of group A is decided by client-side problem, and that group B is decided by CDN-side problem, so when CDN changes its performance, only group B will switch decision.
 \end{packedenumerate}
 
-\begin{figure*}[t!]
+\begin{figure}[h!]
 \centering
 \subfigure[CDN performance degradation]
 {
@@ -47,12 +47,12 @@ To build confidence in this algorithm, we use controlled synthetic input to show
 }
 \subfigure[Impact of bottlenecks]
 {
-        \includegraphics[width=0.4\textwidth]{figures/placeholder.pdf}
+        \includegraphics[width=0.35\textwidth,height=1.2in]{figures/placeholder.pdf}
 	\label{subfig:behavioral:bottleneck}
 }
 \tightcaption{Behavioral study.}
 \label{fig:behavioral}
-\end{figure*}
+\end{figure}
 
 
 \tightsubsubsection{Evaluation under real trace}
