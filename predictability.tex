@@ -161,6 +161,7 @@ Having shown that with the attributes we collect, it is possible to achieve good
 First, we categorize the sources of difficulty in predicting video quality accurately (\Section~\ref{subsec:challenges}) which inform the choice of aggregating identical groups of all attributes (i.e., the finest identical groups) by ignoring (hopefully, less important) attributes so that more samples will be used(\Section~\ref{subsec:aggregation}) to counteract the noise and estimation error brought by sparse data.
 
 \tightsubsection{Predicting from finite data}
+
 \label{subsec:challenges}
 Although the figures~\ref{fig:predictability} show that in many cases, quality is similar among quality samples that share the same attribute values and same temporal interval, there are still a lot of quality sample groups that have high dispersion. This is one of the key challenges that make quality prediction difficult. 
 In this part, we enumerate the potential reasons that causes the dispersion we observe. Intuitively, if the number of similar sessions is small (e.g., $~10$ sessions), the mean quality outcome is subject to considerable random noise.  If we use this mean for prediction, the prediction will be subject to the same noise and consequently to high average error.  As the number of attributes grows, quality grows more predictable (as the noise decreases) but the number of perfectly-matched sessions may drop exponentially.
@@ -233,7 +234,7 @@ Intuitively, when estimation error is small (say, when a fine-grained identical 
 
 We use a simple methodology, called {\it optimal AC}, to show the dynamics of the right degree aggregation. For a finest identical group at $t$-th minute, we first build a hierarchy that consists of all degrees of aggregation over the quality samples we collects before the $t$-th minute. Figure~\ref{fig:example-optimal-ac} shows an example of three attributes. 
 Then, the optimal AC for this identical group is the degree of aggregation that gives the prediction value closest to the optimal prediction for the finest identical group at $t$-th minute which yields to minimal prediction error.
-For instance, if the optimal prediction of the targeted identical group is 0.2, the optimal AC (colored in red) is the one with the closest prediction to 0.2, i.e., (ASN,CDN). 
+For instance, if the optimal prediction of the targeted identical group is 0.2, the optimal AC (colored in red) is the one with the closest prediction to 0.2, i.e., $(ASN, CDN)$. 
 
 
 \begin{figure}[h!]
@@ -256,11 +257,12 @@ For instance, if the optimal prediction of the targeted identical group is 0.2, 
 \label{fig:optimal-ac-dynamics}
 \end{figure}
 
-\myparatight{Dynamics of the optimal AC} We find that the optimal AC (the aggregation that gives minimal prediction error) is in many cases neither the finest nor the coarsest one and is highly dynamic: 
+\myparatight{Optimal AC} We find that the optimal AC (the aggregation that gives minimal prediction error) is in many cases neither the finest nor the coarsest one, and, in addition, is highly dynamic:
+ 
 \begin{packeditemize}
-	\item {\it No one-fit-all optimal AC.} Figure~\ref{fig:optimal-ac-dynamics}-(a) gives coverage of optimal ACs (for each AC, the fraction of sessions of which this AC is the optimal AC), and it shows that the finest group only has coverage about 20\% and no coarsest grain AC (single attribute) is among the top 5. This implies that the optimal AC often occurs between the finest and coarsest grainular.
-	\item {\it No temporally prevalent optimal AC.} Figure~\ref{fig:optimal-ac-dynamics}-(b) gives prevalence of pair of (session under prediction, optimal AC) (the fraction of time that the finest group has this optimal AC), and it shows that 70\% pairs of (session under prediction, optimal AC) only last for less than 20\% of time. This implies that no single or a small set of optimal AC that can cover most sessions and used statically.
-	\item {\it Reactive does not help (much).} Figure~\ref{fig:optimal-ac-dynamics}-(c) gives persistence of pair of (session under prediction, optimal AC) (the longest continuous duration where a finest group has the same optimal AC) and it shows that there is at most 40\% of pair of (session under prediction, optimal AC) last more than 10 minutes. This implies that even a reactive strategy will miss many optimal AC.
+	\item {\it No single optimal AC.} Figure~\ref{fig:optimal-ac-dynamics}-(a) shows the coverage of optimal ACs, i.e., the fraction of time for which a given AC is the optimal AC. Note that there is no single optimal AC. For example, the finest group only has coverage about 20\% and no coarsest grain AC (single attribute) is among the top 5. This implies that the optimal AC is often in between.
+	\item {\it No temporally prevalent optimal AC.} Figure~\ref{fig:optimal-ac-dynamics}-(b) shows the prevalence of the $($\emph{session-under-prediction, optimal AC}$)$ pairs, i.e., the fraction of time the fines group of sessions has the same optimal AC. Note that $70\%$ pairs only last for less than $20\%$ of time. This implies that there is no single or a small set of optimal ACs that can cover most sessions.
+	\item {\it Highly dynamic optimal ACs.} Figure~\ref{fig:optimal-ac-dynamics}-(c) shows the persistence of the $($\emph{session-under-prediction, optimal AC}$)$ pairs, i.e., the longest continuous duration where the finest group has the same optimal AC. Only 40\% of pairs last for more than 10 minutes. This suggests that even with a reactive strategy will be challenging to track the optimal ACs.
 \end{packeditemize}
 
 
