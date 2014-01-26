@@ -23,18 +23,31 @@ and {\it optimized} (by GO).
 
 \tightsubsection{Rebuffering Rate and Average Bitrate}
 
-
-Figure~\ref{fig:perf-impr} shows the performance improvement of optimized over randomized algorithm. Performance improvement varies by time,
+Figure~\ref{subfig:buffering-and-bitrate} shows the performance improvement of optimized over randomized algorithm. Performance improvement varies by time,
 depending on how stable performance of CDN is. On day 30, we noticed a big performance improvement of more than 20\%,
 it turns out a major CDN was experiencing performance issues that lasts for more than one day. Table XXX shows the 
 performance and decisions, and indicates that GO can respond to such events and adjust decisions accordingly.
 
-\begin{figure}[h!]
+\begin{figure*}[t!]
 \centering
- \includegraphics[width=0.25\textwidth, angle=270] {figures/eval-perfimp.pdf}
-\tightcaption{Performance Improvement Using GO}
+\subfigure[Rebuffering ratio and average bitrate]
+{
+  \includegraphics[width=0.3\textwidth] {figures/eval-perfimp.pdf}
+  \label{subfig:buffering-and-bitrate}
+}
+\subfigure[Number of bitrate switches]
+{
+  \includegraphics[width=0.3\textwidth] {figures/eval-reduceswitch.pdf}
+  \label{subfig:reduce-switch}
+}
+\subfigure[Initial vs. dominant bitrate]
+{
+  \includegraphics[width=0.3\textwidth] {figures/eval-initvsdom.pdf}
+  \label{subfig:initvsdom}
+}
+\tightcaption{Performance Metrics and Improvement from GO}
 \label{fig:perf-impr}
-\end{figure}
+\end{figure*}
 
 
 \subsubsection{Case study}
@@ -66,44 +79,30 @@ Now we look into some particular example and see how GO improves quality by allo
 
 \tightsubsection{Adaptive Bitrate Stability}
 
-\tightsubsubsection{When Do Bitrate Switching Happen?}
+\tightsubsubsection{When Do Adaptive Bitrate Switches Happen?}
 
-In this section, we empirically study when do bitrate switching happen. Figure~\ref{fig:switch-time-dist} shows when adaptive bitrate switch happen, where
-x-axis is the percentage of actual video play time instead of content length. This is a conservative approach.
+Figure~\ref{fig:switch-time-dist} shows when do adaptive bitrate switches happen. To account for viewers leaving in the middle 
+of the video play, the x-axis is chosen as the percentage of actual video play duration instead of content length. 
+In this figure, we include another content provider who provides long-formed content on iOS platforms.
 
-It shows that the majority of switches happen at 
-the beginning of the video plays, i.e., X of the switches happen within Y of the video duration. 
+The figure shows that the majority of switches happen at the beginning of the video plays, i.e., around 60\% of the switches 
+happen within 20\% of the video duration. Switching behavior varies for different adaptive bitrate algorithms, and we do not 
+claim such observation apply to all algorithms.
+
+This suggests the importance of initial bitrate selection, through which viewers can have a smoother video playback experience.
 
 \begin{figure}[h!]
 \centering
- \includegraphics[width=0.25\textwidth, angle=270] {figures/switch-time-dist.pdf}
-\tightcaption{Distribution of When Adaptive Bitrate Switches Happen}
+ \includegraphics[width=0.4\textwidth] {figures/switch-time-dist.pdf}
+\tightcaption{When Do Adaptive Bitrate Switches Happen}
 \label{fig:switch-time-dist}
 \end{figure}
 
-
-\xil{we may add more algorithms if have time, also this may move from evaluation to previous sections since it is not really performance evaluation of algorithms.}
-
 \tightsubsubsection{Reducing Number of Bitrate Switch}
 
-Figure~\ref{fig:reduce-switch} shows the number of bitrate switches for optimized and random decisions within the first minute. 
+Figure~\ref{subfig:reduce-switch} shows the number of bitrate switches for optimized and random decisions within the first minute. 
 It shows that GO can reduce the number of switches.
-
-\begin{figure}[h!]
-\centering
- \includegraphics[width=0.25\textwidth, angle=270] {figures/eval-reduceswitch.pdf}
-\tightcaption{Number of adaptive bitrate switches}
-\label{fig:reduce-switch}
-\end{figure}
 
 \tightsubsubsection{Initial vs. Dominant Bitrate}
 
-Figure~\ref{fig:initvsdom} shows the ratio of initial bitrate to dominant bitrate (1 is best). It shows that GO is close to dominant bitrate.
-
-\begin{figure}[h!]
-\centering
- \includegraphics[width=0.25\textwidth, angle=270] {figures/eval-initvsdom.pdf}
-\tightcaption{Dominant bitrate to initial bitrate}
-\label{fig:initvsdom}
-\end{figure}
-
+Figure~\ref{subfig:initvsdom} shows the ratio of initial bitrate to dominant bitrate (1 is best). It shows that GO is close to dominant bitrate.
