@@ -1,40 +1,3 @@
-@inproceedings{domingos2000unified,
-  title={A unified bias-variance decomposition},
-  author={Domingos, Pedro},
-  booktitle={Proceedings of 17th International Conference on Machine Learning. Stanford CA Morgan Kaufmann},
-  pages={231--238},
-  year={2000}
-}
-
-@inproceedings{kohavi2009online,
-  title={Online experimentation at Microsoft},
-  author={Kohavi, Ron and Crook, Thomas and Longbotham, Roger and Frasca, Brian and Henne, Randy and Ferres, Juan Lavista and Melamed, Tamir},
-  booktitle={Third Workshop on Data Mining Case Studies and Practice Prize},
-  year={2009}
-}
-
-@article{george2008value,
-  title={Value function approximation using multiple aggregation for multiattribute resource management},
-  author={George, Abraham and Powell, Warren B and Kulkarni, Sanjeev R and Mahadevan, Sridhar},
-  journal={Journal of Machine Learning Research},
-  volume={9},
-  pages={2079--2111},
-  year={2008}
-}
-
-@book{gelman2003bayesian,
-  title={Bayesian data analysis},
-  author={Gelman, Andrew and Carlin, John B and Stern, Hal S and Rubin, Donald B},
-  year={2003},
-  publisher={CRC press}
-}
-
-@article{duchi2010composite,
-  title={Composite objective mirror descent},
-  author={Duchi, John and Shalev-Shwartz, Shai and Singer, Yoram and Tewari, Ambuj},
-  year={2010}
-}
-
 @inproceedings{nossdav12_akhshabi,
 title  = {{What Happens when HTTP Adaptive Streaming Players Compete for Bandwidth?}},
 author = {Saamer Akhshabi and  Lakshmi Anantakrishnan and  Constantine Dovrolis and  Ali C. Begen},
@@ -51,7 +14,7 @@ year = 2012
 
 @inproceedings{mmsys2011-cisco,
 title  = {{An Experimental Evaluation of Rate Adaptation Algorithms in Adaptive Streaming over HTTP}},
-author = {{S. Akhshabi, A. Begen, C. Dovrolis}},
+author = {Sameer Akhshabi and  Ali Begen and Constantinos Dovrolis},
 booktitle = {Proc.\ MMSys},
 year = 2011
 }
@@ -67,6 +30,7 @@ year = 2011
   title={An experimental investigation of the Akamai adaptive video streaming},
   author={De Cicco, L. and Mascolo, S.},
   journal={HCI in Work and Learning, Life and Leisure},
+%  pages={447--464},
   year={2010},
   publisher={Springer}
 }
@@ -164,7 +128,7 @@ year= 2011
 title = {{User perception of adapting video quality}},
 author = {Nicola Cranley and Philip Perry and Liam Murphy},
 journal  = {International Journal of Human-Computer Studies},
-year  = 2006,
+year  = 2006
 volume = 64,
 number = 8
 }
@@ -208,6 +172,16 @@ title = {Adobe OSMF Player},
 howpublished = {\url{http://www.osmf.org}}
 }
 
+@misc{osmf2code,
+title = {OSMF 2.0 release code},
+howpublished = {\url{http://sourceforge.net/projects/osmf.adobe/files/latest/download}}
+}
+
+@misc{hdsdemo,
+title = {Crystal-clear HD with Adobe HTTP Dynamic Streaming},
+howpublished = {\url{http://zeridemo-f.akamaihd.net/content/adobe/demo/1080p.f4m}}
+}
+
 @misc{hds,
 title = {Adobe HTTP Dynamic Streaming},
 howpublished = {\url{www.adobe.com/products/hds-dynamic-streaming.html}}
@@ -247,7 +221,7 @@ howpublished = {\url{en.wikipedia.org/wiki/Windows_Media}}
 
 @inproceedings{mmsys12-havey,
 title = {{Receiver driven rate adaptation for wireless multimedia applications}},
-author = {D. Havey, R. Chertov, K. Almeroth},
+author = {D Havey and R Chertov and  K Almeroth},
 booktitle = {Proc.\ MMSys},
 year = 2012
 }
@@ -294,10 +268,16 @@ year = 2012
 @inproceedings{sigcomm12,
 author = {Liu, X. and Dobrian, F. and Milner, H. and Jiang, J. and Sekar, V. and Stoica, I. and Zhang, H.},  
 title  = {{A Case for a Coordinated Internet Video Control Plane}},
-booktitle = {Proc. SIGCOMM},
+booktitle = {SIGCOMM},
 year = 2012
 }
 
+@misc{federated2,
+author = {{D. Rayburn}},
+title = {{ Telcos and carriers forming new federated cdn group called ocx
+(operator carrier exchange)}},
+howpublished = { June 2011. StreamingMediaBlog.com}
+}
 
 @article{rizzo1997dummynet,
   title={Dummynet: a simple approach to the evaluation of network protocols},
@@ -325,7 +305,7 @@ year = 2012
 @inproceedings{sigcomm12cdnmulti,
 author = {Harry Liu and Ye Wang and Yang Richard Yang and Alexander Tian and Hao Wang}, 
 title = {{Optimizing Cost and Performance for Content Multihoming}},
-booktitle = {in Proc.\ SIGCOMM},
+booktitle = {Proc.\ SIGCOMM},
 year= 2012
 }
 
@@ -347,5 +327,33 @@ year= 2010
 title = {{A quantitative measure of fairness and discrimination for resource allocation in shared computer system}}, 
 author = {{R. Jain, D. Chiu, and W. Hawe}}, 
 howpublished = {Technical Report, DEC, 1984}
+}
+
+@inproceedings{confused,
+author = {Te-Yuan Huang and Nikhil Handigol and Brandon Heller and Nick McKeown and Ramesh Johari}, 
+title = {{Confused, Timid, and Unstable: Picking a Video Streaming Rate is Hard}},
+booktitle = {Proc.\ IMC},
+year= 2012
+}
+
+@inproceedings{fairqueueing,
+author = {Alan Demers and Srinivasan Keshav and Scott Shenker},
+title = {{Analysis and Simulation of a Fair Queueing Algorithm}},
+booktitle ={Proc.\ SIGCOMM},
+year = 1989
+}
+
+@inproceedings{ccn,
+author = {Van Jacobson and Diana K. Smetters and James D. Thornton and Michael F. Plass and Nicholas H. Briggs and Rebecca L. Braynard},
+
+title = {{Networking Named Content}},
+booktitle = {Proc.\ CoNext},
+year = 2009
+}
+
+@article{sekar2012quest,
+  title={A Quest for an Internet Video Quality-of-Experience Metric},
+  author={Balachandran, A. and Sekar, V. and Akella, A. and Stoica, S.S.I. and Zhang, H.},
+  year={2012}
 }
 

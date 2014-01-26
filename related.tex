@@ -1,1 +1,21 @@
 \tightsection{Related Work}
+We briefly highlight two areas of research to place our work in context.
+
+\tightsubsection{QoS of Internet video}
+\myparatight{Quality metrics} 
+A key aspect in  video delivery is to optimize user-perceived  quality of experience.  There is evidence that
+users are sensitive to buffering ratio (e.g., \cite{sigcomm11}) and frequent changes in bitrate (e.g.,~\cite{user-adaptive,videoqoe}). More recent studies show a more causal relationsihpe betwen quality and user engagement~\cite{akamai-imc12}. The design of a good QoE metric (e.g., \cite{qscore}) is still an active area of research. As our understanding of video QoE matures, we can extend GO to be QoE-aware (as suggested in ~\cite{sekar2012quest})
+
+\myparatight{Client-side adaptation} This includes the work on identifying problems existing in client-adaptation algorithms (e.g.,~\cite{mmsys2011cisco}), interation between player logic and TCP (e.g.,~\cite{usenix12_ghobadi,nossdav12_esteban}), and better bitrate adaptation algorithm to improve quality (e.g.,~\cite{nossdav12_akhshabi,festive}). GO can be considered as an enhancement to client-side adaptation by making decisions based on  a global view of more information collected from other clients.
+
+\myparatight{CDN and server selection} These efforts have demonstrated inefficiencies in CDN and server selection strategies~\cite{youtubecdn,youtube-infra}, and studied various techniques to improve video quality, including cross-CDN optimization (e.g., ~\cite{sigcomm12,sigcomm12cdnmulti}), CDN federation (e.g.,~\cite{peterson2013framework}) and the use of ISP-CDN (e.g., ~\cite{yu2012tradeoffs,frank2013pushing}).  While GO currently focuses on quality improvement via better CDN and bitrate selection, we expect GO and its techniques can help these techniques make more precise decisions.
+
+\myparatight{Other video measurement}  There is a large  literature in sources of video quality problems including content popularity and access patterns (e.g.,~\cite{youtube-imc07}\cite{plissonneau2012longitudinal}) and flash crowds during highly popular events (e.g.,~\cite{beijing-imc09}). Using a dataset that provides similar panoramic view, ~\cite{jiang2013shedding} studies the structure of video quality problems in more dimensions (e.g., content provider and video type). GO's attribute-based prediction algorithm extends a similar structural analysis to quality prediction and study the effectiveness of predicting not only sessions with quality problems, but also how good or bad the quality could be in a finer granular.
+
+\tightsection{Internet global optimization}
+
+\myparatight{Control plane and centralized decisions} There is a long line of work in which the control plane is separated from the data plane (e.g.,~\cite{rcp,onix,4d,openflow}) and they focus on physical networks rather than application-level applications, and the objectives are often packet forwarding behaviors and policy compliance in routing, rather than performance or quality optimization. 
+
+\myparatight{Controller scalability} Casado's paper on onix controller scalability
+
+\myparatight{Information sharing} SPAND... Service-level crowdsourcing...

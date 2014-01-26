@@ -1,3 +1,8 @@
+
+
+
+
+
 \tightsection{Evaluation}
 
 In this section, we evaluate the performance of the GO system. High level summary:
@@ -18,6 +23,7 @@ and {\it optimized} (by GO).
 
 \tightsubsection{Rebuffering Rate and Average Bitrate}
 
+
 Figure~\ref{fig:perf-impr} shows the performance improvement of optimized over randomized algorithm. Performance improvement varies by time,
 depending on how stable performance of CDN is. On day 30, we noticed a big performance improvement of more than 20\%,
 it turns out a major CDN was experiencing performance issues that lasts for more than one day. Table XXX shows the 
@@ -29,6 +35,33 @@ performance and decisions, and indicates that GO can respond to such events and 
 \tightcaption{Performance Improvement Using GO}
 \label{fig:perf-impr}
 \end{figure}
+
+
+\subsubsection{Case study}
+Now we look into some particular example and see how GO improves quality by allocating traffic to best CDN. Figure~\ref{fig:eval-case-study} shows three example days in which three CDNs performed differently: in terms of average bitrate and buffering ratio, CDN1 was the best on Day A, CDN2 was the best on Day B and three CDNs performed similarly on Day C. We can see that in both Day A and B, GO managed to allocate more traffic to the best CDN (Figure~\ref{subfig:eval-case-study:share}) and maintain the global average quality to be similar to the best CDN in both average bitrate and buffering ratio. Even on Day C, GO still managed to reach an arguably improvement of buffering ratio and average bitrate. This indirectly suggests that GO was not only looking for the globally best CDN, but also differentiated CDN performance in finer granular partition.
+
+
+\begin{figure*}[t!]
+\centering
+\subfigure[Buffering ratio]
+{
+	\includegraphics[width=0.3\textwidth]{figures/ab-testing-figures/bufferingratio.pdf}
+	\label{subfig:eval-case-study:bufferingratio}
+}
+\subfigure[Average bitrate (Kbps)]
+{
+	\includegraphics[width=0.3\textwidth]{figures/ab-testing-figures/averagebitrate.pdf}
+	\label{subfig:eval-case-study:averagebitrate}
+}
+\subfigure[Traffic share of different CDNs]
+{
+	\includegraphics[width=0.3\textwidth]{figures/ab-testing-figures/trafficshares.pdf}
+	\label{subfig:eval-case-study:share}
+}
+\tightcaption{Case study of three days: CDN1 was the best on Day A and CDN2 was the best on Day B. In both cases, GO managed to allocate more traffic to the best CDN and maintain the global average quality to be similar to the best CDN in both average bitrate and buffering ratio. Even on Day C where three CDN performed similarly, GO still managed to reach an arguably improvement of buffering ratio and average bitrate.}
+\label{fig:eval-case-study}
+\end{figure*}
+
 
 
 \tightsubsection{Adaptive Bitrate Stability}

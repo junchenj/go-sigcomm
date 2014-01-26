@@ -13,7 +13,7 @@ sizes to show that increasing cluster size improves computation time}
 \label{fig:computing-scale}
 \end{figure}
 
-\tightsection{Broadcasting group table} The resulting table is broadcasted wholesale out to a larger group of decision makers (DMs) closer to video clients in multiple POPs by way of a distributed messaging system, Kafka. The bottleneck here is bandwidth, as the table can be quite large.  In general is is an $O(n)$ process to deliver the table where $n$ is the number of distinct rows. See Figure~\ref{fig:fetching-scale}
+\myparatight{Broadcasting group table} The resulting table is broadcasted wholesale out to a larger group of decision makers (DMs) closer to video clients in multiple POPs by way of a distributed messaging system, Kafka. The bottleneck here is bandwidth, as the table can be quite large.  In general is is an $O(n)$ process to deliver the table where $n$ is the number of distinct rows. See Figure~\ref{fig:fetching-scale}
 
 \begin{figure}[h!]
 \centering
@@ -22,7 +22,7 @@ sizes to show that increasing cluster size improves computation time}
 \label{fig:fetching-scale}
 \end{figure}
 
-\tightsection{Decision making} Once a decision maker has a table, decision making is a matter of multiple lookups for evaluation of each decision. Given that there are $N$ ACs for decision evaluation, and $M$ possible decisions, there are $M \times N$ lookups in a hashmap for a decision to be made. In general, the number of possible decisions is quite small, as are the number of ACs. Consequently, decision making is extremely fast, with an average response time of $.62 \quad ^{+}_{-}\quad .016$ms. See figure~\ref{fig:query-scale}    
+\myparatight{Decision making} Once a decision maker has a table, decision making is a matter of multiple lookups for evaluation of each decision. Given that there are $N$ ACs for decision evaluation, and $M$ possible decisions, there are $M \times N$ lookups in a hashmap for a decision to be made. In general, the number of possible decisions is quite small, as are the number of ACs. Consequently, decision making is extremely fast, with an average response time of $.62 \quad ^{+}_{-}\quad .016$ms. See figure~\ref{fig:query-scale}    
 
 \begin{figure}[h!]
 \centering
