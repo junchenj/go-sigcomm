@@ -1,33 +1,62 @@
-\tightsection{Implementation}
-In this section, we present the implementation of GO including the GO backend and instrumentation video player. The GO backend collects information (including quality samples) sent back by client, processes the information periodically to aggregation the information so that on receiving a new session under prediction, the best decision can be quickly made by predicting the outcome of each possible decision.
+\tightsection{Implementation and Scalability}
+In this section, we present the high level implementation of GO centered primarily on the data processing and decision making components. The GO backend collects information (including quality samples) sent back by clients, processes the information periodically to aggregate the information, and then, upon on receiving a request from a new session, the best decision can be made quickly.
+
+Like many data processing systems, individual events from every single client sending information must be rolled up and summarized into a succinct format. Because many systems do this, and there is nothing specific to our problem about how this is done, we will focus on how the system rapidly translates these summaries into meaningful pieces of information used for prediction and decision making. These summaries consist of the most recent performance information about a session, as well as the information about what decision was made for the session. Paramount in our implementation was the need to make very rapid decisions, as any extra delay in decision making could impact performance of the client making the request. This meant that the vast majority of prediction information needed to be precomputed. This resulted in an implementation that involves two parts: computation of a group table, and broadcasting of said table out to servers close to the clients making requests.
+
+\myparatight{Creating group table} Group table generation is essentially the process of aggregating samples into buckets, and then computing summary statistics for each bucket.  Our implementation uses Spark as the underlying compute framework, and the problem becomes as simple as map and combineByKey. Each sample is loaded in parallel from an HDFS source and distributed amongst the cluster. Each node then maps its share of samples to a set of preliminary buckets. Common buckets are then shuffled across the cluster and the results are aggregated and collected onto a master machine. See Figure~\ref{fig:computing-scale}
+
+\begin{figure}[h!]
+\centering
+ \includegraphics[width=0.5\textwidth] {figures/fetch_time_scale.pdf}
+\tightcaption{Dummy figure. This will essentially be overlaid multiple scatter plots from different cluster
+sizes to show that increasing cluster size improves computation time}
+\label{fig:computing-scale}
+\end{figure}
+
+\tightsection{Broadcasting group table} The resulting table is broadcasted wholesale out to a larger group of decision makers (DMs) closer to video clients in multiple POPs by way of a distributed messaging system, Kafka. The bottleneck here is bandwidth, as the table can be quite large.  In general is is an $O(n)$ process to deliver the table where $n$ is the number of distinct rows. See Figure~\ref{fig:fetching-scale}
+
+\begin{figure}[h!]
+\centering
+ \includegraphics[width=0.5\textwidth] {figures/fetch_time_scale.pdf}
+\tightcaption{Time to fetch versus table size.}
+\label{fig:fetching-scale}
+\end{figure}
+
+\tightsection{Decision making} Once a decision maker has a table, decision making is a matter of multiple lookups for evaluation of each decision. Given that there are $N$ ACs for decision evaluation, and $M$ possible decisions, there are $M \times N$ lookups in a hashmap for a decision to be made. In general, the number of possible decisions is quite small, as are the number of ACs. Consequently, decision making is extremely fast, with an average response time of $.62 \quad ^{+}_{-}\quad .016$ms. See figure~\ref{fig:query-scale}    
+
+\begin{figure}[h!]
+\centering
+ \includegraphics[width=0.5\textwidth] {figures/query_scale.pdf}
+\tightcaption{Query times PDF.}
+\label{fig:query-scale}
+\end{figure}
 
 
-
-\jc{rest of this section has to be written by Conviva engineers but the content is better organized in the same way previous sections present the system.}
-
-\tightsection{Scalability}
-The goal of this section is to show that our implementation of the GO backend is scalable for centralized processing, including to continuously collect and process massive client-side measurement and based on the result, make decision for each video session of a large number of viewers. That said, we need to examine 
-\begin{packeditemize}
-\item The general scalability of handling updates and queries of the GO backend, and
-\item The scalability of GO decision making which gets quality samples from quality sample storage and answers query for best decision to querying sessions.
-\end{packeditemize}
-%Note that our implementation leverages several existing techniques (e.g., quality sample aggregation uses Spark). We will also discuss the impact of our particular implementation on the performance.
-
-\tightsubsection{Backend throughput}
-
-We need to show that performance (using certain metric) as a function of the number of quality samples (i.e., heartbeats), and the number of session under prediction (i.e., GO precision queries) (and other factors that might impact the scalability of backend throughput). This is to confirm that the backend (excluding GO) is not the bottleneck.
-
-\tightsubsection{GO scalability}
-
-The GO implementation has two separate jobs that run in parallel: (1) creating group table -- to fetch the quality samples from quality sample storage, process them into a group table and broadcast the group table to query responders, and (2) decision making -- to answer the query by responders. 
-
-The delay of creating group table determines the freshness of information based on which the decisions are made. If this step takes $t$ second, the decision has to be made based only information that was at least $t$ seconds ago. Delay of decision making is a critical part of the responsiveness of GO backend and potentially a bottleneck of how quickly the client video gets the decision which is very sensitive to video quality when making initial decisions. 
-We should show the performance of both metrics and memory requirement as a function of workload and computational resource as welll. \fillme
-
-
-\myparatight{Creating group table} We first examine the delay of creating group table. We should decompose it into (a) data fetching from hdfs, (b) ACS-based aggregation and (c) group table broadcast, and show impact of number of quality samples on (a), impact of number of quality samples and number of groups on (b) and impact of number of groups on (c).
-
-\myparatight{Decision making} We then examine the delay of decision making. \fillme
+ 
+% \tightsection{Scalability}
+% The goal of this section is to show that our implementation of the GO backend is scalable for centralized processing, including to continuously collect and process massive client-side measurement and based on the result, make decision for each video session of a large number of viewers. That said, we need to examine 
+% \begin{packeditemize}
+% \item The general scalability of handling updates and queries of the GO backend, and
+% \item The scalability of GO decision making which gets quality samples from quality sample storage and answers query for best decision to querying sessions.
+% \end{packeditemize}
+% %Note that our implementation leverages several existing techniques (e.g., quality sample aggregation uses Spark). We will also discuss the impact of our particular implementation on the performance.
+% 
+% \tightsubsection{Backend throughput}
+% 
+% We need to show that performance (using certain metric) as a function of the number of quality samples (i.e., heartbeats), and the number of session under prediction (i.e., GO precision queries) (and other factors that might impact the scalability of backend throughput). This is to confirm that the backend (excluding GO) is not the bottleneck.
+% 
+% \tightsubsection{GO scalability}
+% 
+% The GO implementation has two separate jobs that run in parallel: (1) creating group table -- to fetch the quality samples from quality sample storage, process them into a group table and broadcast the group table to query responders, and (2) decision making -- to answer the query by responders. 
+% 
+% The delay of creating group table determines the freshness of information based on which the decisions are made. If this step takes $t$ seconds, the decision has to be made based only information that was at least $t$ seconds ago. Delay of decision making is a critical part of the responsiveness of GO backend and potentially a bottleneck of how quickly the client video gets the decision which is very sensitive to video quality when making initial decisions. 
+% We should show the performance of both metrics and memory requirement as a function of workload and computational resource as well. 
+% \fillme
+% 
+% 
+% 
+% 
+% \myparatight{Decision making} We then examine the delay of decision making. \fillme
 
 %There are four parts in GO backend that can potentially become performance bottleneck -- user-facing gateway, quality sample storage, quality sample aggregation using ACS, and making individual decisions. To show the scalability, we use micro-benchmark to test their performance as a function of workload (e.g., number of quality samples and queries).
 
