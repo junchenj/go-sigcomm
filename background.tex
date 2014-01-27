@@ -49,14 +49,15 @@ the quality that would be experienced by the new client when streaming
 at a given bitrate. Based on this prediction, we can then select the
 optimal bitrate for the new client.  In TCP protocol design, we might
 gather data about many TCP connections to discover the distribution of
-packet loss rates for different initial window sizes.  \jc{Also cite
-  sigcomm'12 paper on data-driven TCP design which argues that TCP
-  parameters need to be driven by real data}
+packet loss rates for different initial window sizes.  
+%moved to related work \jc{Also cite
+ % sigcomm'12 paper on data-driven TCP design which argues that TCP
+ % parameters need to be driven by real data}
 
 We refer to the resulting model\henry{need a different word for this;
   ``model'' is now unfortunately overloaded} of sharing information
 across clients and making decisions based on predictions made by
-shared information as a predictive decision model. 
+shared information as a {\it predictive decision} model. 
 
 % ION: move to discussion section
 % We note that predictive decision model which requires sharing the
@@ -97,7 +98,7 @@ system, called video Global Optimization (GO).  As shown in
 Figure~\ref{fig:go-overview}, GO consists of two main components: (i)
 a backend that collects and process the information about the video
 quality across all clients, and (ii) a client library that collects
-quality information at each client and sent it back to the backend. In
+quality information at each client and sends it back to the backend. In
 particular, the client library monitors the states of player and
 network condition, summarizes them in the form of \emph{quality
   samples} (see details in \Section~\ref{subsec:dataset}) and send
