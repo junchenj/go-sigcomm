@@ -1,19 +1,24 @@
 \tightsection{Quality Improvement via Prediction}
 \label{improvement}
-%Now we can fill in the details of section 3 a bit more.  Figure~\ref{fig:go-overview} shows how prediction and decision-making work in GO.
-Having shown that with the attributes we collect, our prediction algorithms can provide close-to-optimal prediction accuracy, we now evaluate the quality improvement resulting from the prediction algorithms. GO's ``transition'' from prediction accuracy to quality improvement is straightforward -- the decision making algorithm simply selects the decision that has the best predicted quality in a predetermined metric. Note that GO always leave a small fraction of traffic to be randomized traffic which is randomly allocated so as to guarantee that each decision will have at least certain fraction of traffic even when it is current not the best decision for any session.
 
-This section quantifies the impact of prediction algorithms on quality improvement. Specifically, we would like to answer two questions:
+%Now we can fill in the details of section 3 a bit more.  Figure~\ref{fig:go-overview} shows how prediction and decision-making work in GO.
+Having shown that with the attributes we collect, our prediction algorithms can provide close-to-optimal prediction accuracy, we now evaluate the quality improvement resulting from the prediction algorithms. GO's ``transition'' from prediction accuracy to quality improvement is straightforward -- the decision algorithm simply selects the decision that has the best predicted quality in a predetermined metric. Note that GO always leave a small fraction of traffic to be randomly allocated to guarantee that each decision will have at least certain fraction of traffic even when that decision is not the best.
+
+This section quantifies the impact of prediction algorithms on quality improvement. Specifically, we aim to answer two questions:
 \begin{packedenumerate}
-	\item How much quality improvement does GO make under various scenarios?
+	\item What quality improvement does GO provide under various scenarios?
 	\item How does prediction accuracy impact quality improvement under realistic scenarios?
 \end{packedenumerate}
 
-The difference between two questions is that the first question quantifies the impact of parameters of scenarios (e.g., performance heterogeneity) on quality improvement with a fixed prediction algorithm, i.e., GO. The second question quantifies the impact of the goodness of prediction algorithm (i.e., prediction accuracy) on quality improvement, in realistic scenarios. This section begins with a description of our methodology to answer the two questions. Then, we present our results and observations regarding each question.
+%The difference between two questions is that the first question quantifies the impact of scenario parameters (e.g., performance heterogeneity) on quality improvement given a fixed prediction algorithm, i.e., GO. The second question quantifies the impact of the goodness of prediction algorithm (i.e., prediction accuracy) on quality improvement, in realistic scenarios. 
+We next describe our methodology, and then present our results and observations regarding each question.
 
 \tightsubsection{Methodology}
-Ideally, to answer these two questions, we need a dataset in which for any session, the quality outcome on each decision is available so that decisions different from the ones that were actually used can be evaluated. However, it is impossible to collect the quality of the same session on multiple decisions simultaneously. In addition, real trace only contains scenarios that happened before, and it is often insufficient to evaluate over a wide range of scenarios.
-Alternatively, we use three types of input. Here we briefly describe their intuition and difference. Table~\ref{tab:input} summarizes the features of different types of input. We will present the parameters and setup in detail when using them to answer concrete questions.
+
+Ideally, to answer the above questions, we need a dataset in which for any session, the quality outcome on each decision is available so that decisions different from the ones that were actually used can be evaluated. However, it is impossible to collect the quality of the same session on multiple decisions simultaneously. In addition, real trace only contains scenarios that happened before, and it is often insufficient to evaluate over a wide range of scenarios.
+
+Alternatively, we use three approaches, which mostly differ by their input type. Table~\ref{tab:input} summarizes the features of different types of input. 
+%We will present the parameters and setup in detail when using them to answer concrete questions.
 
 \begin{table}[h]
     \begin{tabular}{ccccc}
@@ -28,10 +33,14 @@ Alternatively, we use three types of input. Here we briefly describe their intui
 \end{table}
 
 \begin{packeditemize}
-	\item {\it Type I input: Controlled synthetic input} We need fully controlleable input in which the true outcomes (i.e., ``ground truth'') of multiple decisions are under our control and we can change them continously so as to quantify the quality improvement. By doing so, we would also be able to have access to the optimal quality (i.e., an {\it oracle} approach) which it will be useful to compare GO with.
-	\item {\it Type II input: Counterfactual input} To answer these questions under realistic scenarios (real trace), we use a methodology similar to A/B testing, which we call {\it counterfactual testing}. The methodology is described in detail in section~\ref{sec:counterfactualtesting}. Its basic idea is that we first collect a dataset (called {\it random dataset}) in which the decisions are randomly made for each client and we collect the quality each client gets. To evaluate the outcome of the same set of sessions each making a decision based on some algorithm (i.e., possibly the same decision), we will be able to have {\it unbiased} evaluation based on those sessions with the same decision as in the random dataset.
-	\item {\it Type III input: Randomized trace-driven input} Randomizing real traces with controlled amount is important for evaluating a decision-making algorithm. However, our real traces do not admit the sensitivity analysis of a decision-making algorithm to the changes in scenario parameters. In addition, it does not provide for each session the quality of a decision other than the one it actually took, so it is impossible to evaluate against oracle approach.  To remedy these limitations, we generate a trace-driven synthetic dataset. The basic idea is to generate a session $s$ whose outcome of each decision $d$ is drawn from the distribution of outcomes of this decision $d$ on other sessions exactly matching the same attributes with $s$. Having ensured that quality outcomes in the synthetic scenario are known for any decision, it is possible to identify an {\it oracle} approach that always makes the best decision.
+	\item {\it Type I: Controlled synthetic input} We need fully controlleable input in which the true outcomes (i.e., ``ground truth'') of multiple decisions are under our control and we can change them continously to quantify the quality improvement. By doing so, we also have access to the optimal quality (i.e., an {\it oracle} approach) which it will be useful to compare GO with.
+	\item {\it Type II: Counterfactual input} To answer these questions under realistic scenarios (real trace), we use a methodology similar to A/B testing, which we call {\it counterfactual testing}. The methodology is described in detail in section~\ref{sec:counterfactualtesting}. Its basic idea is that we first collect a dataset (called {\it random dataset}) in which the decisions are randomly made for each client and we collect the quality each client gets. With such an input, we can evaluate a given decision algorithm by simply considering only the sessions for which the algorithm makes decisions that match the decisions in the random dataset.
+%the outcome of the same set of sessions each making a decision based on a given algorithm (i.e., possibly the same decision), we will be able to have {\it unbiased} evaluation by considering only the sessions for which the algorithm we evaluate makes decisions that match the decision as in the random dataset.
+	\item {\it Type III: Randomized trace-driven input} 
+%Randomizing real traces is important for evaluating a decision-making algorithm. However, 
+Our real traces does not allow us to perform sensitivity analysis of a decision-making algorithm to the changes in scenario parameters. In addition, it does not provide for each session the quality of a decision other than the one it actually took, so it is impossible to evaluate against the oracle approach.  To remedy these limitations, we generate a trace-driven synthetic dataset. The basic idea is to generate a session $s$ whose outcome of each decision $d$ is drawn from the distribution of outcomes of this decision $d$ on other sessions exactly matching the same attributes with $s$. Having ensured that quality outcomes in the synthetic scenario are known for any decision, it is possible to identify an {\it oracle} approach that always makes the best decision.
 \end{packeditemize}
+
 In any scenario, we would like to quantify the quality improvement of GO based on random selection (which makes decision with equal prabability), and how close GO is to an oracle approach (with controlled and trace-driven synthetic input).
 
 \comment{
@@ -45,7 +54,7 @@ In any scenario, we would like to quantify the quality improvement of GO based o
 
 \tightsubsection{Improving quality with GO}
 
-We first would like to quantify the impact of parameters of scenarios (e.g., performance heterogeneity) on quality improvement with GO.
+We first quantify the impact of scenario parameters (e.g., performance heterogeneity) on quality improvement with GO.
 
 \begin{figure}[h!]
 \centering
@@ -67,12 +76,9 @@ We first would like to quantify the impact of parameters of scenarios (e.g., per
 \jc{I have a hard time using ``performance'' and ``quality''. Ion, is it correct that we should say CDN performance, quality anywhere else?}
 To build confidence in GO and its selection algorithm, we use Type I input (controlled synthetic) to show how decision-making based on prediction behaves in some simple synthetic scenarios where the optimal decisions are clear:
 
-\myparatight{CDN performance degradation} We simulate a scenario in which a sudden change in performance of one group causes GO to switch decision accordingly. Figure~\ref{subfig:behavioral:cdn} shows the behavior of sessions in one ASN when provided with two CDNs to choose from. Assume that buffering ratio is the only considered quality metric. The mean of buffering ratio of CDN1 is stably at 0.2 and that of CDN2 changes between 0.1 and 0.25, with a random interval. Each quality sample of a CDN is generated so that its buffering ratio has a Guassian noise of \fillme deviation from mean. This figure shows clearly that under this configuration, GO is able to switch to the best CDN accordingly with an expected delay (as it uses a 30-minute sliding window). Note that there is always a small amount of randomized traffic, so the change on each decision can be detected. As a side-effect, it takes longer for GO to detect CDN2 from bad quality to good quality than reversely, because the number of samples from CDN2 when it is in bad quality (only randomized traffic) than when it is in good quality (all traffic).
+\myparatight{CDN performance degradation} We simulate a scenario in which a sudden change in performance of one group causes GO to switch decision accordingly. Figure~\ref{subfig:behavioral:cdn} shows the behavior of sessions in one ASN when provided with two CDNs to choose from. Assume that buffering ratio is the only considered quality metric. The mean of buffering ratio of CDN1 is stably at 0.2 and that of CDN2 changes between 0.1 and 0.25, with a random interval. Each quality sample of a CDN is generated so that its buffering ratio has a Guassian noise of \fillme deviation from mean. This figure shows clearly that under this configuration, GO is able to switch to the best CDN accordingly with an expected delay (as it uses a 30-minute sliding window). Note that there is always a small amount of randomized traffic, so the change on each decision can be detected. As a side-effect, it takes longer for GO to detect that CDN2 has bad bad quality than when it has good quality, because the number of samples from CDN2 when it has bad quality (only randomized traffic) is smaller than when it has good quality (all traffic).
 
-\myparatight{Multiple bottlenecks} We simulate a scenario to compare the effect of CDN performance change on sessions whose quality is bottlenecked by the combination of CDN and ASN.
-We create two groups A and B, and two CDNs, CDN1 and CDN2. Sessions of group A belongs to ASN1 and the quality to CDN1 is tably at 0.2 while that to CDN2 changes over time between 0.1 and 0.25 with a random interval. Similarly, sessions of group B belongs to ASN2 and the quality to CDN2 is tably at 0.2 while that to CDN1 changes over time between 0.1 and 0.25 with a random interval. Figure~\ref{subfig:behavioral:cdn} shows the behavior of sessions from each group. The fraction of traffic going to each CDN changes accordingly with the actual CDN performance changes. CDN2 (to ASN1) and CDN1 (to ASN2) change independently and so do the fraction of traffic from each group. This suggests that GO identifies the two groups and optimizing them separately.
-
-
+\myparatight{Multiple bottlenecks} We simulate a scenario to compare the effect of CDN performance change on sessions whose quality is bottlenecked by the combination of CDN and ASN. We create two groups A and B, and consider two CDNs, CDN1 and CDN2. Sessions of group A belongs to ASN1, while the sessions of group B belongs to ASN2. The quality of CDN1 is stable at 0.2 while that to CDN2 alternates over time between 0.1 and 0.25. Similarly, the quality of CDN2 is 0.2 while that to CDN1 alternates between 0.1 and 0.25. Figure~\ref{subfig:behavioral:cdn} shows the behavior of sessions from each group. The fraction of traffic going to each CDN changes accordingly when the actual CDN performance changes. CDN2 (to ASN1) and CDN1 (to ASN2) change independently and so do the fraction of traffic from each group. This suggests that GO identifies the two groups and optimizes them separately.
 
 \begin{figure*}[t!]
 \centering
@@ -98,12 +104,12 @@ We create two groups A and B, and two CDNs, CDN1 and CDN2. Sessions of group A b
 
 
 \tightsubsubsection{Evaluation under real trace}
-We show how GO works in practice in a real trace, in comparison to a naive baseline algorithm that makes random decisions.  To be realistic and get an unbiased evaluation of GO's performance, we use Type II input (couterfactual input); the methodology is described in detail in section \ref{sec:counterfactualtesting}. 
+
+In this section, we use real traces to compare GO to a naive baseline algorithm that makes random decisions.  To obtain an unbiased evaluation of GO's performance, we use Type II input (couterfactual input); the methodology is described in detail in section \ref{sec:counterfactualtesting}. 
 
 Figure~\ref{fig:counterfactual} shows the performance comparison between GO and random selection over a one day's worth of data. This is from one particular Site whose video can be streamed from three major CDNs in US. Each video is encoded in 6 different levels of bitrates, so that each session has in total 18 candidate decisions to choose from. In this evaluation, GO always select the best decision that gives the highest average bitrate (i.e., targeted quality metric is average bitrate).
 
-Overall, it shows an almost consistent improvement of GO in all metrics, despite that we only consider bitrate. The improvement is \fillme to \fillme for average bitrate, \fillme to \fillme for bitrate, \fillme to \fillme for join time and \fillme to \fillme for start failure rate. Traditinally, people believe that increasing average bitrate is very likely to be at a cost of buffering ratio or join time, as it requires high bandwidth. However, our result suggests that the improvement in average bitrate can be reaches with no cost and even with benefits to other metrics.
-
+Overall, it shows an almost consistent improvement of GO in all metrics, despite that we only consider bitrate. The improvement is \fillme to \fillme for average bitrate, \fillme to \fillme for bitrate, \fillme to \fillme for join time and \fillme to \fillme for start failure rate. One interesting point to note here is that increasing average bitrate does not come at the expense of the buffering ratio, as one might expect. Indeed, our result suggests that the improvement in the average bitrate does not come at the cost of other metrics, such as buffering ratio. This is because the CDNs that can sustain higer bit rates, typically achieve lower buffering ratio as well.
 
 \tightsubsubsection{Impact of quality heterogeneity}
 To test GO against controlled quality heterogeneity across decisions, we have to identify the true outcome of decisions we did not take, so we use Type III input (randomized trace-driven). Given a session $s$ and one of its decisions $d$, the key challenge is to draw its quality outcome from the distribution ($M_{v_g(s),d}$) that consists of outcomes of the same decision on other sessions that share the same attributes with this session. Remember $v_g(s)$ returns the values on all attributes in $g$ of session $s$, and we use all attributes except for initial bitrate and CDN.
