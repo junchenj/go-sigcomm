@@ -78,11 +78,6 @@ shared information as a predictive decision model.
 
 \tightsubsection{System Overview}
 
-%Previous research has quantified the impact of quality on user
-%experience~\cite{sigcomm12,conext13}. In particular, high start-up
-%latency, buffering, and bitrate have all significant impact on user
-%experience and indirectly on the user's engagement.
- 
 In this paper, we apply the idea of predictive decision model to video
 quality optimization in the context of a large site that manages the
 video delivery of many premium content brands such as HBO, MLB, and
@@ -90,11 +85,9 @@ ESPN. Video traffic is singularly important as it dominates the
 Internet traffic today, and this domination will only intensify in the
 forseable future.
 
-
-%\myparasum{Today's video quality} 
-
-To improve the video quality we have built a wide area distributed
-system, called video Global Optimization (GO).  As shown in
+As a first step in realizing the vision of the predictive decision and control 
+platform, we have built a wide area distributed system, called video Global 
+Optimization (GO). As shown in
 Figure~\ref{fig:go-overview}, GO consists of two main components: (i)
 a backend that collects and process the information about the video
 quality across all clients, and (ii) a client library that collects
@@ -137,6 +130,10 @@ and CDN for a new user.
 %  not really use the notion of utility function now. Remember to echo
 %  this point later on.}.  For example, a utility function may return a
 %linear combination of several quality metrics.
+
+It is worth noting that while current GO is limited in various dimensions,
+we plan to extend GO to take more data and more control knobs in various 
+part in the video delivery ecosystem.
 
 \tightsubsection{Quality Samples} 
 \label{subsec:dataset}
@@ -220,7 +217,6 @@ video session attributes, including:
   In this paper, we report results from collecting quality samples
   from over \fillme million sessions or views (both successful and
   failed) over a duration of \fillme days.
-
 
 %\myparasum{Previous research has shown prediction is necessary} In this context, video quality can be optimized by making the best decision (i.e., CDN, bitrate) for each session. Previous research \cite{sigcomm12,conext13} has provided insights on the potential of such optimization. In particular, it has shown (1) significant spatial diversity in CDN performance \footnote{CDN performance means the  overall video quality that viewers experience if the video is  streamed from it.} and availability across different geographical regions and ISPs; (2) substantial temporal variability in the CDN performance and client-side network performance; and (3) that causes of quality issues can be rooted in various attributes of a session (e.g., content provider, player implementation, or a combination). These results imply that there is no globally best decision which performs better than others for most sessions (in space) and for most of time (in time), and therefore, the best decision for any session should be made by predicting the video quality of each decision if it were to be used.
 
