@@ -1,6 +1,7 @@
 \tightsection{How Predictable Are Video Metrics?}
 \label{predictability}
 
+\comment{
 <<<<<<< HEAD
 \jc{Make sure to use ``session'' and ``quality sample'' consistently, and ``quality'' and ``performance'' consistently}
 
@@ -25,15 +26,15 @@ provide an upper bound to help us evaluate different prediction
 algorithms (\Section~\ref{subsec:upperbound}). We then use our data
 set to quantify this upper bound
 (\Section~\ref{subsec:videoupperbound}).
-
+}
 %The quality outcome of a session which we would like to predict (which we will call the {\it session under prediction}) intuitively result from a diverse set of factors -- user behavior, network behavior, and CDN behavior, to name a few.  Many of these factors are out of our control; in other cases, a factor may be impacted in principle but its dependence on our decisions is unpredictable.  Our hope in approaching this problem is that some of them, and their causal dependence on decisions we can take, are consistently associated with characteristics we observe about sessions.  As shorthand we say that quality is {\it predictable} to extent that the impact of available decisions can be predicted, with low average error, using the available information about attributes of a session.  The first empirical question we must answer is whether quality is predictable in our dataset. 
 
 %In this section, we first introduce the {\it predictability} and its upper bound of a set of sessions against a simple abstract model of prediction algorithm (\Section~\ref{subsec:upperbound}). Note that since the predictability is defined against a class of prediction algorithms that we consider rather than one specific design, its upper bound provides the insight of the intrinsic difficulty in predicting a set of sessions. We also quantify the predictability upper bound of video quality using our dataset (\Section~\ref{subsec:videoupperbound}). 
 
 
-=======
+%=======
 Before we delve into algorithms, we are going to answer the question of how preditable are the video metrics using the session-level attributes. Intuitively, if all sessions with the same attribute values exhibit similar video quality, then the set of attributes are predictive, and vice versa. In this section, we will present an empirical predictability analysis based on real-world data. Such analysis also establishes an upper bound that can help us evaluate the prediction algorithm presented in \Section~\ref{subsec:upperbound}.
->>>>>>> a13c3cc981c87551f3a5c5447b0cd17e6b3937fd
+%>>>>>>> a13c3cc981c87551f3a5c5447b0cd17e6b3937fd
 
 \tightsubsection{Definition and model}
 \label{subsec:upperbound}
