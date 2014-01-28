@@ -44,7 +44,6 @@ prediction error $e_{p,q}$ is defined as
 \end{packeditemize}
 
 For a set of sessions under prediction $S=\{s_1,\dots,s_n\}$ let $P=\{p_i\}$ and $Q=\{q_i\}$ be their predicted and actual qualities. respectively ($p_i$ and $q_i$ are the predicted and actual quality of $s_i$). The overall prediction error is then $E_{P,Q}=\left(\frac{1}{n}\sum e_{p_i,q_i}^2\right)^{1/2}$.
-\jc{some justification. Henry, i still don't think this is a good way of quantifying error...}
 
 An {\it attribute combination} ({\it AC}) $g$ is a set of attributes. Given an AC $g$, function $v_g$ takes a session $s$ as input and returns an array of values of $s$ on each attribute in $g$. For instance, if $g=[\textrm{ASN, CDN}]$, $v_g(s)=[ASN_s,CDN_s]$ where the client of $s$ belongs to $ASN_s$ and the server belongs to $CDN_s$. An {\it attribute-based prediction algorithm} $P$ \ion{$P$ is also the predicted quality vector, so need to change the notation.} is defined by an AC $g$. $P$ takes a session $s$ as input, and returns $P_g(s)$ as the predicted quality. Note that such an algorithm will provide the same prediction to all sessions with identical attribute values. This means that $P$ cannot provide perfect prediction unless we identify all possible attributes that may impact a sessions's quality, which in practice is infeasible.
  

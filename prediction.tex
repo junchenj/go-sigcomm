@@ -20,7 +20,7 @@ $e_{g}(a_i)$ is estimated by separately estimating (squared) bias and estimation
   \frac{1}{N_{g}(a_i)} \sum_{j \in N_{g}(a_i)} (q_j - \bar{q}_{g}(a_i))^2
 \end{align*}
 
-George et al call the resulting prediction algorithm WIMSE, for Weighted Inverse Mean Squared Error.  Inverse-mean-squared-error weighting has the following desirable property: If each $\bar{q}_{g}(a_i)$ is statistically independent, then $\bar{q}$ is an optimal estimator in the sense that it has minimal mean squared error among all functions of \cite{}.  However, in our setting (and in the original motivating setting) the $\bar{q}_{g}(a_i)$ values are based on overlapping data and are therefore not independent.  Furthermore, our estimates of both the bias and variance components of $e_{g}(a_i)$ are imprecise. While this doesn't allow us to provably guarantee WIMSE's optimality, George et al have found that WIMSE can nevertheless work well in practice.  To optimize the algorithm for out setting we made a few changes, which we now present.
+George et al call the resulting prediction algorithm WIMSE, for Weighted Inverse Mean Squared Error.  Inverse-mean-squared-error weighting has the following desirable property: If each $\bar{q}_{g}(a_i)$ is statistically independent, then $\bar{q}$ is an optimal estimator in the sense that it has minimal mean squared error among all functions of \cite{}.  However, in our setting (and in the original motivating setting) the $\bar{q}_{g}(a_i)$ values are based on overlapping data and are therefore not independent.  Furthermore, our estimates of both the bias and variance components of $e_{g}(a_i)$ are imprecise. While this doesn't allow us to provably guarantee WIMSE's optimality, George et al have found that WIMSE can nevertheless work well in practice.  To optimize the algorithm for out setting we made a few changes, which we now present. 
 
 \begin{figure*}[t!]
 \centering
@@ -41,43 +41,44 @@ George et al call the resulting prediction algorithm WIMSE, for Weighted Inverse
 \end{figure*}
 
 \tightsubsection{ACS selection}
-One difficulty faced by a user of WIMSE is selection of the ACS.  WIMSE may not perform best when given the power set of possible ACs because the independence assumption is dramatically violated.  For example, if two ACs produce similar groups, then both will receive similar weights; including both ACs doubles the weight of the corresponding groups for no principled reason.  Another reason to choose ACs carefully is that many of the computational costs of WIMSE scale with the number of groups; we discuss this further in \Section~\ref{sec:scalability}.
+WIMSE may not perform best when given the power set of possible ACs (in total, $2^k$ in case of $k$ attributes) because the independence assumption is dramatically violated.  For example, if two ACs produce similar groups, then both will receive similar weights; including both ACs doubles the weight of the corresponding groups for no principled reason.
+ Another reason to choose ACs carefully is that many of the computational costs of WIMSE scale with the number of groups; we discuss this further in \Section~\ref{sec:scalability} \jc{make sure we cover it}.
 
-\myparasum{Greedy static ACS selection and strawmans} We take a data-driven approach to ACS selection. We separate part of historical sessions as test set and best ACS selection is the one that gives the best average accuracy over the test set using WIMSE. 
+Therefore, we pick an appropriate AC Set (which we call ACS) that produces the minimal empirical prediction error. 
+We take a data-driven approach to ACS selection. We separate part of historical sessions as test set. Then, the best ACS is the one that gives the minimal overall prediction error over the test set using WIMSE with this ACS.
 
-\myparasum{Justify greedy algorithm} One problem with this approach is that even in offline analysis, the potential space to search for the best ACS is too huge (with $k$ attributes, there will be $2^k$ ACs, and in total $2^{2^k}$ ACSes). Instead, we first examine a greedy algorithm which find a good ACS in $O(2^k)$ steps, and compare it against exhaustive search result for $k=3$ attributes (i.e., 256 ACSes). Figure~\ref{fig:acs-comparison}-(a) presents the CDF of prediction accuracy w.r.t average bitrate of the ACS that obtained by exhaustive search and greedy search. It shows that the ACS they choose, though different, can offer similar quality of prediction.
+\myparatight{Greedy search vs. exhaustive search} One problem with this approach is that even in offline analysis, the potential space to search for the best ACS is too huge (with $k$ attributes, there will be $2^k$ ACs, and in total $2^{2^k}$ ACSes). Instead, we first examine a greedy algorithm which finds a good ACS in $O(2^k)$ steps, and compare it against exhaustive search result for $k=3$ attributes on which exhaustive search is possible. Figure~\ref{fig:acs-comparison}(a) presents the CDF of prediction accuracy w.r.t average bitrate of the ACS that obtained by exhaustive search and greedy search. It shows that the ACS they choose, though different, can offer similar quality of prediction.
 
-\jc{Pseudo code of greedy ACS selection.}
 
-\myparasum{Per-finest group selection vs. one global ACS} One strawman for our algorithm to compare with is one where the selected ACS can be different for different sessions. Especially, if two sessions differ in at least one attribute, they can use different ACS. \fillme. \jc{Results shown in Figure~\ref{fig:acs-comparison}-(b), and they perform similarly and the global ACS performs even slightly better, possibly because per-finest-group ACS has side-effect of overfitting.}
+\myparasum{Per-finest group selection vs. one global ACS} One strawman for our algorithm to compare with is one where the selected ACS can be different for different sessions. Especially, if two sessions differ in at least one attribute, they can use different ACS. 
+We compare the overall prediction error in Figure~\ref{fig:acs-comparison}(c) with the same setup as last paragraph, and they perform similarly and the global ACS performs even slightly better, possibly because per-finest-group ACS has side-effect of overfitting.
 
-\myparasum{Oracle approach vs. historical based} \fillme. \jc{Results shown in Figure~\ref{fig:acs-comparison}-(b). Result needs to be changed after discussion today.}
+\myparasum{Oracle approach vs. historical based} Now, to reveal the optimality of GO, we compare its overall prediction error with the predictability i.e., minimal prediction error (see \Section~\ref{sec:predictability}) as well as the optimal AC. Recall that the optimal AC reflects the best possible prediction using the best AC of historical data based on the quality informaton of sessions under prediction, while predictability represents the best possible prediction in theory with no constraint on the way we use historical data. Figure~\ref{fig:acs-comparison}(b) shows that GO performs very similarly to optimal AC and such accuracy is also close to optimal (predictability) in most cases. \jc{predictability line needs to be added}
 
 \tightsubsection{Pseudocount priors}
-That algorithm assumes that bias and variance can be computed exactly, while in practice variance cannot be estimated accurately when groups are very small.  To alleviate this, we use a simple idea from Bayesian statistics: We incorporate a prior distribution on quality outcomes within each group.  This amounts to adding a few fake ``pseudocount'' observations to each group.  \fillme.
+That algorithm assumes that bias and variance can be computed exactly, while in practice variance cannot be estimated accurately when groups are very small. For instance, for a group sessions, it is very likely to have all sessions with no start failure and prediction based on this information will be greatly biased.
+To alleviate this, we use a simple idea from Bayesian statistics: We incorporate a prior distribution on quality outcomes within each group.  This amounts to adding a few fake ``pseudocount'' observations to each group, in a very similar way of Bayesian count~\cite{}.  Figure~\ref{fig:sudocount} shows the improvement on prediction error of start failure using pseudocount prior.
 
 
 \begin{figure}[h!]
 \centering
  \includegraphics[width=0.4\textwidth] {figures/prediction-comparisons/example-pcount-metric3.pdf}
 \tightcaption{GO with pseudocount vs. without pseudocount (considerd quality metric is average bitrate).}
-\label{fig:quality-variability}
+\label{fig:sudocount}
 \end{figure}
 
-For each of these we should have a CDF of errors and also the average prediction error.
-\begin{itemize}
-	\item GO with greedy ACS selection and pseudocount priors
-	\item GO with greedy ACS selection and no pseudocounts
-\end{itemize}
 
 \tightsubsection{Mini-evaluation of prediction accuracy}
-Given an ACS selection algorithm, we’re going to use all attributes we have and test GO prediction accuracy against two simple baselines.
+Given an ACS selection algorithm, we're going to use all attributes we have and test GO prediction accuracy against two simple baselines.
 \begin{itemize}
 	\item GO with greedy ACS selection and pseudocount priors
-	\item Predict using average of last 2 hours on all traffic for this CDN
-	\item Predict using average of last 2 hours on the finest group that has any data
+	\item Predict using average of each CDN and bitrate combination: picking the decision that is globally best (i.e., no spatial partition)
+	\item Predict using average of the finest group that has any data.
 \end{itemize}
-For each of these we should have a CDF and also display the average prediction error.
+Figure~\ref{fig:compare-to-naive}
+
+
+All these results indicate that GO performs better than both baseline. This confirms the observation in \Section~\ref{subsec:aggregation} that the best level of aggregation is often dynamic and in between the coarsest and finest aggregation.
 
 \begin{figure*}[t!]
 \centering
@@ -101,9 +102,9 @@ For each of these we should have a CDF and also display the average prediction e
 \label{fig:compare-to-naive}
 \end{figure*}
 
-\henry{The following two subsections contain a bunch of caveats.  It might be more effective to move them to a later section on future work.}
 
-\tightsubsection{Interactions between decisions}
+
+\tightsubsection{Interactions between decisions\jc{Move to discussion}}
 The reader may be bothered by a simplifying assumption implicit in our characterization of the causes of prediction error.  If we allocated all traffic to a single CDN, its performance might degrade, but our session-wise prediction does not capture that.  We might instead want to know the following: Given a set of decisions about sessions (say, all the sessions we observe in a 1-hour interval), what is the predicted performance for that set of sessions?  We do not wish to say that such a question is impossible to answer, but rather point out some difficulties in answering it, and some reasons why it is less critical to answer it than it may appear.
 
 Joint prediction is statistically difficult because existing statistical prediction algorithms typically assume the performance of training examples are independent and experience identical randomness (i.e. they are IID).  We observe very few IID instances of whole sets of sessions; in our example, we observe only one per 1-hour interval.  It is possible to model explicitly the dependence of each session’s performance on the set of joint decisions, but this requires modeling choices that we may not make well, and such models are typically computationally expensive to learn. \fillme
@@ -111,7 +112,8 @@ Joint prediction is statistically difficult because existing statistical predict
 If conditions change slowly enough, the independence assumption is not so bad.
 The rate of change of CDN allocations is naturally limited for our problem by the rate of session arrivals, since we choose CDNs only at the beginning of each session.  Spikes in the rate of new sessions are not typically high enough to necessitate special handling.  \henry{Need some data and experiments for this.  Davis or Florin have done some of the experiments, I think.}
 
-\tightsubsection{Alternative approaches}
+
+\tightsubsection{Alternative approaches\jc{Move to discussion}}
 The reader should not leave with the impression that the algorithm described above is the only possible one for predicting video quality, or even the best.  The scope of this paper is merely to establish a reasonable approach and show that it results in improvements.  Other possible approaches might include:
 \begin{packedenumerate}
   \item \emph{Linear regression:} After encoding categorical attributes as binary features, simple linear regression can be applied to predict quality outcomes.  Temporal attributes can be passed through nonlinear functions to achieve reasonable time-series prediction.  Interaction terms (e.g. the indicator for a session coming from ASN $100$ multiplied by the indicator for the session having Object ``foo'') can simulate attribute combinations, at the cost of a combinatorial explosion in the size of the learned model.  However, recent developments in optimization for $\ell_1$-regularized linear regression allow models to be learned quickly online while providing the guarantee that the learned model is \emph{sparse}, i.e. that only a few important features are selected for inclusion in the model and the rest can be safely dropped.  See \cite{duchi2010composite} for one example of work that could enable this technique.  One downside is that linear models are harder to interpret than a model based on averaging group averages.
