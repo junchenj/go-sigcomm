@@ -1,6 +1,8 @@
 \tightsection{Prediction algorithms}
 \label{prediction}
 The tradeoff between estimation error and bias via aggregation naturally leads us to consider a class of algorithms that compute average quality outcomes for groups of sessions under different attribute sets, and then {\it dynamically} choose the attribute set that seems to work well for a given session.  Since it is difficult to find the best attribute set, it is useful to hedge our bets by taking a weighted combination of averages.  George et al \cite{george2008value} consider this problem and propose the following algorithm for choosing the weights.  For a session under prediction having index $i$, let $a_i$ be the tuple of all attributes observed for that session and let $q_i$ be its quality outcome.  For each attribute set $g$ in our collection of attribute sets $G$, define a function $v_g$ that picks out those attributes:
+\xil{do we need to go into this level of details? Simply point users to the paper and we do a summary or intuition.}
+
 \begin{equation*}
   v_g(\cdot): a \mapsto \text{[the subtuple of $a$ containing attribute values} \\
   \text{for the attributes in $g$]} .
@@ -48,17 +50,19 @@ Therefore, we pick an appropriate AC Set (which we call ACS) that produces the m
 We take a data-driven approach to ACS selection. We separate part of historical sessions as test set. Then, the best ACS is the one that gives the minimal overall prediction error over the test set using WIMSE with this ACS.
 
 \myparatight{Greedy search vs. exhaustive search} One problem with this approach is that even in offline analysis, the potential space to search for the best ACS is too huge (with $k$ attributes, there will be $2^k$ ACs, and in total $2^{2^k}$ ACSes). Instead, we first examine a greedy algorithm which finds a good ACS in $O(2^k)$ steps, and compare it against exhaustive search result for $k=3$ attributes on which exhaustive search is possible. Figure~\ref{fig:acs-comparison}(a) presents the CDF of prediction accuracy w.r.t average bitrate of the ACS that obtained by exhaustive search and greedy search. It shows that the ACS they choose, though different, can offer similar quality of prediction.
+\xil{how the test is setup?}
 
 
 \myparasum{Per-finest group selection vs. one global ACS} One strawman for our algorithm to compare with is one where the selected ACS can be different for different sessions. Especially, if two sessions differ in at least one attribute, they can use different ACS. 
 We compare the overall prediction error in Figure~\ref{fig:acs-comparison}(c) with the same setup as last paragraph, and they perform similarly and the global ACS performs even slightly better, possibly because per-finest-group ACS has side-effect of overfitting.
 
 \myparasum{Oracle approach vs. historical based} Now, to reveal the optimality of GO, we compare its overall prediction error with the predictability i.e., minimal prediction error (see \Section~\ref{sec:predictability}) as well as the optimal AC. Recall that the optimal AC reflects the best possible prediction using the best AC of historical data based on the quality informaton of sessions under prediction, while predictability represents the best possible prediction in theory with no constraint on the way we use historical data. Figure~\ref{fig:acs-comparison}(b) shows that GO performs very similarly to optimal AC and such accuracy is also close to optimal (predictability) in most cases. \jc{predictability line needs to be added}
+\xil{conclusion?}
 
 \tightsubsection{Pseudocount priors}
 That algorithm assumes that bias and variance can be computed exactly, while in practice variance cannot be estimated accurately when groups are very small. For instance, for a group sessions, it is very likely to have all sessions with no start failure and prediction based on this information will be greatly biased.
 To alleviate this, we use a simple idea from Bayesian statistics: We incorporate a prior distribution on quality outcomes within each group.  This amounts to adding a few fake ``pseudocount'' observations to each group, in a very similar way of Bayesian count~\cite{}.  Figure~\ref{fig:sudocount} shows the improvement on prediction error of start failure using pseudocount prior.
-
+\xil{the figure does not seem useful, maybe just a number?}
 
 \begin{figure}[h!]
 \centering
@@ -69,6 +73,7 @@ To alleviate this, we use a simple idea from Bayesian statistics: We incorporate
 
 
 \tightsubsection{Mini-evaluation of prediction accuracy}
+\xil{what is this section? why is it here?}
 Given an ACS selection algorithm, we're going to use all attributes we have and test GO prediction accuracy against two simple baselines.
 \begin{itemize}
 	\item GO with greedy ACS selection and pseudocount priors
