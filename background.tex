@@ -1,12 +1,13 @@
 \tightsection{Motivation and System Overview}
+\label{sec:overview}
 
 In this section, we present the motivation and an overview of our
 system design.
 
 The tenet of our work is that improving application performance in
 today's Internet requires one to predict the outcome of different
-decisions that the client or the server can make to optimize the
-transmission protocols. In order to predict these decision outcomes,
+decisions that the client or the server can make to optimize video
+delivery. In order to predict these decision outcomes,
 we argue for a global architecture that (1) continuously collects
 performance information of ongoing sessions, and (2) use this
 information to create an accurate \emph{model} that predicts the
@@ -188,11 +189,10 @@ video session attributes, including:
 % granularity.  We observe in aggregate \fillme unique ASNs spanning
 % multiple countries.
 
-\item \emph{Object:} The ID of the video content (object) being
-  streamed.
+\item \emph{Object:} The video asset or object being streamed.
 %We observe in aggregate \fillme objects.
 
-\item \emph{Content provider (Site):} The affiliate providing the
+\item \emph{Content provider (Site):} The video site providing the
   content. We have \fillme content providers that span different video
   genres.  We use the terms site and content provider interchangeably.
 
