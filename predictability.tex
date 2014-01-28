@@ -1,12 +1,12 @@
-\tightsection{Are Video Metrics Preditable?}
+\tightsection{How Predictable Are Video Metrics?}
 \label{predictability}
 
-Before we delve into algorithms, we are going to answer the question of how preditable are the video metrics using the session-level attributes we collect on a real-world data set. Intuitively, if all sessions with the same attribute values exhibit similar video metrics, then the set of attributes are predictive, otherwise it indicates we missed some key attributes or other information that can affect video delivery (such as router-level or server-level data). Our empirical predictability analysis also establishes an upper bound that can help us evaluate the prediction algorithm presented in \Section~\ref{subsec:upperbound}).
+Before we delve into algorithms, we are going to answer the question of how preditable are the video metrics using the session-level attributes. Intuitively, if all sessions with the same attribute values exhibit similar video quality, then the set of attributes are predictive, and vice versa. In this section, we will present an empirical predictability analysis based on real-world data. Such analysis also establishes an upper bound that can help us evaluate the prediction algorithm presented in \Section~\ref{subsec:upperbound}.
 
 \tightsubsection{Definition and model}
 \label{subsec:upperbound}
 
-First, we define predictability. We start with defining the {\it prediction error}.  Given a session
+We first define predictability. We start with defining the {\it prediction error}.  Given a session
 (which we will call the {\it session under prediction}), let $q$ be
 the actual quality and $p$ be the predicted quality. Then, the
 prediction error $e_{p,q}$ is defined as
@@ -20,9 +20,11 @@ For a set of sessions under prediction $S=\{s_1,\dots,s_n\}$ let $P=\{p_i\}$ and
 % xil: I feel like this is a simple concept that can be captured with plain English.
 %We define {\it attribute combination} ({\it AC}) $g$ to be a set of attributes. Given an AC $g$, function $v_g$ takes a session $s$ as input and returns an array of values of $s$ on each attribute in $g$. For instance, if $g=[\textrm{ASN, CDN}]$, $v_g(s)=[ASN_s,CDN_s]$ where the client of $s$ belongs to $ASN_s$ and the server belongs to $CDN_s$. An {\it attribute-based prediction algorithm} $P$ \ion{$P$ is also the predicted quality vector, so need to change the notation.} is defined by an AC $g$. $P$ takes a session $s$ as input, and returns $P_g(s)$ as the predicted quality. Note that such an algorithm will provide the same prediction to all sessions with identical attribute values. This means that $P$ cannot provide perfect prediction unless we identify all possible attributes that may impact a sessions's quality, which in practice is infeasible.
 
-We define {\it attribute combination} ({\it AC}) to be a set of attributes, e.g. $[ASN, CDN]$. An {\it attribute-based prediction algorithm}, takes a session and an AC as input, and returns the predicted quality. \xil{the point of the next sentence is unclear.} Note that such an algorithm will provide the same prediction to all sessions with identical attribute values. This means that $P$ cannot provide perfect prediction unless we identify all possible attributes that may impact a sessions's quality, which in practice is infeasible.
+We define {\it attribute combination} ({\it AC}) $g$ to be a set of attributes, e.g. $[ASN, CDN]$. An {\it attribute-based prediction algorithm} takes a session $s$ and an AC $g$ as input, and returns the predicted quality. 
 
-The {\it predictability} of a particular AC over a set of sessions is the minimal overal prediction error that can be achieved.
+%\xil{the point of the next sentence is unclear.} Note that such an algorithm will provide the same prediction to all sessions with identical attribute values. This means that $P$ cannot provide perfect prediction unless we identify all possible attributes that may impact a sessions's quality, which in practice is infeasible.
+
+The {\it predictability} of a particular AC over a set of sessions is the minimal overal prediction error that can be achieved, i.e., $\textrm{argmax}E_{P,Q}=\textrm{argmax}_p\left(\frac{1}{n}\sum e_{p,q_i}^2\right)^{1/2}$
 For example, the optimal buffering ratio prediction for a session from a group is to predict using the mean of buffering ratio from that group. The predictability quantifies the dispersion in quality of the sessions that an AC cannot differentiate. Ideally, if the attributes in AC selected reflect all the factors that determine the quality of a session, then the sessions in an identical group of $g$ should produce the same quality and the upper bound is exactly one. 
 
 %Therefore, the predicability of $g$ over a session set $S$ is the minimal overall prediction error $R_g(S)=E_{P^*,Q}$ where $P^*$ gives the same optimal prediction $p^*$ for each session in $S$. This definition can be extended to any set of sessions $S$ by dividing sessions into identical groups of $g$, and use the optimal prediction for each identical group to be the prediction of sessions in it, i.e., $R_g(S)=E_{P^*,Q}$ where prediction of $s_i$ in $P^*$ is the optimal prediction of the identical group that $s_i$ belongs to.\ion{This is a very confusing paragraph.}
@@ -62,11 +64,11 @@ For example, the optimal buffering ratio prediction for a session from a group i
 \end{figure*}
 
 
-\tightsubsection{Predictability over video quality samples}
+\tightsubsection{Empirical predictability analysis}
 
-\xil{need to setup time is an attribute}
+\xil{need some clean up after figures are in, describe data set, set up ``time is an attribute" (maybe even before)}
 
-In this section, we quantify the predictability of the session attributes in our dataset. Note that, measuring the predictability assumes an oracle approach as it requries the knowledge of all sessions under prediction. Also note that predictability is not necessarily a tight lower bound of overall prediction error, as it does not guarantee that there exists of a prediction algorithm that can match the minimal overall quality error based on historical data only. Despite these limitations, predictability is a valuable bound to compare prediction algorithms agianst. We consider the set of spatial attributes introduced in \Section~\ref{subsec:dataset} as well as a set of time intervals as temporal attributes.
+In this section, we quantify the predictability of the session attributes in our dataset. Such analysis provides an upper-bound for any prediction algorithm, and it may not be a tight upper-bound. Despite these limitations, predictability is a valuable bound to compare prediction algorithms agianst. We consider the set of spatial attributes introduced in \Section~\ref{subsec:dataset} as well as a set of time intervals as temporal attributes.
 
 \myparatight{Temporal attributes} Figure~\ref{subfig:predictability:temporal} shows the predictability of different temporal attributes (time granular) combined with all spatial attributes. An example of an AC with a $5$-minute temporal attribute is [5-minute, ASN, Object, Site, Initial CDN, Initial Bitrate, OS, ConnectionType]. Each point in the figure represents the overall predictability for a given time period. The predictability tends to be better for small intervals. As the interval length increases the predictability stabilizes.
 %The figure shows that with different granulars do have impact on predictability. Smaller intervals are more predictable, but the predictability becomes similar after granular is less than about 5 minutes.

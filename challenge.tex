@@ -1,10 +1,10 @@
 \tightsection{Challenges of Prediction Algorithms}
 \label{sec:challenges}
 
+While in previous section we showed that video metrics are predictable with the attributes we collected, there are still several challenges in designing such prediction algorithm in practice. In particular, while predictability tend to increase with more attributes, the data points contained in each fine-grained AC group becomes sparse, and such sparsity is susceptible to different source of ``noise".
 
-While in previous section we showed that video metrics are predictable with the attributes we collected, there are still several challenges in designing such prediction algorithm in practice. 
-\xil{the following seems to be only part of the challenge}
-In particular, a practical algorithm can only use the information (quality samples) collected before the minute that the session under prediction belongs to.
+%\xil{the following seems to be only part of the challenge}
+%In particular, a practical algorithm can only use the information (quality samples) collected before the minute that the session under prediction belongs to.
 
 First, we categorize the sources of difficulty in predicting video quality accurately (\Section~\ref{subsec:challenges}) which inform the choice of aggregating identical groups of all attributes (i.e., the finest identical groups) by ignoring (hopefully, less important) attributes so that more samples will be used(\Section~\ref{subsec:aggregation}) to counteract the noise and estimation error brought by sparse data.
 
@@ -14,11 +14,13 @@ First, we categorize the sources of difficulty in predicting video quality accur
 Although the figures~\ref{fig:predictability} show that in many cases, quality is similar among quality samples that share the same attribute values and same temporal interval, there are still a lot of quality sample groups that have high dispersion. This is one of the key challenges that make quality prediction difficult. 
 In this part, we enumerate the potential reasons that causes the dispersion we observe. Intuitively, if the number of similar sessions is small (e.g., $~10$ sessions), the mean quality outcome is subject to considerable random noise.  If we use this mean for prediction, the prediction will be subject to the same noise and consequently to high average error.  As the number of attributes grows, quality grows more predictable (as the noise decreases) but the number of perfectly-matched sessions may drop exponentially.
 
-Of course, prediction in the presence of limited information is statistics problem, and there are many potential solutions to this problem.  In general, there are four sources of prediction error:
+%Of course, prediction in the presence of limited information is statistics problem, and there are many potential solutions to this problem.  
+In general, there are four sources of prediction error:
 %Any solution will deal with, and potentially trade off, four sources of prediction error:
 
 \begin{packedenumerate}
-  \item \emph{Estimation error:} In the statistical literature, prediction error due to limited data is often called {\it estimation error}.  Even other things being equal, more data produce more accurate prediction. For example, Figure~\ref{fig:group-size-impact} presents the prediction error vs. group size (i.e., number of samples). Given a large number of attributes, estimation error is a serious problem in practical.  Using all available attributes, many sessions have very few matches, as we would expect given the exponential explosion in combinations of attribute values.  
+  \item \emph{Estimation error:} In the statistical literature, prediction error due to limited data is often called {\it estimation error}.  Even other things being equal, more data produce more accurate prediction. For example, Figure~\ref{fig:group-size-impact} presents the prediction error vs. group size (i.e., number of samples). Given a large number of attributes and the combinatorial nature of the attributes, estimation error is a serious problem in practice. 
+  % Using all available attributes, many sessions have very few matches, as we would expect given the exponential explosion in combinations of attribute values.  
 
 \begin{figure}[h!]
 \centering
@@ -35,9 +37,8 @@ Of course, prediction in the presence of limited information is statistics probl
 \label{fig:group-size-impact}
 \end{figure}
 
-  %\item \emph{Bias} due to missing or unused information: When grouping quality samples according to attributes we observe, we of course may not observe attributes that are important for prediction.  Say we do not observe (or use) important attribute X.  Then, even if we have infinitely many sessions that match the current session on all observed attributes, the average outcome for all of those sessions may be different from the average outcome for the subset of sessions that match the current session on attribute X.  This is a form of bias.  Predictability, as we have defined it, simply means low bias.  Importantly, it is not alleviated by gathering more session data; as we have seen, it may be alleviated by gathering more attributes about each session.
 \item \emph{Bias} due to missing or unused information: The bias occurs when we do not observe (or use) an attribute, $X$, that is important for prediction. Then, even if we have infinitely many sessions that match the current session on all observed attributes, the average outcome for all of those sessions may be different from the average outcome for the subset of sessions that match the current session on attribute $X$.  Thus, the bias is not alleviated by gathering more session data, but by gathering more attributes about each session.
-  %\item \emph{Unavailability of recent data:} In a practical system, there are delays in measuring, sending and processing quality samples, so they are not available instantly.  If conditions change rapidly, there may be no quality samples sufficiently close to the session under prediction.  This is an extreme example of estimation error.  In this case it may be necessary to model the evolution of the video ecosystem over time in order to extrapolate to the current time. Figure~\ref{fig:quality-variability} shows per-minute quality variability. It shows that even with sufficient data, the mean value of a group of quality samples could vary significantly.
+
 \item \emph{Unavailability of recent data:} In a practical system, there are delays in measuring, sending and processing quality samples, so they are not available instantly.  If conditions change rapidly, there may be no quality samples sufficiently close to the session under prediction.  This is an extSreme example of estimation error.  In this case it may be necessary to model the evolution of the video ecosystem over time in order to extrapolate to the current time. Figure~\ref{quality-variability} shows per-minute quality variability. It shows that even with sufficient data, the mean value of a group of quality samples could vary significantly.
 
 \begin{figure}[h!]
