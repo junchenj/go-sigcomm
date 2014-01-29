@@ -6,7 +6,7 @@
 \tightsection{Evaluation}
 \label{sec:eval}
 
-In this section, we evaluate the performance of the GO system. High level summary:
+In this section, we evaluate the performance of the GO system in real-world. Based on the observation from running GO on one content provider, 
 \begin{packedenumerate}
     \item We see an overall 7\% reduction in buffering ratio, 4\% increase in average bitrate, and 16\% reduction in number of bitrate switches.
     \item We see buffering raito reduction of more than 20\% in one day when a major CDN is experiencing performance degradation that lasts for about 2 days.
@@ -14,6 +14,7 @@ In this section, we evaluate the performance of the GO system. High level summar
 \end{packedenumerate}
 
 \tightsubsection{Setup}
+\label{subsec:eval_setup}
 
 We evaluate the performance of GO on one content provider with short-form videos (5 minutes) on iOS device (both iPhone and iPad). 
 HLS protocol is running on the iOS device and our GO system provides the initial CDN and bitrate, while Apple player employs adaptive 
