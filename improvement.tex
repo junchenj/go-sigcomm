@@ -1,13 +1,14 @@
 \tightsection{Quality Improvement via Prediction}
 \label{improvement}
 
-%Now we can fill in the details of section 3 a bit more.  Figure~\ref{fig:go-overview} shows how prediction and decision-making work in GO.
-Having shown that with the attributes we collect, our prediction algorithms can provide close-to-optimal prediction accuracy, we now evaluate the quality improvement resulting from the prediction algorithms. GO's ``transition'' from prediction accuracy to quality improvement is straightforward -- the decision algorithm simply selects the decision that has the best predicted quality in a predetermined metric. Note that GO always leave a small fraction of traffic to be randomly allocated to guarantee that each decision will have at least certain fraction of traffic even when that decision is not the best.
+Previous sections have established our prediction algorithm can achieve near-optimal accuracy, in this section, we empirically study the relationship between prediction accuracy and video quality improvement, i.e., does a good prediction lead to high improvement. 
+%Having shown that with the attributes we collect, our prediction algorithms can provide close-to-optimal prediction accuracy, we now evaluate the quality improvement resulting from the prediction algorithms. GO's ``transition'' from prediction accuracy to quality improvement is straightforward -- the decision algorithm simply selects the decision that has the best predicted quality in a predetermined metric. Note that GO always leave a small fraction of traffic to be randomly allocated to guarantee that each decision will have at least certain fraction of traffic even when that decision is not the best.
 
-This section quantifies the impact of prediction algorithms on quality improvement. Specifically, we aim to answer two questions:
+%This section quantifies the impact of prediction algorithms on quality improvement. 
+Specifically, we aim to answer two questions:
 \begin{packedenumerate}
 	\item What quality improvement does GO provide under various scenarios?
-	\item How does prediction accuracy impact quality improvement under realistic scenarios?
+	\item How does prediction accuracy impact quality improvement in real world?
 \end{packedenumerate}
 
 %The difference between two questions is that the first question quantifies the impact of scenario parameters (e.g., performance heterogeneity) on quality improvement given a fixed prediction algorithm, i.e., GO. The second question quantifies the impact of the goodness of prediction algorithm (i.e., prediction accuracy) on quality improvement, in realistic scenarios. 
@@ -15,10 +16,24 @@ We next describe our methodology, and then present our results and observations 
 
 \tightsubsection{Methodology}
 
-Ideally, to answer the above questions, we need a dataset in which for any session, the quality outcome on each decision is available so that decisions different from the ones that were actually used can be evaluated. However, it is impossible to collect the quality of the same session on multiple decisions simultaneously. In addition, real trace only contains scenarios that happened before, and it is often insufficient to evaluate over a wide range of scenarios.
+The ideal methodology is to experiment by running the GO system in real world. Indeed, we presented evaluation with such methodology in Section~\ref{sec:eval}. However, the GO system is currently running only on one specific type of traffic (see Section~\ref{subsec:eval_setup}), and we are also contrained by business policies when we carry out A/B testing. In order to answer these questions without contraint, we use the following alternative methodology.
 
-Alternatively, we use three approaches, which mostly differ by their input type. Table~\ref{tab:input} summarizes the features of different types of input. 
+%Ideally, to answer the above questions, we need a dataset in which for any session, the quality outcome on each decision is available so that decisions different from the ones that were actually used can be evaluated. However, it is impossible to collect the quality of the same session on multiple decisions simultaneously. In addition, real trace only contains scenarios that happened before, and it is often insufficient to evaluate over a wide range of scenarios.
+
+\xil{methodology now in the reverse order of realisticity, so we may want to renumber them}
+
+{\it Type II: Counterfactual testing} This approach is closest to real-world A/B testing, and is described in detail in section~\ref{sec:counterfactualtesting}. The basic idea is that we first collect a dataset in which the decisions are randomly made for each client (called {\it random dataset}) and we collect the quality metrics of each video session. Then we evaluate a given decision algorithm by picking the sessions for which the decision the algorithm makes matches the decisions in the random dataset, this approach is shown to be unbiased. This methodology can be applied on video traffic we collect but GO currently do not optimize, thus giving us a bigger picture and better answer the above-mentioned questions.
+
+\xil{reword as needed, my understanding may be off}
+{\it Type III: Randomized trace-driven input} While counterfactual testing is useful in evaluating different algorithms, we cannot use it to estimate the ``would-be" performance of an ``oracle" approach, which requires data extrapolation. To remedy these limitations, we generate a trace-driven synthetic dataset. The basic idea is to generate a session $s$ whose outcome of each decision $d$ is drawn from the distribution of outcomes of this decision $d$ on other sessions exactly matching the same attributes with $s$. Having ensured that quality outcomes in the synthetic scenario are known for any decision, it is possible to identify an {\it oracle} approach that always makes the best decision.
+
+{\it Type I: Controlled synthetic input} Both previous methodology lacks control, i.e., if no major outage or other events happen in the data set, we cannot evaluate GO performance under those scenarios. \xil{the following is hard to read.} Thus we also use fully controlleable input in which the true outcomes (i.e., ``ground truth'') of multiple decisions are under our control and we can change them continously to quantify the quality improvement. By doing so, we also have access to the optimal quality (i.e., an {\it oracle} approach) which it will be useful to compare GO with.
+
+%Alternatively, we use three approaches, which mostly differ by their input type. Table~\ref{tab:input} summarizes the features of different types of input. 
 %We will present the parameters and setup in detail when using them to answer concrete questions.
+
+\xil{do we want to add A/B testing in the table?}
+The three methodology is summaried in Table~\ref{tab:input}.
 
 \begin{table}[h]
     \begin{tabular}{ccccc}
@@ -32,16 +47,18 @@ Alternatively, we use three approaches, which mostly differ by their input type.
 \label{tab:input}
 \end{table}
 
-\begin{packeditemize}
-	\item {\it Type I: Controlled synthetic input} We need fully controlleable input in which the true outcomes (i.e., ``ground truth'') of multiple decisions are under our control and we can change them continously to quantify the quality improvement. By doing so, we also have access to the optimal quality (i.e., an {\it oracle} approach) which it will be useful to compare GO with.
-	\item {\it Type II: Counterfactual input} To answer these questions under realistic scenarios (real trace), we use a methodology similar to A/B testing, which we call {\it counterfactual testing}. The methodology is described in detail in section~\ref{sec:counterfactualtesting}. Its basic idea is that we first collect a dataset (called {\it random dataset}) in which the decisions are randomly made for each client and we collect the quality each client gets. With such an input, we can evaluate a given decision algorithm by simply considering only the sessions for which the algorithm makes decisions that match the decisions in the random dataset.
+%\begin{packeditemize}
+%	\item {\it Type I: Controlled synthetic input} We need fully controlleable input in which the true outcomes (i.e., ``ground truth'') of multiple decisions are under our control and we can change them continously to quantify the quality improvement. By doing so, we also have access to the optimal quality (i.e., an {\it oracle} approach) which it will be useful to compare GO with.
+%	\item {\it Type II: Counterfactual input} To answer these questions under realistic scenarios (real trace), we use a methodology similar to A/B testing, which we call {\it counterfactual testing}. The methodology is described in detail in section~\ref{sec:counterfactualtesting}. Its basic idea is that we first collect a dataset (called {\it random dataset}) in which the decisions are randomly made for each client and we collect the quality each client gets. With such an input, we can evaluate a given decision algorithm by simply considering only the sessions for which the algorithm makes decisions that match the decisions in the random dataset.
 %the outcome of the same set of sessions each making a decision based on a given algorithm (i.e., possibly the same decision), we will be able to have {\it unbiased} evaluation by considering only the sessions for which the algorithm we evaluate makes decisions that match the decision as in the random dataset.
-	\item {\it Type III: Randomized trace-driven input} 
+%	\item {\it Type III: Randomized trace-driven input} 
 %Randomizing real traces is important for evaluating a decision-making algorithm. However, 
-Our real traces does not allow us to perform sensitivity analysis of a decision-making algorithm to the changes in scenario parameters. In addition, it does not provide for each session the quality of a decision other than the one it actually took, so it is impossible to evaluate against the oracle approach.  To remedy these limitations, we generate a trace-driven synthetic dataset. The basic idea is to generate a session $s$ whose outcome of each decision $d$ is drawn from the distribution of outcomes of this decision $d$ on other sessions exactly matching the same attributes with $s$. Having ensured that quality outcomes in the synthetic scenario are known for any decision, it is possible to identify an {\it oracle} approach that always makes the best decision.
-\end{packeditemize}
+%Our real traces does not allow us to perform sensitivity analysis of a decision-making algorithm to the changes in scenario parameters. In addition, it does not provide for each session the quality of a decision other than the one it actually took, so it is impossible to evaluate against the oracle approach.  To remedy these limitations, we generate a trace-driven synthetic dataset. The basic idea is to generate a session $s$ whose outcome of each decision $d$ is drawn from the distribution of outcomes of this decision $d$ on other sessions exactly matching the same attributes with $s$. Having ensured that quality outcomes in the synthetic scenario are known for any decision, it is possible to identify an {\it oracle} approach that always makes the best decision.
+%\end{packeditemize}
 
-In any scenario, we would like to quantify the quality improvement of GO based on random selection (which makes decision with equal prabability), and how close GO is to an oracle approach (with controlled and trace-driven synthetic input).
+%In any scenario, we would like to quantify the quality improvement of GO based on random selection (which makes decision with equal prabability), and how close GO is to an oracle approach (with controlled and trace-driven synthetic input).
+
+In terms of algorithms, we are evaluating GO, randomized decision, and decison made from an ``oracle" (when applicable).
 
 \comment{
 \begin{figure}[h!]
