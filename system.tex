@@ -35,14 +35,17 @@ sizes to show that increasing cluster size improves computation time}
 \end{figure}
 }
 
-\myparatight{Decision making} Once a decision maker has a table, decision making is a matter of running the prediction algorithm for evaluation of each decision. Given that there are $N$ ACs for decision evaluation, and $M$ possible decisions, there are $M \times N$ lookups for a decision to be made. The decision making process is horizontally scalable, and in general, decision making is extremely fast. Figure~\ref{fig:query-scale} shows the PDF of query time, and GO has an average response time of $0.62 ^{+}_{-} 0.016$ms, which is insignificant compared to RTT in Internet.
+\myparatight{Decision making} Once a decision maker has a table, decision making is a matter of running the prediction algorithm for evaluation of each decision. Given that there are $N$ ACs for decision evaluation, and $M$ possible decisions, there are $M \times N$ lookups for a decision to be made. The decision making process is horizontally scalable by adding more decision makers, and in general, decision making is extremely fast. The average response time from current GO system is $0.62 ^{+}_{-} 0.016$ms with 3 decision makers (both query per second and CPU utilization are low on the decision makers), which is insignificant compared to RTT in Internet.
 
+% XI: I removed this figure because it does not too much value than just spell out the response time.
+\comment{
 \begin{figure}[h!]
 \centering
  \includegraphics[width=0.5\textwidth] {figures/scale/query_scale.pdf}
 \tightcaption{Query times PDF.}
 \label{fig:query-scale}
 \end{figure}
+}
 
 In summary, we implemented GO which is both scalable and provide good system-level performance.
 
