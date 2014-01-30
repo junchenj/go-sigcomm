@@ -1,6 +1,5 @@
 \tightsection{Prediction algorithms}
 \label{sec:prediction}
-%\xil{flow from challenges to algorithms is a bit weird because we are still talking about challenges in this section}
 In this section, we present a ``near-optimal" practical algorithm that addresses the challenges presented in the previous section. We show that this algorithm yields to similar prediction as optimal AC does and show that the resulting prediction is much closer to the lower bound introduced in \Section~\ref{subsec:lowerbound} than strawman algorithms. We present the basic algorithm, key improvement techniques and evaluate it against some strawman algorithms. 
 \jc{We don't discuss about temporal attribute aggregation. Need to say something about that.}
 
@@ -12,11 +11,15 @@ This section begins with the basic algorithm for making prediction (\Section~\re
 
 \tightsubsection{Basic algorithm}
 \label{subsec:basic}
-The tradeoff between estimation error and bias via aggregation naturally leads us to consider a class of algorithms that compute average quality outcomes for groups of sessions under different attribute sets, and then {\it dynamically} choose the attribute set that seems to work well for a given session.  Since it is difficult to find a globally best AC, it is useful to hedge our bets by taking a weighted combination of averages.  
-Formally, we consider this problem as following. The algorithm considers a set of ACs (called {\it ACS}), which can consist of all possible ACs $G$, i.e., full ACS, or a subset of them. We explain our method for selecting ACS in \Section~\ref{subsec:acs}. When receiving a session $s$ under prediction, the algorithm groups the collected quality samples into identical groups that include $s$ using each AC in the ACS (of which Figure~\ref{fig:example-optimal-ac} gives an example when ACS consists of all ACs of the three attributes) . Each of them will be given a weight. For $g_i\in G$, let $w_i$ be the weight given to the identical group of $g_i$ that includes $s$, and the mean quality of this identical group is $p_i$. 
-Finally, the prediction is an weighted sum of the mean quality of each group, $p=\frac{1}{\sum_{g_i\in G} w_i}\sum_{g_i\in G} w_ip_i$.
+The tradeoff between estimation error and bias via aggregation naturally leads us to consider a class of algorithms that compute average quality outcomes for groups of sessions under different attribute sets, and then {\it dynamically} choose the attribute set that seems to work well for a given session. However, it is difficult to find a globally best AC, it is useful to hedge our bets by taking a weighted combination of averages. \xil{did we prove this?}
+Thus we propse the following basic structure for the algorithm. The algorithm chooses a set of ACs offline (called {\it ACS}), which can consist of all possible ACs $G$, i.e., full ACS, or a subset of them. 
+We explain why full ACS is not the best choice and how we select ACS in \Section~\ref{subsec:acs}. When an ACS is chosen offline, the algorithm starts collecting quality metrics for all the identical groups in each AC in the ACS 
+(of which Figure~\ref{fig:example-optimal-ac} gives an example when ACS consists of all ACs of the three attributes). Based on the quality metrics collected, each identical group will be given a weight.
+Finally, when receiving a session $s$ under prediction, for $g_i\in G$, let $w_i$ be the weight given to the identical group of $g_i$ that includes $s$, and the mean quality of this identical group is $p_i$,
+the prediction is an weighted sum of the mean quality of each group, $p=\frac{1}{\sum_{g_i\in G} w_i}\sum_{g_i\in G} w_ip_i$.
 
-The key challenge is then to design a weighting scheme such that the weight can reflect and strike a balance between estimation error and bias. Intuitively, we would like to use larger $w_i$ for finer granular groups if they do not have high estimation error. 
+The next question then becomes how to design a weighting scheme to balance between estimation error and bias to minimize overall prediction error. 
+Intuitively, we would like to use larger $w_i$ for finer granular groups if they do not have high estimation error. 
 
 
 \comment{
@@ -60,15 +63,14 @@ While the algorithm achieves optimality under some assumption and George et al h
 An ACS needs to be selected carefully because WIMSE may not perform optimal when given the power set of possible ACs (in total, $2^k$ in case of $k$ attributes) because the independence assumption is dramatically violated.  %For example, if two ACs produce similar groups, then both will receive similar weights; including both ACs doubles the weight of the corresponding groups for no principled reason. \xil{do we have empirical results to prove this?}
  Another reason to choose ACs carefully is that many of the computational costs of WIMSE scale with the number of groups; we discuss this further in \Section~\ref{sec:impl} \jc{make sure we cover it}.
 
-To pick the best ACS adaptively, we take a data-driven approach to search for the best ACS. %\xil{i am confused, if computation cost is high, how to justify exhaustive search?} 
+To pick the best ACS adaptively, we take a data-driven approach to search for the best ACS. 
+\xil{my understanding is that this is an offline process, so where is ``adaptively" come from}
 We separate part of historical sessions as test set. Then, the best ACS is the one that gives the minimal overall prediction error over the test set using WIMSE with this ACS. In this context, we still have two decisions to make: searching complexity (greedy vs. exhaustive search) and granular of selection.
 
 \myparatight{Greedy vs. exhaustive search} One problem with the exhaustively search is that even in offline analysis, the potential space to search for the best ACS is too huge (with $k$ attributes, there will be $2^k$ ACs, and in total $2^{2^k}$ ACSes). Instead, we examine a greedy algorithm which finds a good ACS in $O(2^k)$ steps, called {\it greedy search}, and compare it against exhaustive search result for $k=3$ attributes on which exhaustive search is possible. The greedy algorithm incrementally adds to an existing ACS one AC at a time which reduces the prediction error with most magnitude.
 We use our dataset and three attributes of $ASN$, $ConnectionType$ and $OS$ in addition to $Initial CDN$ and $Initial Bitrate$ which are by default selected.
 Table~\ref{tab:greedy-exhaustive} compares the ACS selected by two methods. It shows that in most cases ($\sim$90\% of minutes) the ACS selected by the two methods are identical and that even when different, they are still very similar\footnote{Jaccard index between two sets $A,B$ is $\frac{|A\cap B|}{|A\cup B|}$}. This means that a near-optimal ACS can be identified in tractable steps.
-
-%Figure~\ref{fig:acs-comparison}(a) presents the CDF of prediction accuracy w.r.t average bitrate of the ACS that obtained by exhaustive search and greedy search. It shows that the ACS they choose, though different, can offer similar quality of prediction.
-%\xil{how the test is setup?}
+\xil{a natural question is what if $k>3$, we need to justify why we do not do that experiment}
 
 \begin{table}[t]
 \begin{center}
@@ -84,7 +86,9 @@ Mean of Jaccard & 0.8 & 0.83 & 0.92 & 0.83 \\
 \label{tab:greedy-exhaustive}
 \end{table}
 
-\myparatight{Granular of selection} The ACS selection could be to find one ACS that produces best overall prediction accuracy called global ACS, or to find one ACS for each (non-overlapping) partition that gives best prediction individually, called per-group ACS. It is hard to theoretically justify which one is better. However, use our dataset to demonstrate that global ACS is sufficiently good and sometimes better than per-group ACS.
+\myparatight{Granular of selection} The ACS selection could be to find one ACS that produces best overall prediction accuracy called global ACS, or to find one ACS for each (non-overlapping) partition that gives best prediction individually, called per-group ACS. 
+\xil{need an example}
+It is hard to theoretically justify which one is better. However, use our dataset to demonstrate that global ACS is sufficiently good and sometimes better than per-group ACS.
 Figure~\ref{fig:global-acs} shows the CDF of prediction error on each session under prediction and use it to compare global ACS and per-group ACS. For per-group ACS, we consider the finest group (i.e., the selected ACS can vary across the finest groups). It shows that they perform similarly and the global ACS performs even slightly better, possibly because per-finest-group ACS has side-effect of overfitting.
 
 \begin{figure}[h!]
