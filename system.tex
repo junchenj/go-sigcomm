@@ -1,14 +1,19 @@
 \tightsection{Implementation and Scalability}
 \label{sec:impl}
 
-In this section, we present the high level GO implementation. While there are much details in building GO system, we focus on the two main components: data processing and decision making. Paramount in our implementation was the need to make very rapid decisions, as any extra delay in decision making could impact performance of the client making the request. This meant that the vast majority of prediction information needed to be precomputed. This resulted in an implementation that involves two parts: computation of a group table, and broadcasting of said table out to servers close to the clients making requests.
+In this section, we present the high level GO implementation. While there are much details in building GO system, we focus on the two main components: data processing and decision making. Paramount in our implementation was the need to make very rapid decisions, as any extra delay in decision making could impact performance of the client making the request. This meant that the vast majority of prediction information needed to be precomputed. This resulted in an implementation that involves two parts: computation and updating of a group table every minute, and broadcasting of said table out to servers close to the clients making requests.
 
 %The GO backend collects information (including quality samples) sent back by clients, processes the information periodically to aggregate the information, and then, upon on receiving a request from a new session, the best decision can be made quickly.
 
 %Like many data processing systems, individual events from every single client sending information must be rolled up and summarized into a succinct format. Because many systems do this, and there is nothing specific to our problem about how this is done, we will focus on how the system rapidly translates these summaries into meaningful pieces of information used for prediction and decision making. These summaries consist of the most recent performance information about a session, as well as the information about what decision was made for the session. 
 
-\myparatight{Creating group table} Group table generation is essentially the process of aggregating samples into buckets, and then computing summary statistics for each bucket.  Our implementation uses Spark~\cite{} as the underlying compute framework, and the problem can be captured in a single map-reduce stage. Data samples are loaded in parallel from an HDFS source and distributed amongst the cluster. Each node then maps its share of samples to a set of preliminary buckets. Common buckets are then shuffled across the cluster and the results are aggregated and collected onto a master machine. All steps involved in creating the table except table collection are horizontally scalable, and thus table collection becomes the bottleneck. In fact, the last step is not fundamentally necessary, and in the next version of GO, we are going to keep the resulting table distributed.
-\xil{i am thinking of dropping the bottleneck it is not fundamental}
+\myparatight{Creating group table} Group table generation is essentially the process of aggregating samples into buckets, and then computing summary statistics for each bucket.  
+Our implementation uses Spark~\cite{} as the underlying compute framework, and the problem can be captured in a single map-reduce stage. 
+Data samples are loaded in parallel from an HDFS source and distributed amongst the cluster. Each node then maps its share of samples to a set of 
+preliminary buckets. Common buckets are then shuffled across the cluster and the results are aggregated and collected onto a master machine. 
+Currently it takes GO system 12 seconds to process 500K identical groups on a 4-node cluster, without riguous performance optimization.
+It is also worth noting that all steps involved in creating the table are horizontally scalable.
+
 \comment{
 \begin{figure}[h!]
 \centering
@@ -19,7 +24,7 @@ sizes to show that increasing cluster size improves computation time}
 \end{figure}
 }
 
-\myparatight{Broadcasting group table} The resulting table is broadcasted wholesale out to a large number of decision makers (DMs) closer to video clients in multiple POPs by way of a distributed messaging system~\cite{kafka}. The bottleneck here is bandwidth, because at minimum, we need to ship one table copy to each POP where we deployed decision makers. We believe this is justified by providing quick response to video players.
+\myparatight{Broadcasting group table} The resulting table is broadcasted wholesale out to a large number of decision makers (DMs) closer to video clients in multiple POPs by way of a distributed messaging system~\cite{kafka}. The bottleneck here is bandwidth, because at minimum, we need to ship one table copy to each POP where we deployed decision makers. We believe this is justified by providing quick response to video players. Our current GO table size is 50MB for 500K entries, with an update frequency of one minute, the bandwidth required is 0.83Mbps per POP. We would like to note that we have not optimized serialization and deserialization in terms of size.
 
 \comment{
 \begin{figure}[h!]
@@ -30,14 +35,17 @@ sizes to show that increasing cluster size improves computation time}
 \end{figure}
 }
 
-\myparatight{Decision making} Once a decision maker has a table, decision making is a matter of running the prediction algorithm for evaluation of each decision. Given that there are $N$ ACs for decision evaluation, and $M$ possible decisions, there are $M \times N$ lookups for a decision to be made. The decision making process is horizontally scalable, and in general, decision making is extremely fast. Figure~\ref{fig:query-scale} shows the PDF of query time, and GO has an average response time of $0.62 ^{+}_{-} 0.016$ms, which is insignificant compared to RTT in Internet.
+\myparatight{Decision making} Once a decision maker has a table, decision making is a matter of running the prediction algorithm for evaluation of each decision. Given that there are $N$ ACs for decision evaluation, and $M$ possible decisions, there are $M \times N$ lookups for a decision to be made. The decision making process is horizontally scalable by adding more decision makers, and in general, decision making is extremely fast. The average response time from current GO system is $0.62 ^{+}_{-} 0.016$ms with 3 decision makers (both query per second and CPU utilization are low on the decision makers), which is insignificant compared to RTT in Internet.
 
+% XI: I removed this figure because it does not too much value than just spell out the response time.
+\comment{
 \begin{figure}[h!]
 \centering
- \includegraphics[width=0.4\textwidth] {figures/scale/query_scale.pdf}
+ \includegraphics[width=0.5\textwidth] {figures/scale/query_scale.pdf}
 \tightcaption{Query times PDF.}
 \label{fig:query-scale}
 \end{figure}
+}
 
 In summary, we implemented GO which is both scalable and provide good system-level performance.
 
