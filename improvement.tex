@@ -3,10 +3,13 @@
 
 Previous sections have established our prediction algorithm can achieve near-optimal accuracy. In this section, we empirically study the impact of prediction accuracy on video quality improvement, i.e., does a good prediction lead to high improvement. It should be noticed that the possible improvement is bounded by the actual difference between the performance of resources (e.g., CDN or bitrate). As pointed out in \Section~\ref{sec:intro}, current industrial practice however, only allows coarse grain decisions (e.g., CDN-level rather than server-level) and the different at such level is much less significant than finer-grain ones. Therefore, though based on our dataset our quantitative results do not show remarkable improvement under CDN or bitrate selection, we expect to see higher improvement with more fine-grain selection enabled and thus larger room of improvement.
 
-Specifically, we aim to answer two questions:
+Specifically, we aim to answer five questions:
 \begin{packedenumerate}
-	\item How does prediction accuracy impact quality improvement?
-	\item How does quality diversity among multiple decisions impact quality improvement? \xil{a bit vague}\jc{Xi, please write a better one.}
+	\item How does GO select best decision based on prediction (\Section~\ref{subsec:behavior})?
+	\item How much quality improvement can GO achieve (\Section~\ref{subsec:go-improve})?
+	\item How much impact does optimizing one quality metric make on other metrics (\Section~\ref{subsec:go-cross})?
+	\item How does prediction accuracy impact quality improvement (\Section~\ref{subsec:impact-accuracy})?
+	\item How does quality diversity among multiple decisions impact quality improvement  (\Section~\ref{subsec:impact-diversity})?
 \end{packedenumerate}
 
 \tightsubsection{Methodology}
@@ -29,10 +32,9 @@ By using this methodology, we are able to replay multiple algorithms on the data
 \myparatight{Controlled synthetic input} Both previous methodology lacks control, i.e., if no major outage or other events happen in the data set, we cannot evaluate GO performance under those scenarios. Thus we also use fully controlleable input in which the true outcomes (i.e., ``ground truth'') of each decision is controlled.
 
 
+\tightsubsection{Selection based on prediction}
+\label{subsec:behavior}
 
-
-
-\tightsubsection{Behavioral study}
 We first explain the GO's prediction-based decision making and use controlled synthetic input to confirm its behavior -- GO identifies the performance changes and switches decision accordingly if needed.
 
 \myparatight{Prediction-based dececision making} GO's decision algorithm simply selects for each session under prediction the decision that has the best predicted quality in a predetermined metric (e.g., buffering ratio). Note that GO always leaves a small fraction of traffic to be randomly allocated to guarantee that each decision will have at least certain fraction of traffic even when that decision is not the best.
@@ -49,7 +51,69 @@ We first explain the GO's prediction-based decision making and use controlled sy
 
 %\xil{are we going to do something about that point or ack it is an issue.}
 
+
+
+\tightsubsection{Improvement with GO}
+\label{subsec:go-improve}
+We use counterfactual input to evaluate the improvement in four quality metrics from a random selection algorithm (which selects decision uniformly random). For each metric, GO selects the best decision based on prediction on this metric (we study the cross-metric effect in next section). Figure~\ref{fig:improve} gives the results. To be representative, we show the global improvement of all sessions as well as that of three largest Sites (same one as before). First of all, we see improvement on all dimensions and all partitions. Moreover, the improvement varies largely between these Sites. For example, buffering ratio can be as high as 5\% in Site-B. Correlated with Figure~\ref{fig:compare-partition}, we find that even with slightly higher prediction accuracy, we are able to achieve more improvement than other Sites. This suggests that improvement is not only affected by predictoin accuracy, but also diversity in quality between decisions. We will examine the impact of quality diversity in \Section~\ref{subsec:impact-diversity}.
+Notice that GO does not improve Site-C because it already has a very low starting failure rate.
+
+
+
+\begin{figure}[h!]
+\centering
+\subfigure[Buffering ratio (\%)]
+{
+	\includegraphics[width=0.24\textwidth]{figures/newfig/bar-improve-bufratio.pdf}
+	\label{subfig:improve:bufratio}
+}
+\hspace{-0.6cm}
+\subfigure[Average bitrate (Kbps)]
+{
+	\includegraphics[width=0.24\textwidth]{figures/newfig/bar-improve-bitrate.pdf}
+	\label{subfig:improve:bitrate}
+}
+\hspace{-0.6cm}
+\subfigure[Join time (ms)]
+{
+	\includegraphics[width=0.24\textwidth]{figures/newfig/bar-improve-jointime.pdf}
+	\label{subfig:improve:jointime}
+}
+\hspace{-0.6cm}
+\subfigure[Start failure (\%)]
+{
+	\includegraphics[width=0.24\textwidth]{figures/newfig/bar-improve-startfailure.pdf}
+	\label{subfig:improve:startfailure}
+}
+\tightcaption{Quality improvement in different quality metrics using GO. The results are partitioned into global improvement and that of the three largest Sites in the dataset.}
+\label{fig:improve}
+\end{figure}
+
+
+\tightsubsection{Impact of cross-metric improvement}
+
+Previous section evaluate the improvement on each metric when the selection is also based on the same metric. It is also interesting to investigate the impact of selecting based on one metric on other metrics. Table~\ref{tab:cross-metrics} shows the difference on metric A when optimizing for metric B. The results shows the global improvement of all sessions from a random selection algorithm. 
+While the largest improvement happens when GO optimizes the same metric as the one we evaluate, we also see quite noticeable improvement on other metrics. For example, by selecting the best decision for metrics other than average bitrate, we can still achieve more than half ($\sim 480$Kbps) of the improvement (858Kbps) when optimizing for average bitrate.
+
+\begin{table}[h!]
+\begin{center}
+\begin{small}
+\begin{tabular}{l c c c c}
+    Optimize             & BufRatio & AvgBitrate & JoinTime & StartFailRate \\ \hline
+    BufRatio (\%)     & 1.49   & 1.16     & 1.19   & 1.29        \\ \hline
+    AvgBitrate (Kbps)   & 484      & 858        & 470      & 480           \\ \hline
+    JoinTime  (ms)    & 1616     & 1696       & 2689     & 2202          \\ \hline
+    StartFailRate (\%) & 3.98   & 3.54     & 3.22   & 9.08        \\
+\end{tabular}
+\end{small}
+\end{center}
+\tightcaption{Impact of optimizing a different metric.}
+\label{tab:cross-metrics}
+\end{table}
+
+
 \tightsubsection{Impact of prediction accuracy}
+\label{subsec:impact-accuracy}
 
 To quantify the impact of prediction accuracy, we need to generate prediction with certain prediction error and see the improvement. To do this, we use both counterfactual input and augmented trace-driven input. 
 
@@ -87,6 +151,7 @@ It shows a clear degredation in improvement and such degradation is linear from 
 
 
 \tightsubsection{Impact of quality diversity}
+\label{subsec:impact-diversity}
 
 To quantify the impact of quality diversity among multiple decisions, we fix the prediction accuracy provided by GO. Intuitively, it is expected that with increasing diversity among multiple decisions, we should see that GO's performance should be close to the oracle approach since the gap between decisions' outcome is so large that the best decision will be made with any prediction error. 
 
@@ -94,12 +159,20 @@ To confirm this intuition, we use a stretch parameter $r$ to control the quality
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width=0.35\textwidth] {figures/newfig/trendDiversity-metricId1-keyGlobal-partition.pdf}
-\tightcaption{Impact of quality diversity on quality improvement.}
+\subfigure[Average bitrate (Kbps)]
+{
+        \includegraphics[width=0.24\textwidth]{figures/newfig/trendDiversity-metricId1-keyGlobal-partition.pdf}
+}
+\hspace{-0.6cm}
+\subfigure[Join time (ms)]
+{
+        \includegraphics[width=0.24\textwidth]{figures/newfig/trendDiversity-metricId2-keyGlobal-partition.pdf}
+}
+\tightcaption{Impact of quality diversity on quality improvement. Green lines with values on the left y axis show GO's improvement from random selection and red lines with values on the right y axis show optimality (GO's improvement/oracle's improvement)}
 \label{fig:trace-diversity}
 \end{figure}
 
-Figure~\ref{fig:trace-diversity} shows the result with average bitrate as the quality metric. The left y axis shows the improvement of GO based on the random baseline algorithm. It shows close to linear increase with more quality diversity between decisions. 
+Figure~\ref{fig:trace-diversity} shows the result with average bitrate and join time as the quality metric. The left y axis shows the improvement of GO based on the random baseline algorithm. It shows close to linear increase with more quality diversity between decisions. 
 The right y axis shows the room of improvement which is the difference between GO's improvement and oracle's improvement. With close-to-zero stretch parameter, the room of improvement reduces to zero simply because even the oracle approach cannot make much benefit from selecting the best decision as the gap is minimized. 
 In the middle of the figure, it shows a close to linear relationship between stretch on quality diversity and room of improvement, with quality diversity increases by every 10\%, the room of improvement decreases by 20Kbps. 
 
@@ -108,11 +181,13 @@ In the middle of the figure, it shows a close to linear relationship between str
 \tightsubsection{Summary of observations}
 \begin{packedenumerate}
 	\item Under controlled experiments, GO identifies performance change and switches decisions accordingly.
-	\item Quality improvement is linear to prediction error -- 10\% reduction in prediction error yields to 20Kbps in quality improvement.
-	\item GO's quality improvement increases linearly with quality diversity between decisions and such improvement becomes closer-to-optimal with larger quality diversity.
+	\item GO achieves noticeable improvement on four metrics, e.g., for  average bitrate, 800Kbps globally and as much as 2000Mbps for some popular site.
+	\item Optimizing for one metric does not impact other metric negatively. Instead, we see improvement on all metrics if only one metric is optimized.
+	\item Quality improvement is linear to prediction error -- 10\% reduction in prediction error yields to 20Kbps in average bitrate improvement.
+	\item GO's quality improvement in average bitrate increases almost linearly with quality diversity between decisions, and such improvement becomes closer-to-optimal with larger quality diversity -- if the current quality difference increases by 50\%, go can achieve improvement in join time as much as 90\% of the optimal improvement.
 \end{packedenumerate}
 
-\xil{overall i feel the figures and conclusions from this section is not very concrete. there should be quantitative conclusions.}
+%\xil{overall i feel the figures and conclusions from this section is not very concrete. there should be quantitative conclusions.}
 
 
 
