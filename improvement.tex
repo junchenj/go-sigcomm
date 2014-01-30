@@ -1,16 +1,16 @@
 \tightsection{Quality Improvement via Prediction}
 \label{sec:improvement}
 
-Previous sections have established our prediction algorithm can achieve near-optimal accuracy. In this section, we empirically study the relationship between prediction accuracy and video quality improvement, i.e., does a good prediction lead to high improvement. 
+Previous sections have established our prediction algorithm can achieve near-optimal accuracy. In this section, we empirically study the impact of prediction accuracy on video quality improvement, i.e., does a good prediction lead to high improvement. 
 
 Specifically, we aim to answer two questions:
 \begin{packedenumerate}
 	\item How does prediction accuracy impact quality improvement?
-	\item How does quality diversity among multiple decisions impact quality improvement?
+	\item How does quality diversity among multiple decisions impact quality improvement? \xil{a bit vague}
 \end{packedenumerate}
 
 \tightsubsection{Methodology}
-We study these questions by using offline analysis methodologies including trace-driven analysis. As we will introduce in next sections, we have built a prototyping system that runs in real world. However, we believe these questions should be better addressed using offline trace-driven analysis because the real world experiments has four limitations. We will also use the real world expriments (especially, using A/B testing methods) to demonstrate GO's behavior and its quality improvement in the wild in \Section~\ref{sec:eval}.
+We study these questions by using offline analysis methodologies including trace-driven analysis. As we will introduce in next sections, we have built GO system that runs in real world, and we use A/B testing  to demonstrate GO's behavior and its quality improvement in the wild in \Section~\ref{sec:eval}. However, we believe these questions should be better addressed using offline trace-driven analysis because the real world experiments has four limitations.
 \begin{packedenumerate}
 	\item Limited coverage: As we will explain, the real world experiments only have access to the video traffic of one video site on one type of OS. The stricts its coverage of classes of traffic in both video genres and streaming protocol.
 	\item Limited scale of simultaneous expriments: Since we only control one site's traffic in real world experiments, it is not feasible to compare many configurations or algorithms in parallel (empirically, at most 3-4) and ensure each of them receive sufficient traffic to draw confident conclusions.
@@ -21,7 +21,8 @@ We study these questions by using offline analysis methodologies including trace
 
 This section uses three input to answer the two high-level questions. We now describe them in the order of closeness to realism and in reverse order of degree of controllability.
 
-\myparatight{Counterfactual input} This approach is the closest to real-world A/B testing. The basic idea is that we first collect a dataset in which the decisions are randomly made for each client (called {\it random dataset}) and collect the quality metrics of each video session. Then we evaluate a given decision algorithm by picking the sessions for which the decision the algorithm makes matches the decisions in the random dataset. In \Section~\ref{sec:counterfactualtesting}, we show that this approach is unbiased. This methodology can be applied on video traffic we collect but GO currently do not optimize, thus giving us a bigger picture and better answer the above-mentioned questions. \jc{Xi, what does this sentence mean?}
+\myparatight{Counterfactual input} This approach is the closest to real-world A/B testing. The basic idea is that we first collect a dataset in which the decisions are randomly made for each client (called {\it random dataset}) and collect the quality metrics of each video session. Then we evaluate a given decision algorithm by picking the sessions for which the decision the algorithm makes matches the decisions in the random dataset. In \Section~\ref{sec:counterfactualtesting}, we show that this approach is unbiased. 
+By using this methodology, we are able to replay multiple algorithms on the data sets.
 
 \myparatight{Augmented trace-driven input} While counterfactual input is useful in evaluating different algorithms, we cannot use it to estimate the ``would-be" performance of an ``oracle" approach (e.g., how the performance would be if another decision were taken), which requires data extrapolation. In addition, counterfactual input only has one site traffic and only provide limited coverage. To remedy these limitations, we generate an augmented trace-driven synthetic dataset in which we extrapolate for each session the ``true'' quality outcome of all its possible decisions. The basic idea of this extrapolation  is that for each session $s$, its outcome of each decision $d$ is drawn from the distribution of outcomes of this decision $d$ on other sessions exactly matching the same attributes with $s$. Having ensured that quality outcomes in the synthetic scenario are known for any decision, it is possible to identify an {\it oracle} approach that always makes the best decision. However, the evaluation is could be biased by the extrapolation.
 
@@ -46,7 +47,7 @@ We first explain the GO's prediction-based decision making and use controlled sy
 
 \myparatight{Case study} We simulate a scenario in which a sudden change in performance of one group causes GO to switch decision accordingly. Figure~\ref{fig:behavioral} shows the behavior of sessions in one ASN when provided with two CDNs to choose from. Assume that buffering ratio is the only considered quality metric. The mean of buffering ratio of CDN1 is stably at 0.2 and that of CDN2 changes between 0.1 and 0.25, with a random interval. Each quality sample of a CDN is generated so that its buffering ratio has a Guassian noise of \fillme deviation from mean. This figure shows clearly that under this configuration, GO is able to switch to the best CDN accordingly with an expected delay (as it uses a 30-minute sliding window). Note that there is always a small amount of randomized traffic, so the change on each decision can be detected. As a side-effect, it takes longer for GO to detect that CDN2 has bad bad quality than when it has good quality, because the number of samples from CDN2 when it has bad quality (only randomized traffic) is smaller than when it has good quality (all traffic).
 
-
+\xil{are we going to do something about that point or ack it is an issue.}
 
 \tightsubsection{Impact of prediction accuracy}
 
@@ -81,7 +82,7 @@ Moreover, we could compare with an oracle which always makes the decision with t
 Figure~\ref{fig:trace-accuracy-2} shows the results with average bitrate as the quality metric. We consider a baseline algorithm which select a uniformly random decision. The top line is the improvement of oracle approach from the baseline algorithm, which should be static. The bottom line shows the improvement of GO from the basline algorithm. 
 It shows a clear degredation in improvement and such degradation is linear from stretch ratio of 0.9 -- after this point, with prediction error raised by every 10\%, the improvement in average bitrate decreases by 10Kbps. It suggests that the improvement is very sensitive to accuracy if GO's prediction becomes worse. Also, note that with larger or smaller stretch rate, the improvement stablizes in both cases.
 
-
+\xil{conclusion seems a bit weak}
 
 
 
@@ -109,7 +110,7 @@ In the middle of the figure, it shows a close to linear relationship between str
 	\item 
 \end{packedenumerate}
 
-
+\xil{overall i feel the figures and conclusions from this section is not very concrete. there should be quantitative conclusions.}
 
 
 
