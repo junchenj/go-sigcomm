@@ -41,7 +41,7 @@ In general, there are four sources of prediction error:
 
 \item \emph{Bias} due to missing or unused information: The bias occurs when we do not observe (or use) an attribute that is important for prediction. Bias is not alleviated by gathering data from more session, but by gathering more attributes from each session.
 
-\item \emph{Unavailability of recent data:} In a practical system, there are delays in measuring, sending and processing quality samples, so they are not available instantly.  If conditions change rapidly, there may be no quality samples sufficiently close to the session under prediction.  This is an extreme example of estimation error.  In this case it may be necessary to model the evolution of the video ecosystem over time in order to extrapolate to the current time. Figure~\ref{quality-variability} shows per-minute quality variability. It shows that even with sufficient data, the mean value of a group of quality samples could vary significantly. This clearly indicates that any practical algorithm has to be running in real-time (on the order of one minute or less).
+\item \emph{Unavailability of recent data:} In a practical system, there are delays in measuring, sending and processing quality samples, so they are not available instantly.  If conditions change rapidly, there may be no quality samples sufficiently close to the session under prediction.  This is an extreme example of estimation error.  In this case it may be necessary to model the evolution of the video ecosystem over time in order to extrapolate to the current time. Figure~\ref{fig:quality-variability} shows per-minute quality variability. It shows that even with sufficient data, the mean value of a group of quality samples could vary significantly. This clearly indicates that any practical algorithm has to be running in real-time (on the order of one minute or less).
 
 \begin{figure}[h!]
 \centering
@@ -77,7 +77,7 @@ Thus for any practical algorithm, it is a challenge to manage prediction error, 
 
 \tightsubsection{Aggregation}
 \label{subsec:aggregation}
-A simple strategy to reduce estimation error is {\it aggregation}~\cite{any citation?}.  By aggregation we mean putting quality samples into coarser groups that match on only a subset of observed attributes.  Aggregation increases the number of samples in each identical group by reducing the number of attributes, thus reducing estimation error at the cost of increased bias. 
+A simple strategy to reduce estimation error is {\it aggregation}.  By aggregation we mean putting quality samples into coarser groups that match on only a subset of observed attributes.  Aggregation increases the number of samples in each identical group by reducing the number of attributes, thus reducing estimation error at the cost of increased bias. 
 Intuitively, when estimation error is small (say, when a fine-grained identical group contains many sessions) we want to eliminate bias by using a fine-grained group.  When estimation error is large, we want to aggregate more. 
 Then the question becomes how to determine the best level of aggregation.
 
@@ -89,10 +89,12 @@ Then the question becomes how to determine the best level of aggregation.
 \label{fig:example-optimal-ac}
 \end{figure}
 
-\myparatight{Optimal AC} We use a simple methodology, called {\it optimal AC}, to show the dynamics of the best level of aggregation. We assume an prediction algorithm with a delay of one minute, i.e., it predicts with information (quality samples) collected from previous minute.
-For a finest identical group at $t$-th minute, we first build a hierarchy that consists of all degrees of aggregation over the quality samples we collects before the $t$-th minute. Figure~\ref{fig:example-optimal-ac} shows an example of three attributes. 
-Then, the optimal AC for this identical group is the degree of aggregation that gives the prediction value closest to the optimal prediction for the finest identical group at $t$-th minute which yields to minimal prediction error. \xil{sentence too long}
-For instance, if the optimal prediction of the targeted identical group is 0.2, the optimal AC (colored in red) is the one with the closest prediction to 0.2, i.e., $(ASN, CDN)$. 
+\myparatight{Optimal AC} We use a simple oracle methodology, called {\it optimal AC}, to show the dynamics of the best level of aggregation. We assume an prediction algorithm with a delay of one minute, i.e., it predicts with information (quality samples) collected from previous minute.
+
+Figure~\ref{fig:example-optimal-ac} shows an example of optimal AC with three attributes. For a finest identical group (e.g., $[CDN1,ASN1,Site1]$) at $t$-th minute, we first build a hierarchy that consists of all degrees of aggregation over the quality samples we collects before the $t$-th minute (e.g., the left part of Figure~\ref{fig:example-optimal-ac}). 
+Remember that the optimal prediction of this identical group is its mean (see \Section~\ref{subsec:lowerbound}). 
+Then, the optimal AC for this identical group is the degree of aggregation that gives the prediction value closest to the optimal prediction for the finest identical group at $t$-th minute. 
+For instance, in Figure~\ref{fig:example-optimal-ac}, if the optimal prediction of the targeted identical group is 0.2, the optimal AC (colored in red) is the one with the closest prediction to 0.2, i.e., $(ASN, CDN)$. 
 
 
 \begin{figure}[h!]
@@ -103,11 +105,12 @@ For instance, if the optimal prediction of the targeted identical group is 0.2, 
 }
 \subfigure[Optimal AC prevalence.]
 {
-        \includegraphics[width=0.22\textwidth]{figures/optimal-prevalence.pdf}
+        \includegraphics[width=0.24\textwidth]{figures/optimal-prevalence.pdf}
 }
+\hspace{-0.6cm}
 \subfigure[Optimal AC persistence.]
 {
-        \includegraphics[width=0.22\textwidth]{figures/optimal-persistence.pdf}
+        \includegraphics[width=0.24\textwidth]{figures/optimal-persistence.pdf}
 }
 \tightcaption{Dynamics of the optimal AC. (a) gives coverage of optimal ACs (for each AC, the fraction of sessions of which this AC is the optimal AC).
 (b) gives prevalence of pair of (session under prediction, optimal AC) (the fraction of time that the finest group has this optimal AC).

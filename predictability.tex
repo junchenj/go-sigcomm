@@ -46,10 +46,10 @@ Before we delve into algorithms, we are first going to answer the question of ho
 (which we will call the {\it session under prediction}), let $q$ be
 the actual quality and $p$ be the predicted quality\footnote{We consider one quality metric at a time.}. Then, the
 prediction error $e_{p,q}=|p-q|$.
-For a set of session under prediction $S=\{s_1,\dots,s_n\}$, let $P=\{p_i\}$ and $Q=\{q_i\}$ be their predicted and actual qualities. respectively ($p_i$ and $q_i$ are the predicted and actual quality of $s_i$). The overall prediction error is then the mean squre error of $P$ and $Q$\jc{is it mse?}, $E_{P,Q}=\left(\frac{1}{n}\sum e_{p_i,q_i}^2\right)^{1/2}$.
+For a set of session under prediction $S=\{s_1,\dots,s_n\}$, let $P=\{p_i\}$ and $Q=\{q_i\}$ be their predicted and actual qualities. respectively ($p_i$ and $q_i$ are the predicted and actual quality of $s_i$). The overall prediction error is then the square root of mean squre error of $P$ and $Q$, $E_{P,Q}=\left(\frac{1}{n}\sum e_{p_i,q_i}^2\right)^{1/2}$.
 
 \myparatight{Attribute combination (AC)} The informatino associated to a session under prediction includes the values of multiple attributes (see \Section~\ref{subsec:dataset}). We define {\it attribute combination} ({\it AC}) $g$ to be a set of attributes, e.g. $[ASN, CDN]$. Then the attribute combination value of session $s$ on AC $g$, denoted as $v_g(s)$, is a tuple of values on all attributes in $g$ associated to $s$. For example, if $g=[ASN,CDN]$ and $s$ is a session from a host in $ASN1$ to $CDN1$, $v_g(s)=[ASN1, CDN1]$. We say two sessions are identical with respect to an AC, if they produce the same attribute combination values. Using such equivalence relationship, an AC $g$ can be used to partition a set of sessions into groups (called, {\it identical groups}) such that two sessions in an identical group are identical with respect to $g$.
-In addition to the attributes in \Section~\ref{subsec:dataset}, we also consider temporal attributes. For instance, given AC $g=[ASN, CDN, 5\,minute]$, two sessions are identical only if they belong to the same ASN, use the same CDN and they are received within the same 5-minute interval. The temporal attributes are useful according to previous research~\cite{sigcomm2012} which shows temporal variability of video quality within the same class of sessions.
+In addition to the attributes in \Section~\ref{subsec:dataset}, we also consider temporal attributes. For instance, given AC $g=[ASN, CDN, 5\,minute]$, two sessions are identical only if they belong to the same ASN, use the same CDN and they are received within the same 5-minute interval. The temporal attributes are useful according to previous research~\cite{sigcomm12} which shows temporal variability of video quality within the same class of sessions.
 \xil{I think this can be further cleaner.}
 
 
@@ -63,14 +63,14 @@ In addition to the attributes in \Section~\ref{subsec:dataset}, we also consider
 %\xil{the point of the next sentence is unclear.} Note that such an algorithm will provide the same prediction to all sessions with identical attribute values. This means that $P$ cannot provide perfect prediction unless we identify all possible attributes that may impact a sessions's quality, which in practice is infeasible.
 
 \myparatight{Attribute-based prediction algorithm}
-An {\it attribute-based prediction algorithm} takes a session $s$ (with no quality information) and an AC $g$ as input, and returns the predicted quality of $s$. We make a basic assumption that the algorithm maintains a set of states, and if a set of sessions are received when the algorithm is in the same states, their predicted qualities are only a function of their values on $g$. Specifically, if they are identical with respect to $g$, they should be given the same predicted quality.\jc{some justification to support this assumption is needed.} 
-\xil{hard to read}
+An {\it attribute-based prediction algorithm} takes a session $s$ (with no quality information) and an AC $g$ as input, and returns the predicted quality of $s$. This means that if a set of sessions are received when the algorithm is given the same AC, their predicted qualities only depend on their values on $g$. Specifically, if they are identical with respect to $g$, they should be given the same predicted quality.\jc{some justification to support this assumption is needed.} 
+\xil{hard to read}\jc{Fixed?}
 
 \tightsubsection{Lower bound of prediction error}
 \label{subsec:lowerbound}
 This assumption naturally leads to an {\it lower bound} of prediction error of any algorithm in this kind. 
 The idea is that given an AC $g$ and an identical group of sessions $S=\{s_1,\dots,s_n\}$, the overall prediction error $\left(\frac{1}{n}\sum e_{p,q_i}^2\right)^{1/2}$ is minimized when the prediction $p$ for each of them is the mean of $q_i$. Furthermore, if $S$ is partitioned into multiple identical groups,  the overall prediction error is minimized when the prediction for each group is the mean of actual quality of these sessions in the group. 
-\xil{maybe add a pointer to basic statistics?}
+\xil{maybe add a pointer to basic statistics?}\jc{didn't find any}
 
 %The {\it predictability} of a particular AC over a set of sessions is the minimal overall prediction error that can be achieved, i.e., $\textrm{argmax}E_{P,Q}=\textrm{argmax}_p\left(\frac{1}{n}\sum e_{p,q_i}^2\right)^{1/2}$
 
@@ -89,7 +89,7 @@ Intuitively, this lower bound characterizes the dispersion in quality of the ses
 %\jc{The current definition predictability is weird as it gives smaller value to more predictable set of sessions. }
 
 
-\begin{figure}[t!]
+\begin{figure}[h!]
 \centering
 \subfigure[Temporal attributes]
 {
@@ -114,7 +114,7 @@ Intuitively, this lower bound characterizes the dispersion in quality of the ses
 	\includegraphics[width=0.24\textwidth]{figures/newfig/bar-predictability-site.pdf}
 	\label{subfig:predictability:site}
 }
-\tightcaption{Quantifying impact of different factors on the lower bound of prediction error of buffering ratio over our dataset.}
+\tightcaption{Empirical analysis for lower bound. Quantifying impact of different factors on the lower bound of prediction error of buffering ratio over our dataset.}
 \label{fig:predictability}
 \end{figure}
 
@@ -126,13 +126,11 @@ Intuitively, this lower bound characterizes the dispersion in quality of the ses
 In this section, we quantify the prediction error lower bound (we use lower bound for short) of the attributes in our dataset. Note that such lower bound is not necessarily tight as it uses the information of the actual qualities of sessions under prediction. Moreover, it does not bound the performance of algorithms that are not attribute-based (e.g., video quality can be affected by factors that are not characterized by our attributes).
 Despite these limitations, predictability is a valuable bound to compare prediction algorithms agianst. We consider the set of spatial attributes introduced in \Section~\ref{subsec:dataset} as well as a set of time intervals as temporal attributes.
 
-\myparatight{Temporal attributes} Figure~\ref{subfig:predictability:temporal} shows the lower bound of different temporal attributes (time granular) combined with all spatial attributes. The value corresponding to $t-$second in the figure represents the mean of each minute's lower bound of the sessions collected in a time interval of $t$ seconds using all spatial attributes introduced in \Section~\ref{subsec:dataset}. \xil{sentence too long} The lower bound tends to be better for small intervals. As the interval length increases the predictability stabilizes. \xil{I don't see this stabilization. I saw linear increase}
+\myparatight{Temporal attributes} Figure~\ref{subfig:predictability:temporal} shows the lower bound of different temporal attributes (time granular) combined with all spatial attributes. The value corresponding to $t-$second in the figure represents the lower bound of using t-seconds as temporal attribute, together with all spatial attributes introduced in \Section~\ref{subsec:dataset}. The lower bound tends to be better for small intervals. As the interval length increases the predictability stabilizes. 
 
 \myparatight{Spatial attributes} In Figure~\ref{subfig:predictability:spatial}, we fix the temporal attribute to 1-minute and show the lower bound of different spatial attributes. Again, the finest spatial attribute combination is [ASN, Object, Site, Initial CDN, Initial Bitrate, OS, ConnectionType].  Instead of showing all ACs with these attributes (in total $2^7-1=127$ ACs), we group them by their number of attributes and show the ones with lowest lower bound. This illustrates the impact of the number of attributes on the lower bound. The results show clear improvements as we use more attributes, though we reach diminishing return when we approach seven attributes.
 
-\myparatight{Different partitions} The above results show that predictability varies significantly with the attributes we consider. Next, we present the predictability also varies across different partitions of the same AC (e.g., ASN, Site). Figure~\ref{subfig:predictability:partition} shows the mean of lower bound of the most largest 5 ASNs and Sites. These results confirm that the lower bound vary significantly across different spatial partitions, i.e., the attributes are more predictive in certain cases than others. As shown in the next section, this mostly likely indicates there are attributes we do not collect that affect performance in certain scenarios. \xil{make sure last sentence is correct.}
-
-\xil{what metric is used here?}
+\myparatight{Different partitions} The above results show that the lower bound varies significantly with the attributes we consider. Next, we present the lower bound also varies across different partitions of the same AC (e.g., ASN, Site). Figure~\ref{subfig:predictability:asn} and~\ref{subfig:predictability:site} show the mean of lower bound of prediction in buffering ratio for the most largest 5 ASNs and Sites. These results confirm that the lower bound vary significantly across different spatial partitions, i.e., the attributes are more predictive in certain cases than others. %As shown in the next section, this mostly likely indicates there are attributes we do not collect that affect performance in certain scenarios. \xil{make sure last sentence is correct.}
 
 In summary, we showed that in general, the session attributes we chose are quite predictive of video quality metrics, with a lower bound prediction error of less than 3\%.
 
