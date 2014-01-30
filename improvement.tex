@@ -1,7 +1,7 @@
 \tightsection{Quality Improvement via Prediction}
 \label{sec:improvement}
 
-Previous sections have established our prediction algorithm can achieve near-optimal accuracy. In this section, we empirically study the impact of prediction accuracy on video quality improvement, i.e., does a good prediction lead to high improvement. 
+Previous sections have established our prediction algorithm can achieve near-optimal accuracy. In this section, we empirically study the impact of prediction accuracy on video quality improvement, i.e., does a good prediction lead to high improvement. It should be noticed that the possible improvement is bounded by the actual difference between the performance of resources (e.g., CDN or bitrate). As pointed out in \Section~\ref{sec:intro}, current industrial practice however, only allows coarse grain decisions (e.g., CDN-level rather than server-level) and the different at such level is much less significant than finer-grain ones. Therefore, though based on our dataset our quantitative results do not show remarkable improvement under CDN or bitrate selection, we expect to see higher improvement with more fine-grain selection enabled and thus larger room of improvement.
 
 Specifically, we aim to answer two questions:
 \begin{packedenumerate}
