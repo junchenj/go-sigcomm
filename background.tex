@@ -7,26 +7,36 @@ system design.
 The tenet of our work is that improving application performance in
 today's Internet requires one to predict the outcome of different
 decisions that the client or the server can make to optimize video
-delivery. In order to predict these decision outcomes,
-we argue for a global architecture that (1) continuously collects
-performance information of ongoing sessions, and (2) use this
-information to create an accurate \emph{model} that predicts the
-performance of a session for a give configuration setting or protocol
-decision (see Figure~\ref{fig:global-control--overview}). This
-performance information can be collected at the client, at the server,
-or at different network elements such as routers or caches. Predicting
-the outcome of every possible decision enables us to make the best
-decision, i.e., the decision that leads to the best outcome.
+delivery. 
+
+In Section~\ref{subsec:predictivemodel}, we argue that 
+in order to predict these decision outcomes, we need a global control
+architecture that (1) continuously collects performance information 
+of ongoing sessions, and (2) use this information to create an accurate 
+\emph{model} that predicts the performance of a session for a give 
+configuration setting or protocol decision (see Figure~\ref{fig:global-control--overview}). 
+Performance information can be collected at the clients, at the servers,
+or at different network elements such as routers or caches. 
+The decisions can involve any element in the control plane. For example,
+in video delivery, decisions include CDN selection, video bitrate adaptation, 
+server selection, video encoding profile, routing, etc.
+Being able to predict the outcome of every possible decision enables us to make the best
+decision.
+
+In Section~\ref{subsec:gooverview}, we present the overview of GO, an 
+early instantiation of the global control plane in video delivery.
+We present the quality metrics and attributes used in this paper in 
+Section~\ref{subsec:dataset}.
 
 \begin{figure}[h!]
 \centering
  \includegraphics[width=0.5\textwidth] {figures/global-control-overview.pdf}
-\tightcaption{Global performance optimization architecture.}
+\tightcaption{Global control plane.}
 \label{fig:global-control--overview}
 \end{figure}
 
 \tightsubsection{Predictive Decision Model}
-
+\label{subsec:predictivemodel}
 At the high level, any protocol designer aims to implicitly or
 explicitly build a model of the environment (or world) in which the
 protocol operates. Then the protocol takes the decision that optimizes
@@ -51,14 +61,7 @@ at a given bitrate. Based on this prediction, we can then select the
 optimal bitrate for the new client.  In TCP protocol design, we might
 gather data about many TCP connections to discover the distribution of
 packet loss rates for different initial window sizes.  
-%moved to related work \jc{Also cite
- % sigcomm'12 paper on data-driven TCP design which argues that TCP
- % parameters need to be driven by real data}
-
-We refer to the resulting model\henry{need a different word for this;
-  ``model'' is now unfortunately overloaded} of sharing information
-across clients and making decisions based on predictions made by
-shared information as a {\it predictive decision} model. 
+And in this paper, we refer to it as a {\it predictive decision} model.
 
 % ION: move to discussion section
 % We note that predictive decision model which requires sharing the
@@ -77,7 +80,8 @@ shared information as a {\it predictive decision} model.
 % algorithms.
 
 
-\tightsubsection{System Overview}
+\tightsubsection{GO System Overview}
+\label{subsec:gooverview}
 
 In this paper, we apply the idea of predictive decision model to video
 quality optimization in the context of a large site that manages the
@@ -107,11 +111,11 @@ these samples back to the GO backend.
  
 The GO backend uses a highly-scalable distributed streaming system to
 process the quality samples received from clients, and predict the
-quality outcomes of future sessions for each possible decision. There
-are two decisions that GO makes: decide the {\it bitrate} of a session
-(assuming the content is encoded at different resolutions), and decide
-which CDN to stream the content from (assuming the content is stored
-on multiple CDNs). The CDN and bitrate are chosen from a
+quality outcomes of future sessions for each possible decision. 
+Current GO system makes two decisions for each session: the 
+initial or starting {\it bitrate} (most videos today are encoded at multiple resolutions), and
+the initial CDN to stream the content from (many content providers today are on or 
+moving towards mult-CDN setup). The initial CDN and bitrate are chosen from a
 pre-determined set of options and they can be changed at any point
 during a session. Note that to play a video that is encoded at $n$
 different bitrates and stored on $m$ CDNs, there are $m\times n$
@@ -126,15 +130,13 @@ another user if she were streaming from a particular CDN at a
 particular bitrate, and use this prediction to select initial bitrate
 and CDN for a new user.
 
+\xil{quality metric is vague, we need to setup a notion of utility function.}
+
 %Since there are multiple quality metrics, GO combines them
 %into a single figure of merit using a \emph{utility function}\jc{We do
 %  not really use the notion of utility function now. Remember to echo
 %  this point later on.}.  For example, a utility function may return a
 %linear combination of several quality metrics.
-
-It is worth noting that while current GO is limited in various dimensions,
-we plan to extend GO to take more data and more control knobs in various 
-part in the video delivery ecosystem.
 
 \tightsubsection{Quality Samples} 
 \label{subsec:dataset}
@@ -146,7 +148,7 @@ contains a set of quality measurements and attributes. Based on the
 quality measurements, GO computes a set of quality metrics. In this
 paper, we focus on four industry-standard video quality metrics that
 have been shown to impact user's engagement~\cite{sigcomm11}:
-
+\xil{naming consistency: use re-buffering ratio}
 \begin{packedenumerate}
 \item \emph{Buffering ratio:} The percentage of time a session spends
   in buffering state, i.e., waiting for the player's buffer to
@@ -186,7 +188,7 @@ video session attributes, including:
 % We focus on the ASN as it is more fine-grained than the ISP
 % granularity.  We observe in aggregate \fillme unique ASNs spanning
 % multiple countries.
-
+\xil{naming: change to video asset}
 \item \emph{Object:} The video asset or object being streamed.
 %We observe in aggregate \fillme objects.
 
@@ -206,12 +208,13 @@ video session attributes, including:
   observe have multiple bitrates.
 
 \item \emph{OS:} The OS of the client device, which in many cases
-  determines the video player. For example, when watching the same
-  video, iOS clients use different player than other OSes.
+  determines the video player. 
+  %For example, when watching the same
+  %video, iOS clients use different player than other OSes.
 
 \item \emph{Connection type:} Type of the last mile connectivity,
   e.g., Wireless, DSL, fiber-to-home. This information is obtained
-  from third party services~\cite{quova} based on the client's IP
+  from a third-party commercial service based on the client's IP
   address.
 \end{packedenumerate}
 

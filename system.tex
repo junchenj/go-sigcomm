@@ -1,4 +1,5 @@
 \tightsection{Implementation and Scalability}
+\label{sec:impl}
 
 In this section, we present the high level GO implementation. While there are much details in GO system, we focus on the two main components: data processing and decision making. Paramount in our implementation was the need to make very rapid decisions, as any extra delay in decision making could impact performance of the client making the request. This meant that the vast majority of prediction information needed to be precomputed. This resulted in an implementation that involves two parts: computation of a group table, and broadcasting of said table out to servers close to the clients making requests.
 

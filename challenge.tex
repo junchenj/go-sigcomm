@@ -1,10 +1,10 @@
 \tightsection{Challenges of Practical Prediction Algorithms}
 \label{sec:challenges}
 
-While in previous section we showed that video metrics are predictable with the attributes we collected, there are still several challenges in designing such prediction algorithm in practice. 
+While in previous section we showed that video metrics are predictable with the attributes we chose, there are still several practical challenges in designing such prediction algorithm. 
 
-We examine the challenges faced by a straightforward approach in which the prediction is the mean of quality of quality samples from the sessions that match all attributes to the session under prediction.
-In particular, while the lower bound tends to decrease with more attributes, the data points (quality samples) contained in each fine-grained identical group\footnote{In the case of quality sample, an identical group consists of quality samples whose session matches all value in an AC.} becomes {\it sparse}, and such sparsity is susceptible to noise. Moreover, a practical algorithm inherently has a processing delay so that the session under prediction can only be predicted using information that was collected a while ago.
+The most straightforward and naive prediction algorithm is take the mean of quality samples from the sessions that match all attributes to the session under prediction.
+This naive algorithm faces the following challenge: while the potential of the algorithm increases with more attributes, the data points (quality samples) contained in each fine-grained identical group\footnote{In the case of quality sample, an identical group consists of quality samples whose session matches all value in an AC.} becomes {\it sparse}, and such sparsity is susceptible to noise. Moreover, a practical algorithm inherently has a processing delay so that the session under prediction can only be predicted using information that was collected a while ago.
 
 %\xil{the following seems to be only part of the challenge}
 %In particular, a practical algorithm can only use the information (quality samples) collected before the minute that the session under prediction belongs to.
@@ -21,7 +21,7 @@ In general, there are four sources of prediction error:
 %Any solution will deal with, and potentially trade off, four sources of prediction error:
 
 \begin{packedenumerate}
-  \item \emph{Estimation error:} In the statistical literature, prediction error due to limited data is often called {\it estimation error}.  Even other things being equal, more data produce more accurate prediction. For example, Figure~\ref{fig:group-size-impact} presents the prediction error vs. group size (i.e., number of samples). Given a large number of attributes and the combinatorial nature of the attributes, estimation error is a serious problem in practice. 
+  \item \emph{Estimation error} caused by limited data.  Even other things being equal, more data produce more accurate prediction. For example, Figure~\ref{fig:group-size-impact} presents the prediction error vs. group size (i.e., number of samples). Given a large number of attributes and the combinatorial nature of the attributes (the number of groups grow exponentially with more attributes), estimation error is a serious problem in practice. 
   % Using all available attributes, many sessions have very few matches, as we would expect given the exponential explosion in combinations of attribute values.  
 
 \begin{figure}[h!]
@@ -39,9 +39,9 @@ In general, there are four sources of prediction error:
 \label{fig:group-size-impact}
 \end{figure}
 
-\item \emph{Bias} due to missing or unused information: The bias occurs when we do not observe (or use) an attribute, $X$, that is important for prediction. Then, even if we have infinitely many sessions that match the current session on all observed attributes, the average outcome for all of those sessions may be different from the average outcome for the subset of sessions that match the current session on attribute $X$.  Thus, the bias is not alleviated by gathering more session data, but by gathering more attributes about each session.
+\item \emph{Bias} due to missing or unused information: The bias occurs when we do not observe (or use) an attribute that is important for prediction. Bias is not alleviated by gathering data from more session, but by gathering more attributes from each session.
 
-\item \emph{Unavailability of recent data:} In a practical system, there are delays in measuring, sending and processing quality samples, so they are not available instantly.  If conditions change rapidly, there may be no quality samples sufficiently close to the session under prediction.  This is an extreme example of estimation error.  In this case it may be necessary to model the evolution of the video ecosystem over time in order to extrapolate to the current time. Figure~\ref{quality-variability} shows per-minute quality variability. It shows that even with sufficient data, the mean value of a group of quality samples could vary significantly.
+\item \emph{Unavailability of recent data:} In a practical system, there are delays in measuring, sending and processing quality samples, so they are not available instantly.  If conditions change rapidly, there may be no quality samples sufficiently close to the session under prediction.  This is an extreme example of estimation error.  In this case it may be necessary to model the evolution of the video ecosystem over time in order to extrapolate to the current time. Figure~\ref{quality-variability} shows per-minute quality variability. It shows that even with sufficient data, the mean value of a group of quality samples could vary significantly. This clearly indicates that any practical algorithm has to be running in real-time (on the order of one minute or less).
 
 \begin{figure}[h!]
 \centering
@@ -51,12 +51,12 @@ In general, there are four sources of prediction error:
 \end{figure}
 
   \item \emph{Noise:} Even if we observed all conceivable attributes of a session and had infinitely many examples of exactly quality samples, outcomes may be affected by non-deterministic inputs.  For example, performance may be affected by exponentially backoff at the data link layer or the congestion generated by cross traffic at the network layer. This implies that some degree of prediction error is inevitable.
+\xil{can i say this is Bias? because we do not capture this feature, and it is hard for us to extract a feature out of it, we consider it as noise?}
 \end{packedenumerate}
 
-\xil{need a conclusion.}\jc{don't have a good conclusion to put here. we have to at least claim that fixing estimation error is feasible based on our algorithm.}
+%\xil{need a conclusion.}\jc{don't have a good conclusion to put here. we have to at least claim that fixing estimation error is feasible based on our algorithm.}
 
-% XIL: I don't see the point of having a formalization, I see no conclusion drawn from it
-%Next, we formalize the prediction error (see \cite{domingos2000unified} for a less specialized discussion of the decomposition of prediction error).  Let $D$ be a set of quality samples from which a prediction algorithm learns its predictions.  Let $p_i$ be the predicted quality for session $i$ and $q_i$ be its actual quality.  We further assume that $q_i$ is fixed except for an independent additive noise component, i.e. $q_i = \hat{q}_i + \epsilon_i$, where $\hat{q}_i$ is non-random and $\epsilon_i$ is a random variable with mean $0$, independent of $p_i$.  Then the mean squared prediction error of $p_i$ is:
+Thus for any practical algorithm, it is a challenge to manage prediction error, which we will elaborate in the following section.
 
 \comment{
 \begin{align}
@@ -78,7 +78,8 @@ In general, there are four sources of prediction error:
 \tightsubsection{Aggregation}
 \label{subsec:aggregation}
 A simple strategy to reduce estimation error is {\it aggregation}~\cite{any citation?}.  By aggregation we mean putting quality samples into coarser groups that match on only a subset of observed attributes.  Aggregation increases the number of samples in each identical group by reducing the number of attributes, thus reducing estimation error at the cost of increased bias. 
-Intuitively, when estimation error is small (say, when a fine-grained identical group contains many sessions) we want to eliminate bias by using a fine-grained group.  When estimation error is large, we want to aggregate more.    This indicates that a prediction algorithm that uses aggregation should pay attention to its error rate to determine the right degree of aggregation.
+Intuitively, when estimation error is small (say, when a fine-grained identical group contains many sessions) we want to eliminate bias by using a fine-grained group.  When estimation error is large, we want to aggregate more. 
+Then the question becomes how to determine the best level of aggregation.
 
 
 \begin{figure}[h!]
@@ -88,9 +89,9 @@ Intuitively, when estimation error is small (say, when a fine-grained identical 
 \label{fig:example-optimal-ac}
 \end{figure}
 
-\myparatight{Optimal AC} We use a simple methodology, called {\it optimal AC}, to show the dynamics of the right degree aggregation. We assume that the information (quality samples) collected before this minute can only be used for predicting sessions in the next minute.
+\myparatight{Optimal AC} We use a simple methodology, called {\it optimal AC}, to show the dynamics of the best level of aggregation. We assume an prediction algorithm with a delay of one minute, i.e., it predicts with information (quality samples) collected from previous minute.
 For a finest identical group at $t$-th minute, we first build a hierarchy that consists of all degrees of aggregation over the quality samples we collects before the $t$-th minute. Figure~\ref{fig:example-optimal-ac} shows an example of three attributes. 
-Then, the optimal AC for this identical group is the degree of aggregation that gives the prediction value closest to the optimal prediction for the finest identical group at $t$-th minute which yields to minimal prediction error.
+Then, the optimal AC for this identical group is the degree of aggregation that gives the prediction value closest to the optimal prediction for the finest identical group at $t$-th minute which yields to minimal prediction error. \xil{sentence too long}
 For instance, if the optimal prediction of the targeted identical group is 0.2, the optimal AC (colored in red) is the one with the closest prediction to 0.2, i.e., $(ASN, CDN)$. 
 
 
@@ -122,7 +123,6 @@ To show the dynamics of optimal AC, we present some empirical analysis results o
 	\item {\it Highly dynamic optimal ACs:} Figure~\ref{fig:optimal-ac-dynamics}-(c) shows the persistence of the $($\emph{session-under-prediction, optimal AC}$)$ pairs, i.e., the longest continuous duration where the finest group has the same optimal AC. Only 40\% of pairs last for more than 10 minutes. This suggests that even with a reactive strategy will be challenging to track the optimal ACs.
 \end{packeditemize}
 
-%\xil{maybe summarize it as the challenge is finding the right AC?}
-To conclude, we find that the optimal AC (the aggregation that gives minimal prediction error) is in many cases neither the finest nor the coarsest one, and, in addition, is highly dynamic:
-
+To conclude, we find that the optimal AC (the aggregation that gives minimal prediction error) is in many cases neither the finest nor the coarsest one, and, in addition, is highly dynamic. This presents a challenge in designing a practical prediction algorithm to identify the best AC in real-time.
+\xil{It is not clear from first read that optimal AC is an oracle analysis, not a real algorithm}
 
