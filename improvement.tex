@@ -6,7 +6,7 @@ Previous sections have established our prediction algorithm can achieve near-opt
 Specifically, we aim to answer two questions:
 \begin{packedenumerate}
 	\item How does prediction accuracy impact quality improvement?
-	\item How does quality diversity among multiple decisions impact quality improvement? \xil{a bit vague}
+	\item How does quality diversity among multiple decisions impact quality improvement? \xil{a bit vague}\jc{Xi, please write a better one.}
 \end{packedenumerate}
 
 \tightsubsection{Methodology}
@@ -45,9 +45,9 @@ We first explain the GO's prediction-based decision making and use controlled sy
 \label{fig:behavioral}
 \end{figure}
 
-\myparatight{Case study} We simulate a scenario in which a sudden change in performance of one group causes GO to switch decision accordingly. Figure~\ref{fig:behavioral} shows the behavior of sessions in one ASN when provided with two CDNs to choose from. Assume that buffering ratio is the only considered quality metric. The mean of buffering ratio of CDN1 is stably at 0.2 and that of CDN2 changes between 0.1 and 0.25, with a random interval. Each quality sample of a CDN is generated so that its buffering ratio has a Guassian noise of \fillme deviation from mean. This figure shows clearly that under this configuration, GO is able to switch to the best CDN accordingly with an expected delay (as it uses a 30-minute sliding window). Note that there is always a small amount of randomized traffic, so the change on each decision can be detected. As a side-effect, it takes longer for GO to detect that CDN2 has bad bad quality than when it has good quality, because the number of samples from CDN2 when it has bad quality (only randomized traffic) is smaller than when it has good quality (all traffic).
+\myparatight{Case study} We simulate a scenario in which a sudden change in performance of one group causes GO to switch decision accordingly. Figure~\ref{fig:behavioral} shows the behavior of sessions in one ASN when provided with two CDNs to choose from. We only controll buffering ratio as quality metric. The mean of buffering ratio of CDN1 is stably at 0.2 and that of CDN2 changes between 0.1 and 0.25, with a random interval. Each quality sample of a CDN is generated so that its buffering ratio has a Guassian noise with standard deviation of 0.01 from mean. This figure shows clearly that under this configuration, GO is able to switch to the best CDN accordingly with an expected delay (as it uses a 30-minute sliding window). Note that there is always a small amount of randomized traffic, so the change on each decision can be detected. %As a side-effect, it takes longer for GO to detect that CDN2 has bad bad quality than when it has good quality, because the number of samples from CDN2 when it has bad quality (only randomized traffic) is smaller than when it has good quality (all traffic).
 
-\xil{are we going to do something about that point or ack it is an issue.}
+%\xil{are we going to do something about that point or ack it is an issue.}
 
 \tightsubsection{Impact of prediction accuracy}
 
@@ -64,7 +64,7 @@ This allows us to see how much worse the quality improvement will be if we have 
 \label{fig:trace-accuracy-1}
 \end{figure}
 
-Figure~\ref{fig:trace-accuracy-1} shows the GO improvement from a baseline random algorithm which selects a uniformly random decision. The figure shows an near linear degredation on improvement in average bitrate -- average bitrate improvement reduces for 50Kbps with Gaussian noise increases 200Kbps in its standard deviation.
+Figure~\ref{fig:trace-accuracy-1} shows the GO improvement from a baseline random algorithm which selects a uniformly random decision. The figure shows an near linear degredation on improvement in average bitrate -- average bitrate improvement reduces 50Kbps with Gaussian noise increases 200Kbps in its standard deviation.
 
 
 
@@ -80,7 +80,7 @@ Moreover, we could compare with an oracle which always makes the decision with t
 \end{figure}
 
 Figure~\ref{fig:trace-accuracy-2} shows the results with average bitrate as the quality metric. We consider a baseline algorithm which select a uniformly random decision. The top line is the improvement of oracle approach from the baseline algorithm, which should be static. The bottom line shows the improvement of GO from the basline algorithm. 
-It shows a clear degredation in improvement and such degradation is linear from stretch ratio of 0.9 -- after this point, with prediction error raised by every 10\%, the improvement in average bitrate decreases by 10Kbps. It suggests that the improvement is very sensitive to accuracy if GO's prediction becomes worse. Also, note that with larger or smaller stretch rate, the improvement stablizes in both cases.
+It shows a clear degredation in improvement and such degradation is linear from stretch ratio of 0.9 -- after this point, with prediction error raised by every 10\%, the improvement in average bitrate decreases by 20Kbps. It suggests that the improvement is sensitive to accuracy if GO's prediction becomes worse. Also, note that with larger stretch rate, the improvement stablizes.
 
 \xil{conclusion seems a bit weak}
 
@@ -99,15 +99,17 @@ To confirm this intuition, we use a stretch parameter $r$ to control the quality
 \label{fig:trace-diversity}
 \end{figure}
 
-Figure~\ref{fig:trace-diversity} shows the result with average bitrate as the quality metric. The left y axis shows the improvement of GO based on the random baseline algorithm, and the right y axis shows the room of improvement which is the difference between GO's improvement and oracle's improvement. With close-to-zero stretch parameter, the room of improvement reduces to zero simply because even the oracle approach cannot make much benefit from selecting the best decision as the gap is minimized. 
+Figure~\ref{fig:trace-diversity} shows the result with average bitrate as the quality metric. The left y axis shows the improvement of GO based on the random baseline algorithm. It shows close to linear increase with more quality diversity between decisions. 
+The right y axis shows the room of improvement which is the difference between GO's improvement and oracle's improvement. With close-to-zero stretch parameter, the room of improvement reduces to zero simply because even the oracle approach cannot make much benefit from selecting the best decision as the gap is minimized. 
 In the middle of the figure, it shows a close to linear relationship between stretch on quality diversity and room of improvement, with quality diversity increases by every 10\%, the room of improvement decreases by 20Kbps. 
 
 
 
 \tightsubsection{Summary of observations}
 \begin{packedenumerate}
-	\item 
-	\item 
+	\item Under controlled experiments, GO identifies performance change and switches decisions accordingly.
+	\item Quality improvement is linear to prediction error -- 10\% reduction in prediction error yields to 20Kbps in quality improvement.
+	\item GO's quality improvement increases linearly with quality diversity between decisions and such improvement becomes closer-to-optimal with larger quality diversity.
 \end{packedenumerate}
 
 \xil{overall i feel the figures and conclusions from this section is not very concrete. there should be quantitative conclusions.}
