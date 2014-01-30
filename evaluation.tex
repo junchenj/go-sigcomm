@@ -56,26 +56,22 @@ performance and decisions, and indicates that GO can respond to such events and 
 Now we look into some particular example and see how GO improves quality by allocating traffic to best CDN. Figure~\ref{fig:eval-case-study} shows three example days in which three CDNs performed differently: in terms of average bitrate and buffering ratio, CDN1 was the best on Day A, CDN2 was the best on Day B and three CDNs performed similarly on Day C. We can see that in both Day A and B, GO managed to allocate more traffic to the best CDN (Figure~\ref{subfig:eval-case-study:share}) and maintain the global average quality to be similar to the best CDN in both average bitrate and buffering ratio. Even on Day C, GO still managed to reach an arguably improvement of buffering ratio and average bitrate. This indirectly suggests that GO was not only looking for the globally best CDN, but also differentiated CDN performance in finer granular partition.
 
 
-\begin{figure*}[t!]
+\begin{figure}[t!]
 \centering
 \subfigure[Buffering ratio]
 {
-	\includegraphics[width=0.3\textwidth]{figures/ab-testing-figures/bufferingratio.pdf}
+	\includegraphics[width=0.24\textwidth]{figures/ab-testing-figures/bufferingratio-new.pdf}
 	\label{subfig:eval-case-study:bufferingratio}
 }
+\hspace{-0.6cm}
 \subfigure[Average bitrate (Kbps)]
 {
-	\includegraphics[width=0.3\textwidth]{figures/ab-testing-figures/averagebitrate.pdf}
+	\includegraphics[width=0.24\textwidth]{figures/ab-testing-figures/averagebitrate-new.pdf}
 	\label{subfig:eval-case-study:averagebitrate}
 }
-\subfigure[Traffic share of different CDNs]
-{
-	\includegraphics[width=0.3\textwidth]{figures/ab-testing-figures/trafficshares.pdf}
-	\label{subfig:eval-case-study:share}
-}
-\tightcaption{Case study of three days: CDN1 was the best on Day A and CDN2 was the best on Day B. In both cases, GO managed to allocate more traffic to the best CDN and maintain the global average quality to be similar to the best CDN in both average bitrate and buffering ratio. Even on Day C where three CDN performed similarly, GO still managed to reach an arguably improvement of buffering ratio and average bitrate.}
+\tightcaption{Case study of two days: In both days, GO managed to improved the quality and give better quality than the best CDN.}
 \label{fig:eval-case-study}
-\end{figure*}
+\end{figure}
 
 
 

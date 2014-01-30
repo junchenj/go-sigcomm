@@ -136,6 +136,22 @@ All these results indicate that GO performs better than both strawman, with redu
 \label{fig:compare-to-naive}
 \end{figure*}
 
+Finally, we revisit the observation on the variability of the lower bound across different ASN and Site. Figure~\ref{fig:compare-partition} picks the largest 3 Sites and compare GO's prediction accuracy with baseline (CDN+Bitrate) as well as the lower bound. As shown, with the lower bound varying across different Site, GO can always achieve close-to-optimal prediction accuracy (i.e., low overall prediction error).
+
+\begin{figure}[h!]
+\centering
+\subfigure[Buffering ratio]
+{
+        \includegraphics[width=0.24\textwidth]{figures/newfig/bar-compare-bufratio.pdf}
+}
+\hspace{-0.6cm}
+\subfigure[Average bitrate]
+{
+        \includegraphics[width=0.24\textwidth]{figures/newfig/bar-compare-bitrate.pdf}
+}
+\tightcaption{}
+\label{fig:compare-partition}
+\end{figure}
 
 \comment{
 \tightsubsection{Interactions between decisions\jc{Move to discussion}}

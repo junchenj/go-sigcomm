@@ -25,7 +25,7 @@ This section uses three input to answer the two high-level questions. We now des
 
 \myparatight{Augmented trace-driven input} While counterfactual input is useful in evaluating different algorithms, we cannot use it to estimate the ``would-be" performance of an ``oracle" approach (e.g., how the performance would be if another decision were taken), which requires data extrapolation. In addition, counterfactual input only has one site traffic and only provide limited coverage. To remedy these limitations, we generate an augmented trace-driven synthetic dataset in which we extrapolate for each session the ``true'' quality outcome of all its possible decisions. The basic idea of this extrapolation  is that for each session $s$, its outcome of each decision $d$ is drawn from the distribution of outcomes of this decision $d$ on other sessions exactly matching the same attributes with $s$. Having ensured that quality outcomes in the synthetic scenario are known for any decision, it is possible to identify an {\it oracle} approach that always makes the best decision. However, the evaluation is could be biased by the extrapolation.
 
-\myparatight{Controlled synthetic input} Both previous methodology lacks control, i.e., if no major outage or other events happen in the data set, we cannot evaluate GO performance under those scenarios. \xil{the following is hard to read.} Thus we also use fully controlleable input in which the true outcomes (i.e., ``ground truth'') of each decision is controlled.
+\myparatight{Controlled synthetic input} Both previous methodology lacks control, i.e., if no major outage or other events happen in the data set, we cannot evaluate GO performance under those scenarios. Thus we also use fully controlleable input in which the true outcomes (i.e., ``ground truth'') of each decision is controlled.
 
 
 
@@ -53,25 +53,23 @@ We first explain the GO's prediction-based decision making and use controlled sy
 To quantify the impact of prediction accuracy, we need to generate prediction with certain prediction error and see the improvement. To do this, we use both counterfactual input and augmented trace-driven input. 
 
 \myparatight{Counterfactual testing}
-In counterfactual input, we use GO to do prediction and add noise of varying magnitude to the prediction result. This allows us to see how much worse the quality improvement will be if we have more noise in prediction result. 
-
-\fillme
+In counterfactual input, we use GO to do prediction and add noise of varying magnitude to the prediction result. The additional noise follows a Gaussian random with increasing standard deviation.
+This allows us to see how much worse the quality improvement will be if we have more noise in prediction result. 
 
 \begin{figure}[h!]
 \centering
- \includegraphics[width=0.35\textwidth] {figures/newfig/trendAccuracy-metricId1-keyGlobal-partition.pdf}
-\tightcaption{(Change figure ASAP!) Impact of the additional noise to prediction accuracy on quality improvement.}
+ \includegraphics[width=0.35\textwidth] {figures/newfig/trendNoise-metricId1-keyGlobal-partition.pdf}
+\tightcaption{Impact of the additional noise to prediction on quality improvement.}
 \label{fig:trace-accuracy-1}
 \end{figure}
+
+Figure~\ref{fig:trace-accuracy-1} shows the GO improvement from a baseline random algorithm which selects a uniformly random decision. The figure shows an near linear degredation on improvement in average bitrate -- average bitrate improvement reduces for 50Kbps with Gaussian noise increases 200Kbps in its standard deviation.
+
 
 
 \myparatight{Augmented trace-driven testing}
 Although counterfactual testing provides unbiased evaluation on the impact prediction noise, it does not allow us to control the prediction error because the true outcome is not available. In this part, we use the augmented trace-driven testing to quantify the impact of prediction error on quality improvement. Given a session and one decision, if the true quality is $q$ and $p$ is the prediction made by GO, we use a parameter called stretch $r$ to change the prediction $p$ to new prediction $p'=q+(p-q)r$ such that the prediction error is exactly stretched by $r$. 
 Moreover, we could compare with an oracle which always makes the decision with the best quality. To simplify the discussion, we assume each session has two  possible decisions. 
-
-Figure~\ref{fig:trace-accuracy-2} shows the results with average bitrate as the quality metric. We consider a baseline algorithm which select a uniformly random decision. The top line is the improvement of oracle approach from the baseline algorithm, which should be static. The bottom line shows the improvement of GO from the basline algorithm. 
-It shows a clear degredation in improvement and such degradation is linear from stretch ratio of 0.9 -- after this point, with prediction error raised by every 10\%, the improvement in average bitrate decreases by 50Kbps. It suggests that the improvement is very sensitive to accuracy if GO's prediction becomes worse. Also, note that with larger or smaller stretch rate, the improvement stablizes in both cases.
-
 
 \begin{figure}[h!]
 \centering
@@ -79,6 +77,11 @@ It shows a clear degredation in improvement and such degradation is linear from 
 \tightcaption{Impact of GO prediction accuracy with varying stretch rate on quality improvement.}
 \label{fig:trace-accuracy-2}
 \end{figure}
+
+Figure~\ref{fig:trace-accuracy-2} shows the results with average bitrate as the quality metric. We consider a baseline algorithm which select a uniformly random decision. The top line is the improvement of oracle approach from the baseline algorithm, which should be static. The bottom line shows the improvement of GO from the basline algorithm. 
+It shows a clear degredation in improvement and such degradation is linear from stretch ratio of 0.9 -- after this point, with prediction error raised by every 10\%, the improvement in average bitrate decreases by 10Kbps. It suggests that the improvement is very sensitive to accuracy if GO's prediction becomes worse. Also, note that with larger or smaller stretch rate, the improvement stablizes in both cases.
+
+
 
 
 
@@ -88,14 +91,16 @@ To quantify the impact of quality diversity among multiple decisions, we fix the
 
 To confirm this intuition, we use a stretch parameter $r$ to control the quality diversity between multiple decisions. To simplify the discussion, we assume each session has two possible decisions. Given a session with the true quality of two decisions being $q_1, q_2$ (assume $q_1\leq q_2$), we change their value to $q_1'=q_1, q_2=q_1+(q_2-q_1)r$. We again use two improvement from baseline and room of improvement to characterize the quality improvement.
 
-Figure~\ref{fig:trace-diversity} shows the result with average bitrate as the quality metric. The left y axis shows the improvement of GO based on the random baseline algorithm, and the right y axis shows the room of improvement which is the difference between GO's improvement and oracle's improvement. It shows a close to linear relationship between stretch on quality diversity and room of improvement, with quality diversity increase by every 10\%, the room of improvement 20Kbps.
-
 \begin{figure}[h!]
 \centering
 \includegraphics[width=0.35\textwidth] {figures/newfig/trendDiversity-metricId1-keyGlobal-partition.pdf}
 \tightcaption{Impact of quality diversity on quality improvement.}
 \label{fig:trace-diversity}
 \end{figure}
+
+Figure~\ref{fig:trace-diversity} shows the result with average bitrate as the quality metric. The left y axis shows the improvement of GO based on the random baseline algorithm, and the right y axis shows the room of improvement which is the difference between GO's improvement and oracle's improvement. With close-to-zero stretch parameter, the room of improvement reduces to zero simply because even the oracle approach cannot make much benefit from selecting the best decision as the gap is minimized. 
+In the middle of the figure, it shows a close to linear relationship between stretch on quality diversity and room of improvement, with quality diversity increases by every 10\%, the room of improvement decreases by 20Kbps. 
+
 
 
 \tightsubsection{Summary of observations}

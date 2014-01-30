@@ -90,20 +90,28 @@ Intuitively, this lower bound characterizes the dispersion in quality of the ses
 
 \begin{figure}[t!]
 \centering
-\subfigure[Temporal impact]
+\subfigure[Temporal attributes]
 {
-	\includegraphics[width=0.22\textwidth]{figures/newfig/lowerbound-temp-metricId0.pdf}
+	\includegraphics[width=0.24\textwidth]{figures/newfig/lowerbound-temp-metricId0.pdf}
 	\label{subfig:predictability:temporal}
 }
-\subfigure[Spatial impact]
+\hspace{-0.6cm}
+\subfigure[Spatial attributes]
 {
-	\includegraphics[width=0.22\textwidth]{figures/newfig/lowerbound-spatial-temp1-metricId0.pdf}
+	\includegraphics[width=0.24\textwidth]{figures/newfig/lowerbound-spatial-temp1-metricId0.pdf}
 	\label{subfig:predictability:spatial}
 }
-\subfigure[Partition impact]
+\hspace{-0.6cm}
+\subfigure[Per-ASN]
 {
-	\includegraphics[width=0.4\textwidth]{figures/newfig/predictability-partition.pdf}
-	\label{subfig:predictability:partition}
+	\includegraphics[width=0.24\textwidth]{figures/newfig/bar-predictability-asn.pdf}
+	\label{subfig:predictability:asn}
+}
+\hspace{-0.6cm}
+\subfigure[Per-Site]
+{
+	\includegraphics[width=0.24\textwidth]{figures/newfig/bar-predictability-site.pdf}
+	\label{subfig:predictability:site}
 }
 \tightcaption{Quantifying impact of different factors on the lower bound of prediction error of buffering ratio over our dataset.}
 \label{fig:predictability}
