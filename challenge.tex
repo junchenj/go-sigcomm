@@ -96,6 +96,8 @@ Remember that the optimal prediction of this identical group is its mean (see \S
 Then, the optimal AC for this identical group is the degree of aggregation that gives the prediction value closest to the optimal prediction for the finest identical group at $t$-th minute. 
 For instance, in Figure~\ref{fig:example-optimal-ac}, if the optimal prediction of the targeted identical group is 0.2, the optimal AC (colored in red) is the one with the closest prediction to 0.2, i.e., $(ASN, CDN)$. 
 
+Note that optimal AC is not a real algorithm but an oracle analysis because the result depends on the underlying best prediction of sessions under prediction. It reflects the degree of aggregation of historical data that gives the best prediction for future (i.e., next minute's) sessions.
+To show the dynamics of optimal AC, we present some empirical analysis results over our dataset from three aspects. 
 
 \begin{figure}[h!]
 \centering
@@ -118,7 +120,7 @@ For instance, in Figure~\ref{fig:example-optimal-ac}, if the optimal prediction 
 \label{fig:optimal-ac-dynamics}
 \end{figure}
 
-To show the dynamics of optimal AC, we present some empirical analysis results over our dataset from three aspects. 
+
  
 \begin{packeditemize}
 	\item {\it No single optimal AC:} Figure~\ref{fig:optimal-ac-dynamics}-(a) shows the coverage of optimal ACs, i.e., the fraction of time for which a given AC is the optimal AC. Note that there is no single optimal AC. For example, the finest group only has coverage about 20\% and no coarsest grain AC (single attribute) is among the top 5. This implies that the optimal AC is often in between.
@@ -127,5 +129,5 @@ To show the dynamics of optimal AC, we present some empirical analysis results o
 \end{packeditemize}
 
 To conclude, we find that the optimal AC (the aggregation that gives minimal prediction error) is in many cases neither the finest nor the coarsest one, and, in addition, is highly dynamic. This presents a challenge in designing a practical prediction algorithm to identify the best AC in real-time.
-\xil{It is not clear from first read that optimal AC is an oracle analysis, not a real algorithm}
+%\xil{It is not clear from first read that optimal AC is an oracle analysis, not a real algorithm}
 
