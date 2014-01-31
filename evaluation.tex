@@ -3,8 +3,10 @@
 
 In this section, we present the implementation and deployment of the GO system (\Section~\ref{sec:impl} and ~\ref{subsec:eval_setup}), and evaluate its performance in real-world (\Section~\ref{subsec:real-world-improvement} and ~\ref{subsec:adaptive-bitrate}). 
 
-The overall improvement is not impressive partly because the deployment is greatly constrained. The deployment only uses one content provider, and the content provider only enables CDN-level selection across three major CDNs which exhibit limited difference in their overall performance during the cause of our experiment. Moreover, the optimization must follow a traffic policy which dictates the total amount of traffic to each CDN. \jc{add a sentence here to explain how GO makes predictive selection under the policy constraints}
-
+The overall improvement is not impressive partly because the deployment is greatly constrained. The deployment only uses one content provider on one platform. 
+The content provider enables CDN-level selection across three CDNs where two of them exhibit limited difference in their overall performance during the cause of our experiment,
+except in several days we observe performance issues.
+%Moreover, the optimization must follow a traffic policy which dictates the total amount of traffic to each CDN. \jc{add a sentence here to explain how GO makes predictive selection under the policy constraints}
 However, even with these constraints, we still see arguable improvement. 
 
 \begin{packedenumerate}
@@ -61,7 +63,7 @@ In summary, we implemented GO which is both scalable and provide good system-lev
 \tightsubsection{Deployment Setup}
 \label{subsec:eval_setup}
 
-We evaluate the performance of GO on one content provider with short-form videos (5 minutes) on iOS device (both iPhone and iPad). 
+GO is deployed on one content provider with short-form videos (5 minutes) on iOS device (both iPhone and iPad). 
 HLS protocol is running on the iOS device and our GO system decides the initial CDN and bitrate, while Apple player employs adaptive 
 bitrate switching algorithm to change the bitrate during the video session (without CDN switch). 
 
