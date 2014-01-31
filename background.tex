@@ -9,19 +9,19 @@ today's Internet requires one to predict the outcome of different
 decisions that the client or the server can make to optimize video
 delivery. 
 
-In Section~\ref{subsec:predictivemodel}, we argue that 
-in order to predict these decision outcomes, we need a global control
-architecture that (1) continuously collects performance information 
-of ongoing sessions, and (2) use this information to create an accurate 
-\emph{model} that predicts the performance of a session for a give 
-configuration setting or protocol decision (see Figure~\ref{fig:global-control--overview}). 
-Performance information can be collected at the clients, at the servers,
-or at different network elements such as routers or caches. 
-The decisions can involve any element in the control plane. For example,
-in video delivery, decisions include CDN selection, video bitrate adaptation, 
-server selection, video encoding profile, routing, etc.
-Being able to predict the outcome of every possible decision enables us to make the best
-decision.
+In Section~\ref{subsec:predictivemodel}, we argue that in order to
+predict these decision outcomes, we need a global control architecture
+that (1) continuously collects performance information of ongoing
+sessions, and (2) use this information to create an accurate
+\emph{model} that predicts the performance of a session for a give
+configuration setting or protocol decision (see
+Figure~\ref{fig:global-control--overview}).  Performance information
+can be collected at the clients, at the servers, or at different
+network elements such as routers or caches.  The decisions can involve
+any element in the control plane. For example, with video delivery,
+decisions may include CDN selection, video bitrate adaptation, video
+encoding profile, and.  Being able to predict the outcome of
+every possible decision enables us to make the best decision.
 
 In Section~\ref{subsec:gooverview}, we present the overview of GO, an 
 early instantiation of the global control plane in video delivery.
@@ -61,7 +61,7 @@ at a given bitrate. Based on this prediction, we can then select the
 optimal bitrate for the new client.  In TCP protocol design, we might
 gather data about many TCP connections to discover the distribution of
 packet loss rates for different initial window sizes.  
-And in this paper, we refer to it as a {\it predictive decision} model.
+In this paper, we refer to such model as a {\it predictive decision} model.
 
 % ION: move to discussion section
 % We note that predictive decision model which requires sharing the
@@ -110,16 +110,17 @@ these samples back to the GO backend.
 \end{figure}
  
 The GO backend uses a highly-scalable distributed streaming system to
-process the quality samples received from clients, and predict the
-quality outcomes of future sessions for each possible decision. 
-Current GO system makes two decisions for each session: the 
-initial or starting {\it bitrate} (most videos today are encoded at multiple resolutions), and
-the initial CDN to stream the content from (many content providers today are on or 
-moving towards mult-CDN setup). The initial CDN and bitrate are chosen from a
+process the quality samples received from clients in real time, and
+predict the quality outcomes of future sessions for each possible
+decision.  The existing GO system makes two decisions for each
+session: the initial or starting {\it bitrate} (most videos today are
+encoded at multiple resolutions), and the initial CDN to stream the
+content from (many content providers today are on or moving towards
+mult-CDN setup). The initial CDN and bitrate are chosen from a
 pre-determined set of options and they can be changed at any point
 during a session. Note that to play a video that is encoded at $n$
 different bitrates and stored on $m$ CDNs, there are $m\times n$
-options to chose from.  
+options to chose from.
 %Readers may refer to~\cite{conext12} for more details.
 
 To pick one of these options, GO predicts the quality metric for each
@@ -130,7 +131,7 @@ another user if she were streaming from a particular CDN at a
 particular bitrate, and use this prediction to select initial bitrate
 and CDN for a new user.
 
-\xil{quality metric is vague, we need to setup a notion of utility function.}
+%\xil{quality metric is vague, we need to setup a notion of utility function.}
 
 %Since there are multiple quality metrics, GO combines them
 %into a single figure of merit using a \emph{utility function}\jc{We do
