@@ -16,7 +16,7 @@ users are sensitive to buffering ratio (e.g., \cite{sigcomm11}) and frequent cha
 
 \tightsubsection{Global optimization}
 
-\myparatight{Control plane and centralized decisions} There is a long line of work in which the control plane is separated from the data plane (e.g.,~\cite{rcp,onix,4d,openflow}) and they focus on physical networks and the objectives are often packet forwarding behaviors and policy compliance in routing. In contrast, GO optimize application-level applications by controlling client-side devices and the objectives are performance or quality metrics.  
+\myparatight{Control plane and centralized decisions} There is a long line of work in which the control plane is separated from the data plane (e.g.,~\cite{rcp,onix,yan2007tesseract,openflow}) and they focus on physical networks and the objectives are often packet forwarding behaviors and policy compliance in routing. In contrast, GO optimize application-level applications by controlling client-side devices and the objectives are performance or quality metrics.  
 
 \myparatight{Controller scalability and fault-tolerance} By making control decisions at a centralized point, SDN and similar centralized systems create a single point-of-failure at the controller and previous research has proposed many related techniques to build a scalable and fault-tolerant controller/backend (e.g., ~\cite{tootoonchian2012controller,yan2007tesseract}). The implementation of GO backend leverages many existing techniques to make it scalable, efficient and resillient, including Spark~\cite{spark}, Hadoop and ...
 

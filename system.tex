@@ -8,7 +8,7 @@ In this section, we present the high level GO implementation. While there are mu
 %Like many data processing systems, individual events from every single client sending information must be rolled up and summarized into a succinct format. Because many systems do this, and there is nothing specific to our problem about how this is done, we will focus on how the system rapidly translates these summaries into meaningful pieces of information used for prediction and decision making. These summaries consist of the most recent performance information about a session, as well as the information about what decision was made for the session. 
 
 \myparatight{Creating group table} Group table generation is essentially the process of aggregating samples into buckets, and then computing summary statistics for each bucket.  
-Our implementation uses Spark~\cite{} as the underlying compute framework, and the problem can be captured in a single map-reduce stage. 
+Our implementation uses Spark~\cite{spark} as the underlying compute framework, and the problem can be captured in a single map-reduce stage. 
 Data samples are loaded in parallel from an HDFS source and distributed amongst the cluster. Each node then maps its share of samples to a set of 
 preliminary buckets. Common buckets are then shuffled across the cluster and the results are aggregated and collected onto a master machine. 
 Currently it takes GO system 12 seconds to process 500K identical groups on a 4-node cluster, without riguous performance optimization.
