@@ -1,31 +1,29 @@
 \tightsection{The GO Prediction Algorithm}
 \label{sec:prediction}
-In this section, we present a ``near-optimal" practical algorithm that addresses the challenges presented in the previous section. We show that this algorithm yields to similar prediction as optimal AC does and show that the resulting prediction is much closer to the lower bound introduced in \Section~\ref{subsec:lowerbound} than strawman algorithms. We present the basic algorithm, key improvement techniques and evaluate it against some strawman algorithms. 
-\jc{We don't discuss about temporal attribute aggregation. Need to say something about that. In all experiments, I used 5 minutes time window}
+In this section, we present a practical algorithm that addresses the challenges presented in \Section~\ref{subsec:aggregation}. We show that this algorithm yields to similar prediction as optimal AC does and show that the resulting prediction error is much closer to the lower bound introduced in \Section~\ref{subsec:lowerbound} than other strawman algorithms.
+\jc{We don't discuss temporal attribute aggregation. Need to say something about that. In all experiments, I used 5 minutes time window}
 
-This section begins with the basic algorithm for making prediction (\Section~\ref{subsec:basic}). We then present two techniques and their empirical evaluation to address two limitations of the basic algorithm and further improve the prediction quality (\Section~\ref{subsec:acs}, \Section~\ref{subsec:sudo}). Finally, \Section~\ref{subsec:minieval} compares the prediction accuracy of GO with that of strawman (with static AC) algorithms and the lower bound.
+This section begins with the basic algorithm for making prediction (\Section~\ref{subsec:basic}). We then present two techniques and their empirical evaluation to address the limitations of the basic algorithm and further improve the prediction quality (\Section~\ref{subsec:acs}, \Section~\ref{subsec:sudo}). Finally, \Section~\ref{subsec:minieval} compares the prediction error of GO with that of strawman (with static AC) algorithms as well as the lower bound.
 
 
 \tightsubsection{Basic Algorithm}
 \label{subsec:basic}
-The tradeoff between estimation error and bias via aggregation naturally leads us to consider a class of algorithms that compute average quality outcomes for groups of sessions under different attribute sets, and then {\it dynamically} choose the attribute set that seems to work well for a given session. However, it is difficult to find a globally best AC, it is useful to hedge our bets by taking a weighted combination of averages. \xil{did we prove this?}
-Thus we propse the following basic structure for the algorithm. The algorithm chooses a set of ACs offline (called {\it ACS}), which can consist of all possible ACs $G$, i.e., full ACS, or a subset of them. 
-We explain why full ACS is not the best choice and how we select ACS in \Section~\ref{subsec:acs}. When an ACS is chosen offline, the algorithm starts collecting quality metrics for all the identical groups in each AC in the ACS 
-(of which Figure~\ref{fig:example-optimal-ac} gives an example when ACS consists of all ACs of the three attributes). Based on the quality metrics collected, each identical group will be given a weight.
-Since weights reflect statistical properties of the identical groups and are thus updated when new quality samples are collected.
+The tradeoff between estimation error and bias via aggregation naturally leads us to consider a class of algorithms that compute average quality outcomes for groups of sessions under different attribute sets, and then {\it dynamically} choose the attribute set that seems to work well for a given session. 
+%However, it is difficult to find a globally best AC, it is useful to hedge our bets by taking a weighted combination of averages. \xil{did we prove this?}
+We propse the following basic structure for the algorithm. The algorithm chooses a set of ACs offline (called {\it ACS}), which can consist of all possible ACs $G$, i.e., full ACS, or a subset of them. 
+We explain why full ACS is not the best choice and how we select the ACS in \Section~\ref{subsec:acs}. When an ACS is chosen offline, the algorithm starts collecting quality metrics for all the identical groups of each AC in the ACS 
+(of which Figure~\ref{fig:example-optimal-ac} gives an example when ACS consists of all ACs of the three attributes). Based on the quality metrics collected, each identical group will be given a weight so that the weights reflect statistical properties of the identical groups and are thus updated when new quality samples are collected.
 Finally, when receiving a session $s$ under prediction, for $g_i\in G$, let $w_i$ be the weight given to the identical group of $g_i$ that includes $s$, and the mean quality of this identical group is $p_i$,
 the prediction is an weighted sum of the mean quality of each group, $p=\frac{1}{\sum_{g_i\in G} w_i}\sum_{g_i\in G} w_ip_i$.
 
 The next question then becomes how to design a weighting scheme to balance between estimation error and bias to minimize overall prediction error. 
-Intuitively, we would like to use larger $w_i$ for finer granular groups if they do not have high estimation error. 
+%Intuitively, we would like to use larger $w_i$ for finer granular groups if they do not have high estimation error. 
 
-
-
-George et al~\cite{george2008value} consider this problem and the proposed prediction algorithm WIMSE, for Weighted Inverse Mean Squared Error.  Inverse-mean-squared-error weighting has the following desirable property: If the mean quality $p_i$ of each group is statistically independent, then the resulting prediction is an optimal estimator in the sense that it has overall prediction error among all functions of \jc{Henry, fill this!}\cite{}.
-While the algorithm achieves optimality under some assumption and George et al have found that WIMSE can nevertheless work well in most cases, there are two unaddressed questions by this algorithm, which we will present in the following sections.
+George et al~\cite{george2008value} consider this problem and the proposed prediction algorithm WIMSE, for Weighted Inverse Mean Squared Error.  Inverse-mean-squared-error weighting has the following desirable property: If the mean quality $p_i$ of each group is statistically independent, then the resulting prediction is an optimal estimator in the sense that it has the minimal overall prediction error among all samples drawn from the same distribution~\cite{george2008value}.
+While the algorithm achieves optimality under some assumption and George et al have found that WIMSE can nevertheless work well in most cases, there are two problems with this algorithm, which we will try to address in the following sections.
 \begin{packeditemize}
-	\item {\bf ACS selection:} In our setting (and in the original motivating setting) the $p_i$ values are based on overlapping data and are therefore not independent. For example, the coarser-grained groups are generated by aggregating together finer-grained groups. In that case, both coarser and finer will receive similar weights; including both ACs doubles the weight of the corresponding groups for no principled reason. We present a algorithm to deliberately select an ACS that performs empirically the best with WIMSE in~\Section~\ref{subsec:acs}.
-	\item {\bf Non-normal distribution:}  WIMSE becomes challenging if samples in fine-grained groups are non-normal and very sparse. Especially when predicting for buffering ratio or start failure, the quality of most samples are zero (i.e., no buffering happened or video successfully started), and a  few samples can all be the same and lead to big bias.  We address this by borrowing the idea of pseudocount prior in~\Section~\ref{subsec:sudo}.
+	\item {\bf ACS selection:} In our setting the $p_i$ values are based on overlapping data and are therefore not always independent. For example, if a coarser-grained group is generated by aggregating together finer-grained groups, both the coarser and finer groups will receive similar weights as their mean qualities are dependent; including both ACs doubles the weight of the corresponding groups for no principled reason. We present a algorithm to efficiently select an ACS that performs empirically the best with WIMSE in~\Section~\ref{subsec:acs}.
+	\item {\bf Non-normal distribution:}  WIMSE becomes challenging if samples in fine-grained groups follow a non-normal distribution and very sparse. Especially when predicting for buffering ratio or start failure, where the quality of most samples are zero (i.e., no buffering happened or video successfully started), it is very likely to have a few samples with the same value and thus, lead to large bias.  We address this by borrowing the idea of pseudocount prior in~\Section~\ref{subsec:sudo}.
 \end{packeditemize}
 
 \tightsubsection{Efficient ACS Selection}
@@ -60,8 +58,8 @@ Mean of Jaccard & 0.8 & 0.83 & 0.92 & 0.83 \\
 
 \myparatight{Granular of selection} The ACS selection could be to find one ACS that produces best overall prediction accuracy called global ACS, or to find one ACS for each (non-overlapping) partition that gives best prediction individually, called per-group ACS. 
 \xil{need an example}
-It is hard to theoretically justify which one is better. However, use our dataset to demonstrate that global ACS is sufficiently good and sometimes better than per-group ACS.
-Figure~\ref{fig:global-acs} shows the CDF of prediction error on each session under prediction and use it to compare global ACS and per-group ACS. For per-group ACS, we consider the finest group (i.e., the selected ACS can vary across the finest groups). It shows that they perform similarly and the global ACS performs even slightly better, possibly because per-finest-group ACS has side-effect of overfitting.
+It is hard to theoretically justify which one is better. However, we use our dataset to demonstrate that global ACS is sufficiently good and sometimes better than per-group ACS.
+Figure~\ref{fig:global-acs} shows the CDF of prediction error on buffering ratio on each session under prediction and use it to compare global ACS and per-group ACS. For per-group ACS, we consider the finest group (i.e., the selected ACS can vary across the finest groups). It shows that they perform similarly and the global ACS performs even slightly better, possibly because per-finest-group ACS has side-effect of overfitting.
 \xil{again we need to justify more because this is offline. a related question is what if things change?}
 
 \begin{figure}[h!]
@@ -75,8 +73,8 @@ To conclude, based on the above empirical analysis, GO's ACS selection searches 
 
 \tightsubsection{Handling Non-Normal Distribution}
 \label{subsec:sudo}
-The WIMSE algorithm assumes that bias and variance can be computed exactly, while in practice variance cannot be estimated accurately when groups are very small and the sample distribution is not normal. For instance, it is very likely to have all samples in a group with the same values and prediction based on this information will be greatly biased and even worse, WIMSE will treat this group as with zero variance. This is a particularly serious problem for video quality metrics such as buffering ratio and start failure where value of zero is usually dominant.
-To alleviate this, we use a simple idea from Bayesian statistics~\cite{}\jc{Henry, give a pointer}: We incorporate a prior distribution on quality outcomes within each group.  This amounts to adding a few fake ``pseudocount'' observations to each group.  Empirically, we see an improvement of at most 5.6\% in prediction error of buffering ratio and 4.5\% in start failure.
+The WIMSE algorithm assumes that bias and variance can be computed exactly, while in practice variance cannot be estimated accurately when groups are very small and the sample distribution does not follow normal distribution. For instance, it is very likely to have all samples in a group with the same values and prediction based on this information will be greatly biased and even worse, WIMSE will treat this group as with zero variance. This is a particularly serious problem for video quality metrics such as buffering ratio and start failure where value of zero is usually dominant.
+To alleviate this, we use a simple idea from Bayesian statistics~\cite{}\jc{Henry, give a pointer}: We incorporate a prior distribution on quality outcomes within each group.  This amounts to adding a few fake ``pseudocount'' observations to each group.  Empirically, we see an reduction of at most 5.6\% in prediction error in buffering ratio and 4.5\% in start failure.
 
 \comment{
 \begin{figure}[h!]
@@ -89,33 +87,33 @@ To alleviate this, we use a simple idea from Bayesian statistics~\cite{}\jc{Henr
 
 \begin{figure*}[t!]
 \centering
-\subfigure[Buffering ratio]
+\subfigure[Buffering ratio (\%)]
 {
         \includegraphics[width=0.25\textwidth]{figures/newfig/example-fig-cdf-all-metricId0.pdf}
 }
 \hspace{-0.6cm}
-\subfigure[Average bitrate]
+\subfigure[Average bitrate (Kbps)]
 {
         \includegraphics[width=0.25\textwidth]{figures/newfig/example-fig-cdf-all-metricId1.pdf}
 }
 \hspace{-0.6cm}
-\subfigure[Join time]
+\subfigure[Join time (ms)]
 {
         \includegraphics[width=0.25\textwidth]{figures/newfig/example-fig-cdf-all-metricId2.pdf}
 }
 \hspace{-0.6cm}
-\subfigure[Start failure]
+\subfigure[Start failure (\%)]
 {
         \includegraphics[width=0.25\textwidth]{figures/newfig/example-fig-cdf-all-metricId3.pdf}
 }
-\tightcaption{Comparison between GO with two oracle approaches (lower bound and optimal AC) and two strawman approaches (finest and coarsest).}
+\tightcaption{Comparison between GO with two oracle approaches (lower bound and optimal AC) and two strawman approaches (static finest/coarsest AC).}
 \label{fig:compare-to-naive}
 \end{figure*}
 
 \tightsubsection{Evaluation of Prediction Error}
 \label{subsec:minieval}
 
-To conclude the section, we compare GO (with ACS selection and pseudocount prior) against two oracle approaches -- the lower bound (\Section~\ref{subsec:lowerbound}) and the optimal AC (\Section~\ref{subsec:aggregation}).  Recall that the optimal AC reflects the best possible prediction using the best AC of historical data based on the quality informaton of sessions under prediction, while the lower bound represents the best possible prediction in theory with no constraint on the way we use historical data. Figure~\ref{fig:compare-to-naive} shows the distribution of overall prediction error at each minute using different methods. It suggests that GO performs very similarly to optimal AC and close to the lower bound (e.g., a difference of \fillme Kbps in average bitrate). 
+To conclude the section, we compare GO (with ACS selection and pseudocount prior) against two oracle approaches -- the lower bound (\Section~\ref{subsec:lowerbound}) and the optimal AC (\Section~\ref{subsec:aggregation}).  Recall that the optimal AC reflects the best possible prediction using an appropriate AC of historical data if quality informaton of sessions under prediction is known. The lower bound represents the best possible prediction in theory with no constraint on the way we use historical data. Figure~\ref{fig:compare-to-naive} shows the distribution of overall prediction error at each minute using different methods. It suggests that GO performs very similarly to optimal AC (e.g., with a difference of 80 Kbps in average bitrate) and close to the lower bound (e.g., a difference of 300 Kbps in average bitrate). 
 
 To put this prediction accuracy into context, we also consider two strawman prediction algorithms that do not use adaptive degree of aggregation.
 \begin{packeditemize}
@@ -126,7 +124,7 @@ To put this prediction accuracy into context, we also consider two strawman pred
 All these results indicate that GO performs better than both strawman, with reduction in prediction accuracy of almost 25+\% from coarsest AC and 1-10\% from finest AC all four metrics. This confirms the observation in \Section~\ref{subsec:aggregation} that the best level of aggregation is often dynamic and in between the coarsest and finest aggregation.
 
 
-Finally, we revisit the observation on the variability of the lower bound across different ASN and Site. Figure~\ref{fig:compare-partition} picks the largest 3 Sites and compare GO's prediction accuracy with baseline (Coarsest) as well as the lower bound. As shown, with the lower bound varying across different Site, GO can always achieve close-to-optimal prediction accuracy (i.e., low overall prediction error).
+Finally, we look into the result in more details. Figure~\ref{fig:compare-partition} partitions the results by different Sites and picks the largest 3 Sites in which we compare GO's prediction error in buffering ratio and average bitrate with the strawman (Coarsest) as well as the lower bound. As shown, with the lower bound varying across different Site, GO can always achieve closer-to-optimal prediction accuracy (i.e., low overall prediction error) than the strawman.
 
 \begin{figure}[h!]
 \centering
@@ -139,7 +137,7 @@ Finally, we revisit the observation on the variability of the lower bound across
 {
         \includegraphics[width=0.24\textwidth]{figures/newfig/bar-compare-bitrate.pdf}
 }
-\tightcaption{Comparison of prediction error between GO, lower bound and baseline (coarsest AC) in different partitions.}
+\tightcaption{Comparison of prediction error between GO, lower bound and strawman (coarsest AC) in different Sites.}
 \label{fig:compare-partition}
 \end{figure}
 
