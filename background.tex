@@ -178,8 +178,9 @@ have been shown to impact user's engagement~\cite{sigcomm11}:
 % sessions that just join the session.
 
 In addition, a quality sample contains a large number of client and
-video session attributes, including:
+video session attributes. Table~\ref{tab:attributes} summarizes the attributes information.
 
+\comment{
 \begin{packedenumerate}
 \item \emph{ASN:} The Autonomous System Number (ASN) that the client
   IP belongs to. Note that a single ISP (e.g., Comcast) may own
@@ -217,27 +218,29 @@ video session attributes, including:
   from a third-party commercial service based on the client's IP
   address.
 \end{packedenumerate}
-
+}
 
   In this paper, we report results from collecting quality samples
   from over 800 million sessions or views (both successful and
   failed) over a duration of a month.
 
-%\myparasum{Previous research has shown prediction is necessary} In this context, video quality can be optimized by making the best decision (i.e., CDN, bitrate) for each session. Previous research \cite{sigcomm12,conext13} has provided insights on the potential of such optimization. In particular, it has shown (1) significant spatial diversity in CDN performance \footnote{CDN performance means the  overall video quality that viewers experience if the video is  streamed from it.} and availability across different geographical regions and ISPs; (2) substantial temporal variability in the CDN performance and client-side network performance; and (3) that causes of quality issues can be rooted in various attributes of a session (e.g., content provider, player implementation, or a combination). These results imply that there is no globally best decision which performs better than others for most sessions (in space) and for most of time (in time), and therefore, the best decision for any session should be made by predicting the video quality of each decision if it were to be used.
 
 
-%\tightsubsection{Need of using client measurement} \jc{this subsection is logically needed, but not easy to argue.}
-
-%In order to accurately predict the outcome of each decision, one
-%approach is to have static models that characterize the quality of
-%each decisions. However, this approach can be highly (1) complex as
-%there are many entities that affect the quality along the path from
-%video source to client in today's video delivery
-%infrastructure~\cite{?}, and (2) costly to maintain as each session's
-%quality may be affected by any factor. Alternatively\footnote{As also
-%  argued in~\cite{sigcomm13DataDrivenTcp}}, we argue that by
-%continuously collecting information about the performance of existing
-%sessions, we will be able to predict the quality of new video sessions
-%by looking at the performance of existing sessions that are close to
-%it.
+\begin{table}[h!]
+\begin{center}
+\begin{small}
+\begin{tabular}{p{1.7cm}|p{2.8cm}|p{2.8cm}}
+    ~                          & Description                                                       & \# of unique values                                                          \\ \hline
+    ASN                        & The ASN that the client IP belongs to  & 15K unique ASNs from multiple countries                                  \\ \hline
+    Object                     &  The video asset or object being streamed.                  & ??                                                                           \\ \hline
+    Content provider (Site)    & The video site providing the content.                             & 279                                                                          \\ \hline
+    Initial CDN                &  	The CDN that the video session starts with.                & 19 unique CDNs, (popular CDN, in-house and ISP-based CDNs) \\ \hline
+     Initial Bitrate     &  		The bitrate the video session starts at          & 730 video objects with multiple bitrates                          \\ \hline
+     Connection type     &  	Type of the last mile connectivity                         & 7, including WiFi wireless, DSL, fiber-to-home                                    \\
+\end{tabular}
+\end{small}
+\end{center}
+\tightcaption{Client and session attributes included in each session.}
+\label{tab:attributes}
+\end{table}
 
