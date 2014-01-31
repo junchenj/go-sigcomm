@@ -13,6 +13,32 @@ However, even with these constraints, we still see arguable improvement.
     \item We show that the initial bitrate chosen by GO is 19\% closer to the dominant bitrate.
 \end{packedenumerate}
 
+
+
+
+\begin{figure*}[t!]
+\centering
+\subfigure[Daily improvement (both metrics)]
+{
+  \includegraphics[width=0.3\textwidth] {figures/eval-perfimp.pdf}
+  \label{subfig:buffering-and-bitrate}
+}
+\subfigure[Buffering ratio (\%): GO vs. per-CDN]
+{
+	\includegraphics[width=0.3\textwidth]{figures/ab-testing-figures/bufferingratio-new.pdf}
+	\label{subfig:eval-case-study:bufferingratio}
+}
+\subfigure[Avg. bitrate (Kbps): GO vs. per-CDN]
+{
+	\includegraphics[width=0.3\textwidth]{figures/ab-testing-figures/averagebitrate-new.pdf}
+	\label{subfig:eval-case-study:averagebitrate}
+}
+\tightcaption{Performance Metrics and Improvement from GO}
+\label{fig:perf-impr}
+\end{figure*}
+
+
+
 \tightsubsection{System Implementation \& Scalability}
 \label{sec:impl}
 We first present the high level GO implementation. While there are much details in building GO system, we focus on the two main components: data processing and decision making. Paramount in our implementation was the need to make very rapid decisions, as any extra delay in decision making could impact performance of the client making the request. This meant that the vast majority of prediction information needed to be precomputed. This resulted in an implementation that involves two parts: computation and updating of a group table every minute, and broadcasting of the table out to servers close to the clients.
@@ -42,8 +68,8 @@ bitrate switching algorithm to change the bitrate during the video session (with
 The results are collected from Jan 1st, 2014 to Jan 25th, 2014 (total of 25 days) with 26.1 million sessions (870K sessions on average per day).
 There are three CDNs in this experiement, and 5 bitrate levels (from 700Kbps to 3.5Mbps). We evaluate two algorithms: {\it randomized} baseline and {\it optimized} (by GO).
 
-%\tightsubsection{Rebuffering Rate and Average Bitrate}
-\tightsubsection{Quality improvement}
+
+\tightsubsection{Quality Improvement}
 \label{subsec:real-world-improvement}
 
 Figure~\ref{subfig:buffering-and-bitrate} shows the performance improvement of GO over randomized baseline on two quality metrics of
@@ -55,51 +81,12 @@ On the other hand, on day 25, we noticed a big performance improvement of more t
 we found that a major CDN was experiencing performance issues that lasts for more than one day. 
 
 To further illustrate GO's ability to handle spatial and temporal variation, 
-we look into some particular examples and compare GO with each CDN. Figure~\ref{fig:eval-case-study} shows two example days in which three CDNs performed differently.  For example, in terms of buffering ratio, CDN3 was the best on Day A and CDN1 was the best on Day B. 
+we look into some particular examples and compare GO with each CDN. Figure~\ref{subfig:eval-case-study:bufferingratio} and~\ref{subfig:eval-case-study:averagebitrate} show two example days in which three CDNs performed differently.  For example, in terms of buffering ratio, CDN3 was the best on Day A and CDN1 was the best on Day B. 
 We can see that in both Day A and B, GO managed to outperform the best-performing CDN in both average bitrate 
 and buffering ratio. This suggests that GO was not only looking for the globally best CDN, but also 
 differentiated CDN performance in finer granular partition.
 
 %\xil{add a spatial diversity graph}
-
-\begin{figure*}[t!]
-\centering
-\subfigure[Daily improvement (both metrics)]
-{
-  \includegraphics[width=0.3\textwidth] {figures/eval-perfimp.pdf}
-  \label{subfig:buffering-and-bitrate}
-}
-\subfigure[Buffering ratio (\%): GO vs. per-CDN]
-{
-	\includegraphics[width=0.3\textwidth]{figures/ab-testing-figures/bufferingratio-new.pdf}
-	\label{subfig:eval-case-study:bufferingratio}
-}
-\subfigure[Average bitrate (Kbps): GO vs. per-CDN]
-{
-	\includegraphics[width=0.3\textwidth]{figures/ab-testing-figures/averagebitrate-new.pdf}
-	\label{subfig:eval-case-study:averagebitrate}
-}
-\tightcaption{Performance Metrics and Improvement from GO}
-\label{fig:perf-impr}
-\end{figure*}
-
-
-\begin{figure}[h!]
-\centering
-\subfigure[Number of bitrate switches \jc{Xi, revert to last version?}]
-{
-  \includegraphics[width=0.24\textwidth] {figures/eval-reduceswitch.pdf}
-  \label{subfig:reduce-switch}
-}
-\hspace{-0.6cm}
-\subfigure[Initial vs. dominant bitrate]
-{
-  \includegraphics[width=0.24\textwidth] {figures/eval-initvsdom.pdf}
-  \label{subfig:initvsdom}
-}
-\tightcaption{GO improves bitrate adaptation by selecting a better initial bitrate and thus reducing number of bitrate switches.}
-\label{fig:bitrate-stability}
-\end{figure}
 
 
 
@@ -126,6 +113,8 @@ In this figure, we include another content provider who provides long-formed con
 \label{fig:switch-time-dist}
 \end{figure}
 
+
+
 \myparatight{Reducing Number of Bitrate Switch}
 Next let us evaluate the switching stability by looking at the number of switches within the first minute of the video play.
 We chose one minute because the videos are 5 minutes long and first minute account for 60\% of the switches (see Figure~\ref{fig:switch-time-dist}). 
@@ -135,6 +124,26 @@ Overall GO can reduce the number of switches by 16\%, and it also increases the 
 (sessions that experience no switching) by 10\%.
 It is possible the reason GO reduces the number of switches is shorter video plays, however, we observed engagement lift
 (viewers watch longer because of better quality) at the same time of reduction in number of switches.
+
+
+
+\begin{figure}[h!]
+\centering
+\subfigure[Number of bitrate switches \jc{Xi, revert to last version?}]
+{
+  \includegraphics[width=0.24\textwidth] {figures/eval-reduceswitch.pdf}
+  \label{subfig:reduce-switch}
+}
+\hspace{-0.6cm}
+\subfigure[Initial vs. dominant bitrate]
+{
+  \includegraphics[width=0.24\textwidth] {figures/eval-initvsdom.pdf}
+  \label{subfig:initvsdom}
+}
+\tightcaption{GO improves bitrate adaptation by selecting a better initial bitrate and thus reducing number of bitrate switches.}
+\label{fig:bitrate-stability}
+\end{figure}
+
 
 \myparatight{Dominant vs. Initial Bitrate}
 Another metric we use to evaluate GO initial bitrate selection is the rate between dominant bitrate and initial bitrate. Dominant bitrate
