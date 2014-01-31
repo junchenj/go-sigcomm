@@ -1,7 +1,7 @@
 \tightsection{Improving Quality with GO}
 \label{sec:improvement}
 
-Previous sections have established our prediction algorithm can achieve near-optimal accuracy. In this section, we empirically study the impact of prediction accuracy on video quality improvement, i.e., does a good prediction lead to high improvement. It should be noticed that the possible improvement is bounded by the actual difference between the performance of resources (e.g., CDN or bitrate). As pointed out in \Section~\ref{sec:intro}, current industrial practice however, only allows coarse grain decisions (e.g., CDN-level rather than server-level) and the different at such level is much less significant than finer-grain ones. Therefore, though based on our dataset our quantitative results do not show remarkable improvement under CDN or bitrate selection, we expect to see higher improvement with more fine-grain selection enabled and thus larger room of improvement.
+Previous sections have established our prediction algorithm can achieve low prediction accuracy. In this section, we empirically study if a good prediction lead to high improvement. It should be noticed that the possible improvement is bounded by the actual difference between the performance of resources (e.g., CDN or bitrate). As pointed out in \Section~\ref{sec:intro}, current industrial practice however, only allows coarse grain decisions (e.g., inter-CDN selection) and the difference at such level is much less significant than finer-grain ones (e.g., server selection or even path selection). Therefore, though based on our dataset our quantitative results do not show remarkable improvement under CDN or bitrate selection, we expect to see higher improvement with more fine-grain selection enabled and thus larger room of improvement.
 
 Specifically, we aim to answer three questions:
 \begin{packedenumerate}
@@ -11,21 +11,21 @@ Specifically, we aim to answer three questions:
 \end{packedenumerate}
 
 \tightsubsection{Methodology \jc{This part must be shrinked}}
-We study these questions by using offline analysis methodologies including trace-driven analysis. As we will introduce in next sections, we have built GO system that runs in real world, and we use A/B testing  to demonstrate GO's behavior and its quality improvement in the wild in \Section~\ref{sec:eval}. However, we believe these questions should be better addressed using offline trace-driven analysis because the real world experiments has four limitations.
+We study these questions by using offline trace-driven analysis. As we will introduce in \Section~\ref{sec:eval}, we have built GO system that runs in real world, and we use real world experiments to demonstrate GO's behavior and its quality improvement in the wild. However, we believe these questions should be better addressed using offline trace-driven analysis because the real world experiments has four foundamental limitations.
 \begin{packedenumerate}
-	\item Limited coverage: As we will explain, the real world experiments only have access to the video traffic of one video site on one type of OS. The stricts its coverage of classes of traffic in both video genres and streaming protocol.
-	\item Limited scale of simultaneous expriments: Since we only control one site's traffic in real world experiments, it is not feasible to compare many configurations or algorithms in parallel (empirically, at most 3-4) and ensure each of them receive sufficient traffic to draw confident conclusions.
-	\item Limited diversity in performance: As we will see, the improvement in quality is greatly impacted by the diversity and variability of the performance outcome of different decisions (e.g., different CDNs). However, we can only observe a small number of possible patterns in performance diversity.
-	\item Limited controlled experiments: Finally, it is impossible to conduct sensitivity analysis (as in this section) where we would like to see the impact of changing one parameter (e.g., CDN performance) at a time with controlled amount.
+	\item Limited coverage: The real world experiments only have access to the video traffic of one video site on one type of OS with one streaming protocol. The greatly constraints its coverage on types of traffic.
+	\item Limited scale of simultaneous expriments: The real world experiment only controls one site's traffic, it is infeasible to compare a lot of configurations or algorithms in parallel (empirically, at most 3-4) and ensure each of them receive sufficient traffic to draw confident conclusions.
+	\item Limited diversity in performance: As we will see, quality improvement is greatly impacted by the diversity in the performance outcome among different decisions (e.g., different CDNs). However, we can only observe a limited number of possible patterns of performance diversity in real world expreiments.
+	\item Limited controlled experiments: It is also impossible to conduct sensitivity analysis (e.g., the third question) where we would lik to change one parameter (e.g., CDN performance) at a time with a controlled amount.
 \end{packedenumerate}
 
 
 This section uses three input to answer the two high-level questions. We now describe them in the order of closeness to realism and in reverse order of degree of controllability.
 
-\myparatight{Counterfactual input} This approach is the closest to real-world A/B testing. The basic idea is that we first collect a dataset in which the decisions are randomly made for each client (called {\it random dataset}) and collect the quality metrics of each video session. Then we evaluate a given decision algorithm by picking the sessions for which the decision the algorithm makes matches the decisions in the random dataset. In~\cite{technicalreport}, we show that this approach is unbiased. 
+\myparatight{Counterfactual input} This approach is the closest to real-world experiment. The basic idea is that we first collect a dataset in which the decisions are randomly made for each client (called {\it random dataset}) and collect the quality metrics of each video session under random decisions. Then we evaluate a given decision algorithm by picking the sessions for which the decision made by the algorithm matches the decisions in the random dataset. In~\cite{technicalreport}, we show that this approach is unbiased. 
 By using this methodology, we are able to replay multiple algorithms on the data sets.
 
-\myparatight{Augmented trace-driven input} While counterfactual input is useful in evaluating different algorithms, we cannot use it to estimate the ``would-be" performance of an ``oracle" approach (e.g., how the performance would be if another decision were taken), which requires data extrapolation. In addition, counterfactual input only has one site traffic and only provide limited coverage. To remedy these limitations, we generate an augmented trace-driven synthetic dataset in which we extrapolate for each session the ``true'' quality outcome of all its possible decisions. The basic idea of this extrapolation  is that for each session $s$, its outcome of each decision $d$ is drawn from the distribution of outcomes of this decision $d$ on other sessions exactly matching the same attributes with $s$. Having ensured that quality outcomes in the synthetic scenario are known for any decision, it is possible to identify an {\it oracle} approach that always makes the best decision. However, the evaluation is could be biased by the extrapolation.
+\myparatight{Augmented trace-driven input} While counterfactual input is useful in evaluating different algorithms, we cannot use it to estimate the ``would-be" performance of an ``oracle" approach (e.g., how the performance would be if another decision were taken), which requires data extrapolation. To remedy these limitations, we generate an augmented trace-driven synthetic dataset in which we extrapolate for each session the ``true'' quality outcome of all its possible decisions. The basic idea of this extrapolation  is that for each session $s$, its outcome of each decision $d$ is drawn from the distribution of outcomes of this decision on other sessions exactly matching the same attributes with $s$. Having ensured that quality outcomes in the synthetic scenario are known for any decision, it is possible to identify an {\it oracle} approach that always makes the best decision. However, the evaluation is may possibly be biased by the extrapolation.
 
 \myparatight{Controlled synthetic input} Both previous methodology lacks control, i.e., if no major outage or other events happen in the data set, we cannot evaluate GO performance under those scenarios. Thus we also use fully controlleable input in which the true outcomes (i.e., ``ground truth'') of each decision is controlled.
 
@@ -35,7 +35,7 @@ By using this methodology, we are able to replay multiple algorithms on the data
 
 We first explain the GO's prediction-based decision making and use controlled synthetic input to confirm its behavior -- GO identifies the performance changes and switches decision accordingly if needed.
 
-\myparatight{Prediction-based dececision making} GO's decision algorithm simply selects for each session under prediction the decision that has the best predicted quality in a predetermined metric (e.g., buffering ratio). Note that GO always leaves a small fraction of traffic to be randomly allocated to guarantee that each decision will have at least certain fraction of traffic even when that decision is not the best.
+\myparatight{Prediction-based dececision making} When selecting decisions, GO simply selects for each session under prediction the decision that has the best predicted quality in a certain metric. Note that GO always leaves a small fraction of traffic to be randomly allocated to guarantee that each decision will have at least certain fraction of traffic even when that decision is not the best for every session at this point (but potentially, the best in the future).
 
 
 \begin{figure}[h!]
@@ -45,7 +45,7 @@ We first explain the GO's prediction-based decision making and use controlled sy
 \label{fig:behavioral}
 \end{figure}
 
-\myparatight{Case study} We simulate a scenario in which a sudden change in performance of one group causes GO to switch decision accordingly. Figure~\ref{fig:behavioral} shows the behavior of sessions in one ASN when provided with two CDNs to choose from. We only controll buffering ratio as quality metric. The mean of buffering ratio of CDN1 is stably at 0.2 and that of CDN2 changes between 0.1 and 0.25, with a random interval. Each quality sample of a CDN is generated so that its buffering ratio has a Guassian noise with standard deviation of 0.01 from mean. This figure shows clearly that under this configuration, GO is able to switch to the best CDN accordingly with an expected delay (as it uses a 30-minute sliding window). Note that there is always a small amount of randomized traffic, so the change on each decision can be detected. %As a side-effect, it takes longer for GO to detect that CDN2 has bad bad quality than when it has good quality, because the number of samples from CDN2 when it has bad quality (only randomized traffic) is smaller than when it has good quality (all traffic).
+\myparatight{Case study} We simulate a scenario in which a sudden change in performance of one group causes GO to switch decision accordingly. Figure~\ref{fig:behavioral} shows the behavior of sessions in one ASN when provided with two CDNs to choose from. We only use buffering ratio as quality metric. The mean of buffering ratio of CDN1 is stably at 0.2 and that of CDN2 changes between 0.1 and 0.25, with a random interval. Each quality sample of a CDN is generated so that its buffering ratio has a Guassian noise with standard deviation of 0.01 from mean. This figure shows clearly that under this configuration, GO is able to switch to the best CDN accordingly with an expected delay (as it uses a 30-minute sliding window). Note that there is always a small amount of randomized traffic, so the change on each decision can be detected. %As a side-effect, it takes longer for GO to detect that CDN2 has bad bad quality than when it has good quality, because the number of samples from CDN2 when it has bad quality (only randomized traffic) is smaller than when it has good quality (all traffic).
 
 %\xil{are we going to do something about that point or ack it is an issue.}
 
@@ -53,7 +53,7 @@ We first explain the GO's prediction-based decision making and use controlled sy
 
 \tightsubsection{Evaluation of Quality Improvement}
 \label{subsec:go-improve}
-We use counterfactual input to evaluate the improvement in four quality metrics from a random selection algorithm (which selects decision uniformly random). For each metric, GO selects the best decision based on prediction on this metric (we study the cross-metric effect in next section). Figure~\ref{fig:improve} gives the results. To be representative, we show the global improvement of all sessions as well as that of three largest Sites (same one as before). First of all, we see improvement on all dimensions and all partitions. Moreover, the improvement varies largely between these Sites. For example, buffering ratio can be as high as 5\% in Site-B. Correlated with Figure~\ref{fig:compare-partition}, we find that even with slightly higher prediction accuracy, we are able to achieve more improvement than other Sites. This suggests that improvement is not only affected by predictoin accuracy, but also diversity in quality between decisions. We will examine the impact of quality diversity in \Section~\ref{subsec:impact-diversity}.
+We use counterfactual input to evaluate the improvement in four quality metrics over a randomized baseline algorithm (which selects decision uniformly random). For each metric, GO selects the best decision based on prediction on this metric (we study the cross-metric effect in next section). Figure~\ref{fig:improve} gives the results. To be representative, we show the global improvement of all sessions as well as that of three largest Sites (same ones as in Figure~\ref{compare-partition}). First of all, we see improvement on all dimensions and all partitions. Moreover, the improvement varies largely between these Sites. For example, buffering ratio can be as high as 5\% in Site-B. Correlated with Figure~\ref{fig:compare-partition}, we find that even with slightly higher prediction error, we are able to achieve more improvement on it than other Sites. This suggests that improvement is not only affected by predictoin accuracy, but also quality diversity between decisions. We will examine the impact of quality diversity in \Section~\ref{subsec:impact-diversity}.
 Notice that GO does not improve Site-C because it already has a very low starting failure rate.
 
 
@@ -88,7 +88,7 @@ Notice that GO does not improve Site-C because it already has a very low startin
 \end{figure}
 
 
-The last part evaluates the improvement on each metric when the selection is also based on the same metric. It is also interesting to investigate the impact of selecting based on one metric on other metrics. Table~\ref{tab:cross-metrics} shows the difference on metric A when optimizing for metric B. The results shows the global improvement of all sessions from a random selection algorithm. 
+The last part evaluates the improvement on each metric when the selection is also based on the same metric. It is also interesting to investigate the impact of selecting based on one metric on other metrics. Table~\ref{tab:cross-metrics} shows the difference on metric A when optimizing for metric B. The results show the overall quality improvement over the randomized baseline algorithm. 
 While the largest improvement happens when GO optimizes the same metric as the one we evaluate, we also see quite noticeable improvement on other metrics. For example, by selecting the best decision for metrics other than average bitrate, we can still achieve more than half ($\sim 480$Kbps) of the improvement (858Kbps) when optimizing for average bitrate.
 
 \begin{table}[h!]
@@ -113,8 +113,11 @@ While the largest improvement happens when GO optimizes the same metric as the o
 \tightsubsubsection{Impact of Prediction Accuracy}
 \label{subsec:impact-accuracy}
 
-To quantify the impact of prediction accuracy, we need to generate prediction with certain prediction error and see the improvement. To do this, we use both counterfactual input and augmented trace-driven input. 
+To quantify the impact of prediction accuracy, we need to generate prediction with controlled prediction error and see the improvement. 
 
+%To do this, we use both counterfactual input and augmented trace-driven input. 
+
+\comment{
 \myparatight{Counterfactual testing}
 In counterfactual input, we use GO to do prediction and add noise of varying magnitude to the prediction result. The additional noise follows a Gaussian random with increasing standard deviation.
 This allows us to see how much worse the quality improvement will be if we have more noise in prediction result. 
@@ -126,32 +129,33 @@ This allows us to see how much worse the quality improvement will be if we have 
 \label{fig:trace-accuracy-1}
 \end{figure}
 
-Figure~\ref{fig:trace-accuracy-1} shows the GO improvement from a baseline random algorithm which selects a uniformly random decision. The figure shows an near linear degredation on improvement in average bitrate -- average bitrate improvement reduces 50Kbps with Gaussian noise increases 200Kbps in its standard deviation.
-
-
+Figure~\ref{fig:trace-accuracy-1} shows the GO improvement over a baseline random algorithm which selects a uniformly random decision. The figure shows an near linear degredation on improvement in average bitrate -- average bitrate improvement reduces 50Kbps with Gaussian noise increases 200Kbps in its standard deviation.
 
 \myparatight{Augmented trace-driven testing}
-Although counterfactual testing provides unbiased evaluation on the impact prediction noise, it does not allow us to control the prediction error because the true outcome is not available. In this part, we use the augmented trace-driven testing to quantify the impact of prediction error on quality improvement. Given a session and one decision, if the true quality is $q$ and $p$ is the prediction made by GO, we use a parameter called stretch $r$ to change the prediction $p$ to new prediction $p'=q+(p-q)r$ such that the prediction error is exactly stretched by $r$. 
-Moreover, we could compare with an oracle which always makes the decision with the best quality. To simplify the discussion, we assume each session has two  possible decisions. 
+Although counterfactual testing provides unbiased evaluation on the impact prediction noise, it does not allow us to control the prediction error because the true outcome is not available. 
+}
+
+We use the augmented trace-driven testing to control the prediction error and quantify its impact on quality improvement. Given a session and one decision, if the true quality is $q$ and $p$ is the prediction made by GO, we use a parameter called stretch $r_a$ to change the prediction $p$ to new prediction $p'=q+(p-q)r_a$ so that the prediction error is exactly stretched by $r_a$. 
+Moreover, we could compare with an oracle which always makes the best decision. To simplify the discussion, we assume each session has two  possible decisions. 
 
 \begin{figure}[h!]
 \centering
  \includegraphics[width=0.35\textwidth] {figures/newfig/trendAccuracy-metricId1-keyGlobal-partition.pdf}
-\tightcaption{Impact of GO prediction accuracy with varying stretch rate on quality improvement.}
+\tightcaption{Impact of GO prediction accuracy with varying stretch $r_a$ rate on quality improvement.}
 \label{fig:trace-accuracy-2}
 \end{figure}
 
-Figure~\ref{fig:trace-accuracy-2} shows the results with average bitrate as the quality metric. We consider a baseline algorithm which select a uniformly random decision. The top line is the improvement of oracle approach from the baseline algorithm, which should be static. The bottom line shows the improvement of GO from the basline algorithm. 
-It shows a clear degredation in improvement and such degradation is linear from stretch ratio of 0.9 -- after this point, with prediction error raised by every 10\%, the improvement in average bitrate decreases by 20Kbps. It suggests that the improvement is sensitive to accuracy if GO's prediction becomes worse. Also, note that with larger stretch rate, the improvement stablizes.
+Figure~\ref{fig:trace-accuracy-2} shows the results with average bitrate as the quality metric. The top line is the improvement of oracle approach over the randomized baseline algorithm and the result is static as they are independent to the prediction error. The bottom line shows the improvement of GO over the randomized basline algorithm. 
+It shows a clear degredation in improvement and such degradation is linear from stretch ratio of 0.7 -- after this point, with 10\% decrease in prediction error, the improvement in average bitrate increases by 20Kbps. It suggests that the improvement is sensitive to accuracy -- if current prediction error is reduced by 30\%, GO will have 12.5\% more improvement. Also, note that with smaller stretch rate, the improvement stablizes as the improvement converges to oracle improvement with accurate prediction.
 
 
 
 \tightsubsubsection{Impact of Quality Diversity}
 \label{subsec:impact-diversity}
 
-To quantify the impact of quality diversity among multiple decisions, we fix the prediction accuracy provided by GO. Intuitively, it is expected that with increasing diversity among multiple decisions, we should see that GO's performance should be close to the oracle approach since the gap between decisions' outcome is so large that the best decision will be made with any prediction error. 
+To quantify the impact of quality diversity among multiple decisions, we fix the prediction error given by GO, and use a stretch parameter $r_b$ to control the quality diversity between multiple decisions. To simplify the discussion, we again assume each session has two possible decisions. Given a session with the true quality of two decisions being $q_1, q_2$ (assume $q_1\leq q_2$), we change their value to $q_1'=q_1, q_2=q_1+(q_2-q_1)r_b$. We show quality improvement over the randomized baseline algorithm, as well as the optimality defined as $\frac{\textrm{GO's improvement}}{\textrm{oracle's improvement}}$.
 
-To confirm this intuition, we use a stretch parameter $r$ to control the quality diversity between multiple decisions. To simplify the discussion, we assume each session has two possible decisions. Given a session with the true quality of two decisions being $q_1, q_2$ (assume $q_1\leq q_2$), we change their value to $q_1'=q_1, q_2=q_1+(q_2-q_1)r$. We again use two improvement from baseline and room of improvement to characterize the quality improvement.
+%Intuitively, it is expected that with larger quality diversity among multiple decisions, we should see that GO's performance should be closer to the oracle approach since the gap between decisions' outcome is so large that the best decision will be made with any prediction error. 
 
 \begin{figure}[h!]
 \centering
@@ -164,23 +168,22 @@ To confirm this intuition, we use a stretch parameter $r$ to control the quality
 {
         \includegraphics[width=0.24\textwidth]{figures/newfig/trendDiversity-metricId2-keyGlobal-partition.pdf}
 }
-\tightcaption{Impact of quality diversity on quality improvement. Green lines with values on the left y axis show GO's improvement from random selection and red lines with values on the right y axis show optimality (GO's improvement/oracle's improvement)}
+\tightcaption{Impact of stretch of quality diversity $r_b$ on quality improvement. Green lines with values on the left y axis show GO's improvement over the randomized baseline and red lines with values on the right y axis show optimality (GO's improvement/oracle's improvement)}
 \label{fig:trace-diversity}
 \end{figure}
 
-Figure~\ref{fig:trace-diversity} shows the result with average bitrate and join time as the quality metric. The left y axis shows the improvement of GO based on the random baseline algorithm. It shows close to linear increase with more quality diversity between decisions. 
-The right y axis shows the room of improvement which is the difference between GO's improvement and oracle's improvement. With close-to-zero stretch parameter, the room of improvement reduces to zero simply because even the oracle approach cannot make much benefit from selecting the best decision as the gap is minimized. 
-In the middle of the figure, it shows a close to linear relationship between stretch on quality diversity and room of improvement, with quality diversity increases by every 10\%, the room of improvement decreases by 20Kbps. 
+Figure~\ref{fig:trace-diversity} shows the result with average bitrate and join time as the quality metric. The left y axis shows the improvement of GO. In both figures, they show a close-to-linear relationship between improvement and quality diversity among decisions. 
+The right y axis gives the optimality. Both figures show that when the diversity increases for 100\%, GO will give almost the same improvement as oracle approach.
 
 
 
 \tightsubsection{Summary of Findings}
 \begin{packedenumerate}
 	\item Under controlled experiments, GO identifies performance change and switches decisions accordingly.
-	\item GO achieves noticeable improvement on four metrics, e.g., for  average bitrate, 800Kbps globally and as much as 2000Mbps for some popular site.
-	\item Optimizing for one metric does not impact other metric negatively. Instead, we see improvement on all metrics if only one metric is optimized.
-	\item Quality improvement is linear to prediction error -- 10\% reduction in prediction error yields to 20Kbps in average bitrate improvement.
-	\item GO's quality improvement in average bitrate increases almost linearly with quality diversity between decisions, and such improvement becomes closer-to-optimal with larger quality diversity -- if the current quality difference increases by 50\%, go can achieve improvement in join time as much as 90\% of the optimal improvement.
+	\item GO achieves noticeable improvement on four metrics, e.g., for buffering ratio, 1.5\% globally and as much as 4.8\% for some popular site.
+	\item Optimizing for one metric does not impact other metric negatively. Instead, we see improvement on all metrics if only one metric is used for decision selection.
+	\item Quality improvement is linear to prediction error -- 10\% reduction in prediction error yields to 20Kbps in average bitrate improvement, and if current prediction error is reduced by 30\%, GO will have 12.5\% more improvement in average bitrate.
+	\item GO's quality improvement in average bitrate increases almost linearly with quality diversity between decisions, and such improvement becomes closer-to-optimal with larger quality diversity -- if the current quality difference increases by 50\%, GO can achieve improvement in join time as much as 90\% of the optimal improvement.
 \end{packedenumerate}
 
 
