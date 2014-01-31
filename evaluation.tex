@@ -10,7 +10,7 @@ except in several days we observe performance issues.
 However, even with these constraints, we still see arguable improvement. 
 
 \begin{packedenumerate}
-    \item We see an overall 7\% reduction in buffering ratio, 4\% increase in average bitrate, and 16\% reduction in number of bitrate switches compared with a random baseline selection algorithm.
+    \item We see an overall 12.3\% reduction in buffering ratio, 5.5\% increase in average bitrate, and 16\% reduction in number of bitrate switches compared with a random baseline selection algorithm.
     \item We see buffering raito reduction of more than 20\% in several days when a major CDN is experiencing performance degradation.
     \item We show that the initial bitrate chosen by GO is 19\% closer to the dominant bitrate.
 \end{packedenumerate}
@@ -20,7 +20,7 @@ However, even with these constraints, we still see arguable improvement.
 
 \begin{figure*}[t!]
 \centering
-\subfigure[Daily improvement (both metrics) \jc{Xi , use the first 10 days only}]
+\subfigure[Daily improvement (both metrics)]
 {
   \includegraphics[width=0.3\textwidth] {figures/eval-perfimp.pdf}
   \label{subfig:buffering-and-bitrate}
@@ -65,11 +65,14 @@ In summary, we implemented GO which is both scalable and provide good system-lev
 \label{subsec:eval_setup}
 
 GO is deployed on one content provider with short-form videos (5 minutes) on iOS device (both iPhone and iPad). 
-HLS protocol is running on the iOS device and our GO system decides the initial CDN and bitrate, while Apple player employs adaptive 
+HTTP Live Streaming (HLS) protocol is running on the iOS device and our GO system decides the initial CDN and bitrate, while Apple player employs adaptive 
 bitrate switching algorithm to change the bitrate during the video session (without CDN switch). 
 
-The results are collected from Jan 1st, 2014 to Jan 25th, 2014 (total of 25 days) with 26.1 million sessions (870K sessions on average per day).
-There are three CDNs in this experiement, and 5 bitrate levels (from 700Kbps to 3.5Mbps). We evaluate two algorithms: {\it randomized} baseline and {\it optimized} (by GO).
+The results are collected from Jan 1st, 2014 to Jan 10th, 2014 (total of 10 days) with 8 million sessions (805K sessions on average per day).
+There are three CDNs in this experiement, and 5 bitrate levels (from 700Kbps to 3.5Mbps).
+
+We evaluate two algorithms: {\it randomized} baseline and {\it optimized} (by GO). In randomized baseline, we chose a CDN and bitrate both randomly. 
+For each request, the system will randomly choose which algorithm to use. 
 
 
 \tightsubsection{Quality Improvement}
@@ -83,14 +86,14 @@ There are three CDNs in this experiement, and 5 bitrate levels (from 700Kbps to 
 }
 
 Figure~\ref{subfig:buffering-and-bitrate} shows the performance improvement of GO over randomized baseline on two quality metrics of
-buffering rate and average bitrate over the 25-day period. The overall improvement over the entire 25-day period is 7\% reduction in buffering ratio and 4\% increase in 
+buffering rate and average bitrate over the 10-day period. The overall improvement over the entire 25-day period is 12.3\% reduction in buffering ratio and 5.5\% increase in 
 average bitrate. The figure also shows that performance improvement varies by day, depending on how different the performance of each CDN. 
 In fact, we noticed that, for this site, performance of multiple CDNs tend to become close to each other
 during weekends where CDNs are likely under-loaded and thus, we see no noticeable improvement from GO in those days. 
-On the other hand, on day 25, we noticed a big performance improvement of more than 20\%. After investigation,
-we found that a major CDN was experiencing performance issues that lasts for more than one day. 
+On the other hand, we also noticed a big performance improvement close to 20\% in certain days. After investigation,
+we found that a major CDN was experiencing performance issues during that period. 
 
-To further illustrate GO's ability to handle spatial and temporal variation, 
+To further illustrate GO's ability to handle temporal variation, 
 we look into some particular examples and compare GO with each CDN. Figure~\ref{subfig:eval-case-study:bufferingratio} and~\ref{subfig:eval-case-study:averagebitrate} show two example days in which three CDNs performed differently.  For example, in terms of buffering ratio, CDN3 was the best on Day A and CDN1 was the best on Day B. 
 We can see that in both Day A and B, GO managed to outperform the best-performing CDN in both average bitrate 
 and buffering ratio. This suggests that GO was not only looking for the globally best CDN, but also 
