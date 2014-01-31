@@ -20,7 +20,7 @@ Given a session (which we will call the {\it session under
   prediction}), let $q$ be the actual quality and $p$ be the predicted
 quality\footnote{We consider one quality metric at a time.}. Then, the
 {\it prediction error} of this session's quality is $e_{p,q}=|p-q|$.
-For a set of session under prediction $S=\{s_1,\dots,s_n\}$, let
+For a set of sessions under prediction $S=\{s_1,\dots,s_n\}$, let
 $P=\{p_i\}$ and $Q=\{q_i\}$ be their predicted and actual qualities,
 respectively, where $p_i$ and $q_i$ are the predicted and actual
 quality of session $s_i$. Then, we define the overall prediction error
@@ -33,15 +33,15 @@ of sessions in $S$ as the square root of the mean square errors:
   combination} ({\it AC}) is simply a set of attributes we use to
 characterize the sessions in a given dataset, e.g., $[ASN,
 CDN]$. Given AC $g$, a session is represented by its values for all
-the attributes in $g$. We say two sessions are {\it g-equivalent} with
-respect to $g$, if they have identical values for every attribute in
-$g$. For example, if $g=[ASN,CDN]$ then all sessions that are
-connected to the same ASN and stream data from the same CDN are
-$g$-equivalent. Thus, $g$ defines a partition on the set of sessions,
-where all sessions in a partition are $g$-equivalent. In addition to
-the attributes in \Section~\ref{subsec:dataset}, we also consider
-temporal attributes. For instance, given AC $g=[ASN, CDN, 5\,minute]$,
-two sessions are equivalent iff they belong to the same ASN, use the
+the attributes in $g$. We say two sessions are {\it g-equivalent}, if
+they have identical values for every attribute in $g$. For example, if
+$g=[ASN,CDN]$ then all sessions that are connected to the same ASN and
+stream data from the same CDN are $g$-equivalent. Thus, $g$ defines a
+partition on the set of sessions, where all sessions in a partition
+are $g$-equivalent. In addition to the attributes in
+\Section~\ref{subsec:dataset}, we also consider temporal
+attributes. For instance, given AC $g=[ASN, CDN, 5\,minute]$, two
+sessions are $g$-equivalent iff they belong to the same ASN, use the
 same CDN and they were streaming during the same 5-minute
 interval. The temporal attributes are useful according to previous
 research~\cite{sigcomm12} which shows that video quality can vary
@@ -193,13 +193,11 @@ to determine the best level of aggregation.
 \label{fig:example-optimal-ac}
 \end{figure}
 
-\myparatight{Optimal AC} 
-
-To illustrate the impact of the aggregation granularity on the
-prediction accuracy, we use an oracle methodology, called {\it optimal
-  AC}. This methodology aims to determine the optimal AC for each
-session $s$, that is, the AC which provides the best prediction
-quality to $s$.
+\myparatight{Optimal AC} To illustrate the impact of the aggregation
+granularity on the prediction accuracy, we use an oracle methodology,
+called {\it optimal AC}. This methodology aims to determine the
+optimal AC for each session $s$, that is, the AC which provides the
+best prediction quality for $s$.
 
 Recall that given an AC, any prediction algorithm provides the same
 predicted quality for all sessions in the same AC partition (i.e., it
@@ -209,16 +207,18 @@ a partition is the mean of the actual quality values over all sessions
 in that partition.
 
 To illustrate this methodoly, consider session $s$ at time $t$, where
-$s$ is identified by attributes $[CDN-1, ASN-1, Site-1]$ and has an
-actual quality at time $t$ of $0.2$. Then, the optimal AC for this
-session is the AC that provides the best predition for $s$ based only
-on the information collected \emph{before} time $t$.  In particular,
+$s$ is identified by attributes $[CDN$-$1, ASN$-$1, Site$-$1]$ and has
+an actual quality at time $t$ of $0.2$. Then, the optimal AC for this
+session is the AC whose predited quality to $s$ (based on the
+information collected \emph{before} time $t$) is the closest to the
+actual quality of $s$ at time $t$.  In particular,
 Figure~\ref{fig:example-optimal-ac} shows all possible partitions that
 match at least one of the attributes of session $s$. In this case, the
 partition with the predicted quality closest to the actual quality of
-$s$ is the partition defined by attribute values $[CDN-1, Site-1]$
-(shown by the red rectangle). Thus, the optimal AC for $s$ is $[CDN,
-Site]$.
+$s$ is the partition defined by attribute values $[CDN$-$1, Site$-$1]$
+(shown by the red rectangle), i.e., the predicted quality is $0.21$
+while the actual quality is $0.2$. Thus, the optimal AC for $s$ is
+$[CDN, Site]$.
 
 \comment{
 Figure~\ref{fig:example-optimal-ac} shows all possible ACs
@@ -246,11 +246,11 @@ CDN)$.
 }
 
 Note that no practical algorithm can compute the optimal AC as this
-requires an oracle approach that knows the quality information of
-every session \emph{after} the predicted. However, the optimal AC reflects
-the best aggregation of historical data that gives the closest
-prediction for next minute's sessions. Next, we use empirical analysis
-over our data sets to evaluate the characteristics of the optimal ACs.
+requires an oracle that knows the quality information of every session
+\emph{after} the prediction takes place. However, the optimal AC
+reflects the best possible predition that one can make based on the
+historical data. Next, we use empirical analysis over our data sets to
+evaluate the characteristics of the optimal ACs.
 
 \begin{figure}[h!]
 \centering
@@ -274,11 +274,12 @@ over our data sets to evaluate the characteristics of the optimal ACs.
 
  
 \begin{packeditemize}
-	\item {\it No single optimal AC:} Figure~\ref{fig:optimal-ac-dynamics}-(a) shows the coverage of different optimal ACs, i.e., the fraction of sessions under prediction for which a given AC is its optimal AC. Note that there is no single optimal AC that covers most sessions. For example, the finest granularity AC covers only about 20\% of all sessions, and no single attribute AC is among the top 5 in terms of coverage. This implies that the optimal AC is often in between.
-	\item {\it No temporally prevalent optimal AC:} Figure~\ref{fig:optimal-ac-dynamics}-(b) shows the session-level prevalence of an optimal AC, i.e., the fraction of time a session has the same AC as its optimal AC. Note that $70\%$ of (session, optimal AC) pairs only last for less than $20\%$ of time. This implies that most sessions, there is no single or a small set of optimal ACs that can cover most of time.
-	\item {\it Highly dynamic optimal ACs:} Figure~\ref{fig:optimal-ac-dynamics}-(c) shows the session-level persistence an optimal AC, i.e., the longest continuous duration where a session under prediction has the same optimal AC. Only 40\% of (session, optimal AC) pairs last for more than 10 minutes. This suggests that even with a reactive strategy will be challenging to track the optimal ACs frequently.
+	\item {\it No single optimal AC:} Figure~\ref{fig:optimal-ac-dynamics}-(a) shows the coverage of different optimal ACs, i.e., the fraction of sessions under prediction for which a given AC is its optimal one. Note that there is no single optimal AC that covers most sessions. For example, the finest granularity AC covers only about 20\% of all sessions, and no single attribute AC is among the top 5 in terms of coverage. 
+%This implies that the optimal ACs are often in between.
+	\item {\it No temporally prevalent optimal AC:} Figure~\ref{fig:optimal-ac-dynamics}-(b) shows the session-level prevalence of an optimal AC, i.e., the fraction of time a session has the same AC as its optimal AC. Note that $70\%$ of (session, optimal AC) pairs only last for less than $20\%$ of time. This implies that there is no single or a small set of optimal ACs that can cover most of sessions.
+	\item {\it Highly dynamic optimal ACs:} Figure~\ref{fig:optimal-ac-dynamics}-(c) shows the session-level persistence an optimal AC, i.e., the longest continuous duration where a session under prediction has the same optimal AC. Only 40\% of (session, optimal AC) tuples last for more than 10 minutes. This suggests that even with a reactive strategy it will be challenging to dynamically track the optimal ACs.
 \end{packeditemize}
 
-To conclude, we find that the optimal AC (the aggregation that gives minimal prediction error) is in many cases neither the finest nor the coarsest one, and, in addition, is highly dynamic. This presents a challenge in designing a practical prediction algorithm which must treat different level of aggregation adaptively.
+To conclude, we find that the optimal AC (the aggregation that gives minimal prediction error) is in many cases neither the finest nor the coarsest one, and, in addition, is highly dynamic. This makes the designing of a practical prediction algorithm highly challenging.
 
 
