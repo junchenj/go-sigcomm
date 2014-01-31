@@ -1,7 +1,7 @@
 \tightsection{Improving Quality with GO}
 \label{sec:improvement}
 
-Previous sections have established our prediction algorithm can achieve low prediction accuracy. In this section, we empirically study if a good prediction lead to high improvement. It should be noticed that the possible improvement is bounded by the actual difference between the performance of resources (e.g., CDN or bitrate). As pointed out in \Section~\ref{sec:intro}, current industrial practice however, only allows coarse grain decisions (e.g., inter-CDN selection) and the difference at such level is much less significant than finer-grain ones (e.g., server selection or even path selection). Therefore, though based on our dataset our quantitative results do not show remarkable improvement under CDN or bitrate selection, we expect to see higher improvement with more fine-grain selection enabled and thus larger room of improvement.
+Previous sections have established our prediction algorithm can achieve high prediction accuracy. In this section, we empirically study if a good prediction lead to significant quality improvements. It should be noticed that the possible improvements are bounded by the actual difference between the performance of resources (e.g., CDN or bitrate). As pointed out in \Section~\ref{sec:intro}, current practices in the industry, only allow coarse grain decisions (e.g., inter-CDN selection) and the difference at such level is much less significant than finer-grain ones (e.g., server selection or path selection). Therefore, though our quantitative results based on our dataset do not show remarkable improvements under CDN or bitrate selection, we expect to see higher improvements in the future with more fine-grain selection enabled.
 
 Specifically, we aim to answer three questions:
 \begin{packedenumerate}
@@ -11,12 +11,13 @@ Specifically, we aim to answer three questions:
 \end{packedenumerate}
 
 \tightsubsection{Methodology \jc{This part must be shrinked}}
-We study these questions by using offline trace-driven analysis. As we will introduce in \Section~\ref{sec:eval}, we have built GO system that runs in real world, and we use real world experiments to demonstrate GO's behavior and its quality improvement in the wild. However, we believe these questions should be better addressed using offline trace-driven analysis due to its flexibility in following four dimensions.
+
+We study these questions by using offline trace-driven analysis. While we have built and deployed GO in production (see \Section~\ref{sec:eval} for results), we believe these questions should be better addressed using offline trace-driven analysis, as it excells in several importnat dimensions:
 \begin{packedenumerate}
-	\item More overage: The real world experiments only have access to the video traffic of one video site on one type of OS with one streaming protocol. The greatly constraints its coverage on types of traffic.
-	\item More scale of simultaneous expriments: The real world experiment only controls one site's traffic, it is infeasible to compare a lot of configurations or algorithms in parallel (empirically, at most 3-4) and ensure each of them receive sufficient traffic to draw confident conclusions.
-	\item More diversity in performance: As we will see, quality improvement is greatly impacted by the diversity in the performance outcome among different decisions (e.g., different CDNs). However, we can only observe a limited number of possible patterns of performance diversity in real world expreiments.
-	\item More controlled experiments: It is also impossible to conduct sensitivity analysis (e.g., the third question) where we would lik to change one parameter (e.g., CDN performance) at a time with a controlled amount.
+	\item Higher overage: The real world experiments only have access to the video traffic of a single video site using a single type of OS and a single streaming protocol. %The greatly constraints its coverage on types of traffic.
+	\item Higher scale of simultaneous expriments: Since the real world experiment only controls one site's traffic, it is infeasible to compare a large number of configurations or algorithms in parallel (in practice we can do at most 3-4) and ensure each of them receives sufficient traffic to get usable confident intervals.
+	\item Higher diversity in performance: As we will see, quality improvement is greatly impacted by the diversity in the performance outcome among different decisions (e.g., different CDNs). However, given our deployment limitations, we can only observe a limited number of patterns or performance diversity in real world expreiments.
+	\item More controlled experiments: In a real deployment is also impossible to conduct sensitivity analysis (e.g., the third question) where we would like to change one parameter (e.g., CDN performance) at a time in a controlled manner.
 \end{packedenumerate}
 
 
