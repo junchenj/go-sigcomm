@@ -21,14 +21,41 @@ We study these questions by using offline trace-driven analysis. While we have b
 \end{packedenumerate}
 
 
-This section uses three input to answer the two high-level questions. We now describe them in the order of closeness to realism and in reverse order of degree of controllability.
+This section uses three type of inputs to answer these questions. We next describe these types of inputs as the increasing order of their flexibility flexibility and the decreased order of their closeness to the real world.
 
-\myparatight{Counterfactual input} This approach is the closest to real-world experiment. The basic idea is that we first collect a dataset in which the decisions are randomly made for each client (called {\it random dataset}) and collect the quality metrics of each video session under random decisions. Then we evaluate a given decision algorithm by picking the sessions for which the decision made by the algorithm matches the decisions in the random dataset. In~\cite{technicalreport}, we show that this approach is unbiased. 
-By using this methodology, we are able to replay multiple algorithms on the data sets.
+\myparatight{Counterfactual input} This approach is the closest to
+real-world experiment. The basic idea is that we first collect a
+dataset in which the decisions are randomly made for each client
+(called {\it random dataset}) and collect the quality metrics of each
+video session under random decisions. Then we evaluate a given
+decision algorithm by picking the sessions for which the decision made
+by the algorithm \emph{matches} the decisions in the random
+dataset. In~\cite{technicalreport}, we show that this approach is
+unbiased.  By using this methodology, we are able to replay multiple
+algorithms on the data sets.
 
-\myparatight{Augmented trace-driven input} While counterfactual input is useful in evaluating different algorithms, we cannot use it to estimate the ``would-be" performance of an ``oracle" approach (e.g., how the performance would be if another decision were taken), which requires data extrapolation. To remedy these limitations, we generate an augmented trace-driven synthetic dataset in which we extrapolate for each session the ``true'' quality outcome of all its possible decisions. The basic idea of this extrapolation  is that for each session $s$, its outcome of each decision $d$ is drawn from the distribution of outcomes of this decision on other sessions exactly matching the same attributes with $s$. Having ensured that quality outcomes in the synthetic scenario are known for any decision, it is possible to identify an {\it oracle} approach that always makes the best decision. However, the evaluation is may possibly be biased by the extrapolation.
+\myparatight{Augmented trace-driven input} While counterfactual input
+is useful in evaluating different algorithms, we cannot use it to
+estimate the ``would-be" performance of an ``oracle" approach (e.g.,
+how the performance would be if another decision were taken), as this
+would require data extrapolation. To remedy these limitations, we
+generate an augmented trace-driven synthetic dataset in which we
+extrapolate for each session the ``true'' quality outcome of all its
+possible decisions. The basic idea of this extrapolation is that for
+each session $s$, its outcome of each decision $d$ is drawn from the
+distribution of outcomes of this decision on other sessions exactly
+matching the same attributes as $s$, i.e., in the same partition as
+$s$. Having ensured that quality outcomes in the synthetic scenario
+are known for any decision, it is possible to identify an {\it oracle}
+approach that always makes the best decision. However, such evaluation
+might be biased due to the extrapolation.
 
-\myparatight{Controlled synthetic input} Both previous methodology lacks control, i.e., if no major outage or other events happen in the data set, we cannot evaluate GO performance under those scenarios. Thus we also use fully controlleable input in which the true outcomes (i.e., ``ground truth'') of each decision is controlled.
+\myparatight{Controlled synthetic input} Both previous methodologies
+have no support for creating new test scenarios. For example, if no
+major outage or other events happen in the data set, we cannot
+evaluate GO performance under those scenarios. Thus we also use fully
+controlleable inputs where the true outcomes (i.e., ``ground truth'')
+of each decision are controlled.
 
 
 \tightsubsection{A Simple Example}
