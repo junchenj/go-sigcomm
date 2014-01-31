@@ -74,7 +74,7 @@ To conclude, based on the above empirical analysis, GO's ACS selection searches 
 \tightsubsection{Handling Non-Normal Distribution}
 \label{subsec:sudo}
 The WIMSE algorithm assumes that bias and variance can be computed exactly, while in practice variance cannot be estimated accurately when groups are very small and the sample distribution does not follow normal distribution. For instance, it is very likely to have all samples in a group with the same values and prediction based on this information will be greatly biased and even worse, WIMSE will treat this group as with zero variance. This is a particularly serious problem for video quality metrics such as buffering ratio and start failure where value of zero is usually dominant.
-To alleviate this, we use a simple idea from Bayesian statistics~\cite{}\jc{Henry, give a pointer}: We incorporate a prior distribution on quality outcomes within each group.  This amounts to adding a few fake ``pseudocount'' observations to each group.  Empirically, we see an reduction of at most 5.6\% in prediction error in buffering ratio and 4.5\% in start failure.
+To alleviate this, we use a simple idea from Bayesian statistics~\cite{flach2012machine}: We incorporate a prior distribution on quality outcomes within each group.  This amounts to adding a few fake ``pseudocount'' observations to each group.  Empirically, we see an reduction of at most 5.6\% in prediction error in buffering ratio and 4.5\% in start failure.
 
 \comment{
 \begin{figure}[h!]
