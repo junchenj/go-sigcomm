@@ -3,29 +3,29 @@
 
 In this section, we present the implementation and deployment of the GO system (\Section~\ref{sec:impl} and ~\ref{subsec:eval_setup}), and evaluate its performance in real-world (\Section~\ref{subsec:real-world-improvement} and ~\ref{subsec:adaptive-bitrate}). 
 
-The overall improvement is not impressive partly because the deployment is greatly constrained. The deployment only uses one content provider, and the content provider only enables CDN-level selection across three major CDNs which exhibit limited difference in their overall performance during the cause of our experiment. Moreover, the optimization must follow a traffic policy which dictates the total amount of traffic to each CDN. 
+The overall improvement is not impressive partly because the deployment is greatly constrained. The deployment only uses one content provider, and the content provider only enables CDN-level selection across three major CDNs which exhibit limited difference in their overall performance during the cause of our experiment. Moreover, the optimization must follow a traffic policy which dictates the total amount of traffic to each CDN. \jc{add a sentence here to explain how GO makes predictive selection under the policy constraints}
 
 However, even with these constraints, we still see arguable improvement. 
 
 \begin{packedenumerate}
-    \item We see an overall 7\% reduction in buffering ratio, 4\% increase in average bitrate, and 16\% reduction in number of bitrate switches.
+    \item We see an overall 7\% reduction in buffering ratio, 4\% increase in average bitrate, and 16\% reduction in number of bitrate switches compared with a random baseline selection algorithm.
     \item We see buffering raito reduction of more than 20\% in several days when a major CDN is experiencing performance degradation.
     \item We show that the initial bitrate chosen by GO is 19\% closer to the dominant bitrate.
 \end{packedenumerate}
 
 \tightsubsection{System Implementation \& Scalability}
 \label{sec:impl}
-In this section, we present the high level GO implementation. While there are much details in building GO system, we focus on the two main components: data processing and decision making. Paramount in our implementation was the need to make very rapid decisions, as any extra delay in decision making could impact performance of the client making the request. This meant that the vast majority of prediction information needed to be precomputed. This resulted in an implementation that involves two parts: computation and updating of a group table every minute, and broadcasting of said table out to servers close to the clients making requests.
+We first present the high level GO implementation. While there are much details in building GO system, we focus on the two main components: data processing and decision making. Paramount in our implementation was the need to make very rapid decisions, as any extra delay in decision making could impact performance of the client making the request. This meant that the vast majority of prediction information needed to be precomputed. This resulted in an implementation that involves two parts: computation and updating of a group table every minute, and broadcasting of the table out to servers close to the clients.
 
-\myparatight{Creating group table} Group table generation is essentially the process of aggregating samples into buckets, and then computing summary statistics for each bucket.  
+\myparatight{Creating group table} Group table generation is essentially the process of aggregating quality samples into partitions of different ACs, and then computing summary statistics for each partition (e.g., mean and standard error of mean).
 Our implementation uses Spark~\cite{spark} as the underlying compute framework, and the problem can be captured in a single map-reduce stage. 
-Data samples are loaded in parallel from an HDFS source and distributed amongst the cluster. Each node then maps its share of samples to a set of 
-preliminary buckets. Common buckets are then shuffled across the cluster and the results are aggregated and collected onto a master machine. 
-Currently it takes GO system 12 seconds to process 500K identical groups on a 4-node cluster, without riguous performance optimization.
+Quality samples are loaded in parallel from an HDFS source~\cite{hadoop} and distributed amongst the cluster in form of Resilient Distributed Datasets (RDD)~\cite{zaharia2012resilient}. 
+%Each node then maps its share of quality samples to a set of preliminary buckets. Common buckets are then shuffled across the cluster and the results are aggregated and collected onto a master machine. 
+Currently it takes GO system 12 seconds to process 500K partitions on a 4-node cluster with \fillme cores and \fillme memory \jc{Xi, fill in the numbers}, without riguous performance optimization.
 It is also worth noting that all steps involved in creating the table are horizontally scalable.
 
 
-\myparatight{Broadcasting group table} The resulting table is broadcasted wholesale out to a large number of decision makers (DMs) closer to video clients in multiple POPs by way of a distributed messaging system~\cite{kafka}. The bottleneck here is bandwidth, because at minimum, we need to ship one table copy to each POP where we deployed decision makers. We believe this is justified by providing quick response to video players. Our current GO table size is 50MB for 500K entries, with an update frequency of one minute, the bandwidth required is 0.83Mbps per POP. We would like to note that we have not optimized serialization and deserialization in terms of size.
+\myparatight{Broadcasting group table} The resulting table is broadcasted wholesale out to a large number of decision makers (DMs) closer to video clients in multiple POPs by way of a distributed messaging system~\cite{kreps2011kafka}. The bottleneck here is bandwidth, because at minimum, we need to ship one table copy to each POP where we deployed decision makers. We believe this is justified by providing quick response to video players. Our current GO table size is 50MB for 500K entries, with an update frequency of one minute, the bandwidth required is 0.83Mbps per POP. We would like to note that we have not optimized serialization and deserialization in terms of size.
 
 \myparatight{Decision making} Once a decision maker has a table, decision making is a matter of running the prediction algorithm for evaluation of each decision. Given that there are $N$ ACs for decision evaluation, and $M$ possible decisions, there are $M \times N$ lookups for a decision to be made. The decision making process is horizontally scalable by adding more decision makers, and in general, decision making is extremely fast. The average response time from current GO system is $0.62 ^{+}_{-} 0.016$ms with 3 decision makers (both query per second and CPU utilization are low on the decision makers), which is insignificant compared to RTT in Internet.
 
@@ -36,18 +36,17 @@ In summary, we implemented GO which is both scalable and provide good system-lev
 \label{subsec:eval_setup}
 
 We evaluate the performance of GO on one content provider with short-form videos (5 minutes) on iOS device (both iPhone and iPad). 
-HLS protocol is running on the iOS device and our GO system provides the initial CDN and bitrate, while Apple player employs adaptive 
-bitrate switching algorithm. 
+HLS protocol is running on the iOS device and our GO system decides the initial CDN and bitrate, while Apple player employs adaptive 
+bitrate switching algorithm to change the bitrate during the video session (without CDN switch). 
 
 The results are collected from Jan 1st, 2014 to Jan 25th, 2014 (total of 25 days) with 26.1 million sessions (870K sessions on average per day).
-There are three CDNs in this experiement, and 5 bitrate levels (from 700Kbps to 3.5Mbps). We evaluate two algorithms: {\it randomized} 
-and {\it optimized} (by GO).
+There are three CDNs in this experiement, and 5 bitrate levels (from 700Kbps to 3.5Mbps). We evaluate two algorithms: {\it randomized} baseline and {\it optimized} (by GO).
 
 %\tightsubsection{Rebuffering Rate and Average Bitrate}
 \tightsubsection{Quality improvement}
 \label{subsec:real-world-improvement}
 
-Figure~\ref{subfig:buffering-and-bitrate} shows the performance improvement of GO over randomized algorithm on two quality metrics of
+Figure~\ref{subfig:buffering-and-bitrate} shows the performance improvement of GO over randomized baseline on two quality metrics of
 buffering rate and average bitrate over the 25-day period. The overall improvement over the entire 25-day period is 7\% reduction in buffering ratio and 4\% increase in 
 average bitrate. The figure also shows that performance improvement varies by day, depending on how different the performance of each CDN. 
 In fact, we noticed that, for this site, performance of multiple CDNs tend to become close to each other

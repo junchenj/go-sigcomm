@@ -53,7 +53,7 @@ We first explain the GO's prediction-based decision making and use controlled sy
 
 \tightsubsection{Evaluation of Quality Improvement}
 \label{subsec:go-improve}
-We use counterfactual input to evaluate the improvement in four quality metrics with respect to a random baseline algorithm (which selects decision uniformly random). For each metric, GO selects the best decision based on prediction on this metric (we study the cross-metric effect in next section). Figure~\ref{fig:improve} gives the results. To be representative, we show the global improvement of all sessions as well as that of three largest Sites (same ones as in Figure~\ref{compare-partition}). First of all, we see improvement on all dimensions and all partitions. Moreover, the improvement varies largely between these Sites. For example, buffering ratio can be as high as 5\% in Site-B. Correlated with Figure~\ref{fig:compare-partition}, we find that even with slightly higher prediction error, we are able to achieve more improvement on it than other Sites. This suggests that improvement is not only affected by predictoin accuracy, but also quality diversity between decisions. We will examine the impact of quality diversity in \Section~\ref{subsec:impact-diversity}.
+We use counterfactual input to evaluate the improvement in four quality metrics over a randomized baseline algorithm (which selects decision uniformly random). For each metric, GO selects the best decision based on prediction on this metric (we study the cross-metric effect in next section). Figure~\ref{fig:improve} gives the results. To be representative, we show the global improvement of all sessions as well as that of three largest Sites (same ones as in Figure~\ref{compare-partition}). First of all, we see improvement on all dimensions and all partitions. Moreover, the improvement varies largely between these Sites. For example, buffering ratio can be as high as 5\% in Site-B. Correlated with Figure~\ref{fig:compare-partition}, we find that even with slightly higher prediction error, we are able to achieve more improvement on it than other Sites. This suggests that improvement is not only affected by predictoin accuracy, but also quality diversity between decisions. We will examine the impact of quality diversity in \Section~\ref{subsec:impact-diversity}.
 Notice that GO does not improve Site-C because it already has a very low starting failure rate.
 
 
@@ -88,7 +88,7 @@ Notice that GO does not improve Site-C because it already has a very low startin
 \end{figure}
 
 
-The last part evaluates the improvement on each metric when the selection is also based on the same metric. It is also interesting to investigate the impact of selecting based on one metric on other metrics. Table~\ref{tab:cross-metrics} shows the difference on metric A when optimizing for metric B. The results show the overall quality improvement with respect to the random baseline algorithm. 
+The last part evaluates the improvement on each metric when the selection is also based on the same metric. It is also interesting to investigate the impact of selecting based on one metric on other metrics. Table~\ref{tab:cross-metrics} shows the difference on metric A when optimizing for metric B. The results show the overall quality improvement over the randomized baseline algorithm. 
 While the largest improvement happens when GO optimizes the same metric as the one we evaluate, we also see quite noticeable improvement on other metrics. For example, by selecting the best decision for metrics other than average bitrate, we can still achieve more than half ($\sim 480$Kbps) of the improvement (858Kbps) when optimizing for average bitrate.
 
 \begin{table}[h!]
@@ -129,7 +129,7 @@ This allows us to see how much worse the quality improvement will be if we have 
 \label{fig:trace-accuracy-1}
 \end{figure}
 
-Figure~\ref{fig:trace-accuracy-1} shows the GO improvement from a baseline random algorithm which selects a uniformly random decision. The figure shows an near linear degredation on improvement in average bitrate -- average bitrate improvement reduces 50Kbps with Gaussian noise increases 200Kbps in its standard deviation.
+Figure~\ref{fig:trace-accuracy-1} shows the GO improvement over a baseline random algorithm which selects a uniformly random decision. The figure shows an near linear degredation on improvement in average bitrate -- average bitrate improvement reduces 50Kbps with Gaussian noise increases 200Kbps in its standard deviation.
 
 \myparatight{Augmented trace-driven testing}
 Although counterfactual testing provides unbiased evaluation on the impact prediction noise, it does not allow us to control the prediction error because the true outcome is not available. 
@@ -145,7 +145,7 @@ Moreover, we could compare with an oracle which always makes the best decision. 
 \label{fig:trace-accuracy-2}
 \end{figure}
 
-Figure~\ref{fig:trace-accuracy-2} shows the results with average bitrate as the quality metric. The top line is the improvement of oracle approach with respect to the random baseline algorithm and the result is static as they are independent to the prediction error. The bottom line shows the improvement of GO with respect to the random basline algorithm. 
+Figure~\ref{fig:trace-accuracy-2} shows the results with average bitrate as the quality metric. The top line is the improvement of oracle approach over the randomized baseline algorithm and the result is static as they are independent to the prediction error. The bottom line shows the improvement of GO over the randomized basline algorithm. 
 It shows a clear degredation in improvement and such degradation is linear from stretch ratio of 0.7 -- after this point, with 10\% decrease in prediction error, the improvement in average bitrate increases by 20Kbps. It suggests that the improvement is sensitive to accuracy -- if current prediction error is reduced by 30\%, GO will have 12.5\% more improvement. Also, note that with smaller stretch rate, the improvement stablizes as the improvement converges to oracle improvement with accurate prediction.
 
 
@@ -153,7 +153,7 @@ It shows a clear degredation in improvement and such degradation is linear from 
 \tightsubsubsection{Impact of Quality Diversity}
 \label{subsec:impact-diversity}
 
-To quantify the impact of quality diversity among multiple decisions, we fix the prediction error given by GO, and use a stretch parameter $r_b$ to control the quality diversity between multiple decisions. To simplify the discussion, we again assume each session has two possible decisions. Given a session with the true quality of two decisions being $q_1, q_2$ (assume $q_1\leq q_2$), we change their value to $q_1'=q_1, q_2=q_1+(q_2-q_1)r_b$. We show quality improvement with respect to the random baseline algorithm, as well as the optimality defined as $\frac{\textrm{GO's improvement}}{\textrm{oracle's improvement}}$.
+To quantify the impact of quality diversity among multiple decisions, we fix the prediction error given by GO, and use a stretch parameter $r_b$ to control the quality diversity between multiple decisions. To simplify the discussion, we again assume each session has two possible decisions. Given a session with the true quality of two decisions being $q_1, q_2$ (assume $q_1\leq q_2$), we change their value to $q_1'=q_1, q_2=q_1+(q_2-q_1)r_b$. We show quality improvement over the randomized baseline algorithm, as well as the optimality defined as $\frac{\textrm{GO's improvement}}{\textrm{oracle's improvement}}$.
 
 %Intuitively, it is expected that with larger quality diversity among multiple decisions, we should see that GO's performance should be closer to the oracle approach since the gap between decisions' outcome is so large that the best decision will be made with any prediction error. 
 
@@ -168,7 +168,7 @@ To quantify the impact of quality diversity among multiple decisions, we fix the
 {
         \includegraphics[width=0.24\textwidth]{figures/newfig/trendDiversity-metricId2-keyGlobal-partition.pdf}
 }
-\tightcaption{Impact of stretch of quality diversity $r_b$ on quality improvement. Green lines with values on the left y axis show GO's improvement from random selection and red lines with values on the right y axis show optimality (GO's improvement/oracle's improvement)}
+\tightcaption{Impact of stretch of quality diversity $r_b$ on quality improvement. Green lines with values on the left y axis show GO's improvement over the randomized baseline and red lines with values on the right y axis show optimality (GO's improvement/oracle's improvement)}
 \label{fig:trace-diversity}
 \end{figure}
 
