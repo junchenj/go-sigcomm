@@ -47,7 +47,7 @@ We first present the high level GO implementation. While there are much details 
 Our implementation uses Spark~\cite{spark} as the underlying compute framework, and the problem can be captured in a single map-reduce stage. 
 Quality samples are loaded in parallel from an HDFS source~\cite{hadoop} and distributed amongst the cluster in form of Resilient Distributed Datasets (RDD)~\cite{zaharia2012resilient}. 
 %Each node then maps its share of quality samples to a set of preliminary buckets. Common buckets are then shuffled across the cluster and the results are aggregated and collected onto a master machine. 
-Currently it takes GO system 12 seconds to process 500K partitions on a 4-node cluster with \fillme cores and \fillme memory \jc{Xi, fill in the numbers}, without riguous performance optimization.
+Currently it takes GO system 12 seconds to process 500K partitions on a 4-node cluster with a total of 64 cores and 512G memory, without riguous performance optimization.
 It is also worth noting that all steps involved in creating the table are horizontally scalable.
 
 
