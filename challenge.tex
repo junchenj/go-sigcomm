@@ -2,10 +2,7 @@
 \label{sec:challenges}
 
 
-Before we delve into algorithms, we are first analyze the challenges of doing video quality prediction. This section begins with the definitions and terminology, and a method to quantify the lower bound of prediction error (\Section~\ref{subsec:lowerbound}). We also categorize the sources of prediction error (\Section~\ref{subsec:challenges}). Based on these understanding, we propose to aggregate data sample as our basic approach and show its challenges with empirical analysis (\Section~\ref{subsec:aggregation}).
-
-
-This section first categorizes the sources of difficulty in predicting video quality accurately (\Section~\ref{subsec:challenges}) which informs the choice of aggregating identical groups of all attributes (i.e., the finest identical groups) by ignoring (hopefully, less important) attributes so that more samples will be used (\Section~\ref{subsec:aggregation}) to counteract the noise and estimation error brought by sparse data.
+Before we delve into algorithms, we first analyze the challenges of doing video quality prediction. This section begins with the definitions and terminology, and a method to quantify the lower bound of prediction error (\Section~\ref{subsec:lowerbound}). Then, we categorize the factors that cause the prediction error (\Section~\ref{subsec:challenges}). Based on these understanding, we propose to aggregate data samples as our basic approach and show its challenges and potential with empirical analysis (\Section~\ref{subsec:aggregation}).
 
 
 \tightsubsection{Definitions}
@@ -15,29 +12,30 @@ This section first categorizes the sources of difficulty in predicting video qua
 \myparatight{Prediction error} We start with defining the {\it prediction error}.  Given a session
 (which we will call the {\it session under prediction}), let $q$ be
 the actual quality and $p$ be the predicted quality\footnote{We consider one quality metric at a time.}. Then, the
-prediction error $e_{p,q}=|p-q|$.
-For a set of session under prediction $S=\{s_1,\dots,s_n\}$, let $P=\{p_i\}$ and $Q=\{q_i\}$ be their predicted and actual qualities. respectively ($p_i$ and $q_i$ are the predicted and actual quality of $s_i$). The overall prediction error is then the square root of mean squre error of $P$ and $Q$, 
+prediction error on this session is $e_{p,q}=|p-q|$.
+For a set of session under prediction $S=\{s_1,\dots,s_n\}$, let $P=\{p_i\}$ and $Q=\{q_i\}$ be their predicted and actual qualities, respectively, where $p_i$ and $q_i$ are the predicted and actual quality of $s_i$. The overall prediction error is then the square root of mean squre error of $P$ and $Q$, 
 \begin{align}
 &E_{P,Q}=\left(\frac{1}{n}\sum e_{p_i,q_i}^2\right)^{1/2}
 \end{align}
 
-\myparatight{Attribute combination (AC)} The informatino associated to a session under prediction includes the values of multiple attributes (see \Section~\ref{subsec:dataset}). We define {\it attribute combination} ({\it AC}) $g$ to be a set of attributes, e.g. $[ASN, CDN]$. Then the attribute combination value of session $s$ on AC $g$, denoted as $v_g(s)$, is a tuple of values on all attributes in $g$ associated to $s$. For example, if $g=[ASN,CDN]$ and $s$ is a session from a host in $ASN1$ to $CDN1$, $v_g(s)=[ASN1, CDN1]$. We say two sessions are identical with respect to an AC, if they produce the same attribute combination values. Using such equivalence relationship, an AC $g$ can be used to partition a set of sessions into groups (called, {\it identical groups}) such that two sessions in an identical group are identical with respect to $g$.
-In addition to the attributes in \Section~\ref{subsec:dataset}, we also consider temporal attributes. For instance, given AC $g=[ASN, CDN, 5\,minute]$, two sessions are identical only if they belong to the same ASN, use the same CDN and they are received within the same 5-minute interval. The temporal attributes are useful according to previous research~\cite{sigcomm12} which shows temporal variability of video quality within the same class of sessions.
+\myparatight{Attribute combination (AC)} Each session is associated with values of multiple attributes (see \Section~\ref{subsec:dataset}). We define {\it attribute combination} ({\it AC}) $g$ as a set of attributes, e.g. $[ASN, CDN]$. Then the attribute combination value of session $s$ on AC $g$, denoted as $v_g(s)$, is a tuple of values on all attributes in $g$ associated to $s$. For example, if $g=[ASN,CDN]$ and $s$ is a session from a host in $ASN1$ that streams video from $CDN1$, $v_g(s)=[ASN1, CDN1]$. We say two sessions are {\it identical} with respect to an AC, if they produce the same attribute combination values. Using such equivalence relationship, an AC $g$ can be used to partition a set of sessions into {\it identical groups} such that two sessions in an identical group are identical with respect to $g$.
+\jc{We do not really care about temporal attribute. in the worst case, we can just ignore it and say we use some fixed interval of last few minutes.} In addition to the attributes in \Section~\ref{subsec:dataset}, we also consider temporal attributes. For instance, given AC $g=[ASN, CDN, 5\,minute]$, two sessions are identical only if they belong to the same ASN, use the same CDN and they are received within the same 5-minute interval. The temporal attributes are useful according to previous research~\cite{sigcomm12} which shows temporal variability of video quality within the same class of sessions.
 \xil{I think this can be further cleaner.}
 
 \myparatight{Attribute-based prediction algorithm}
-An {\it attribute-based prediction algorithm} takes a session $s$ (with no quality information) and an AC $g$ as input, and returns the predicted quality of $s$. This means that if a set of sessions are received when the algorithm is given the same AC, their predicted qualities only depend on their values on $g$. Specifically, if they are identical with respect to $g$, they should be given the same predicted quality.\jc{some justification to support this assumption is needed.} 
+An {\it attribute-based prediction algorithm} takes a session $s$ (with no information on its quality) and an AC $g$ as input, and returns the predicted quality of $s$. This means that if a set of sessions are received when the algorithm is given the same AC, their predicted qualities only depend on their values on $g$. Specifically, if they are identical with respect to $g$, they should be given the same predicted quality.\jc{some justification to support this assumption.} 
 
 
 \myparatight{Lower bound of prediction error}
 This assumption naturally leads to an {\it lower bound} of prediction error of any algorithm in this kind. 
 The idea is that given an AC $g$ and an identical group of sessions $S=\{s_1,\dots,s_n\}$, the overall prediction error $\left(\frac{1}{n}\sum e_{p,q_i}^2\right)^{1/2}$ is minimized when the prediction $p$ for each of them is the mean of $q_i$. Furthermore, if $S$ is partitioned into multiple identical groups,  the overall prediction error is minimized when the prediction for each group is the mean of actual quality of these sessions in the group. 
 
-Intuitively, this lower bound characterizes the dispersion in quality of the sessions which an AC cannot differentiate. Ideally, if the attributes selected in AC reflect all the factors that determine the quality of a session, the sessions in an identical group should produce the same quality and the lower bound is zero. However, given the limitation of measurement and nature of noises (see \Section~\ref{subsec:challenges} for detailed discussion), it is expected that such lower bound is non-trivial and should to be quantified empiracally.
+Intuitively, this lower bound characterizes the dispersion in quality of the sessions which an AC cannot differentiate. Ideally, if the attributes selected in AC reflect all the factors that determine the quality of a session, the sessions in an identical group should produce the same quality and the lower bound is zero. However, given the limitation of measurement and nature of noises (see \Section~\ref{subsec:challenges} for detailed discussion), it is expected that such lower bound is non-trivial (as we see in next section).
 
 
 \tightsubsection{Sources of prediction error}
 \label{subsec:challenges}
+
 In general, there are four sources of prediction error:
 
 \begin{packedenumerate}
@@ -74,6 +72,8 @@ In general, there are four sources of prediction error:
 \xil{can i say this is Bias? because we do not capture this feature, and it is hard for us to extract a feature out of it, we consider it as noise?}
 \end{packedenumerate}
 
+\jc{In general, we should ack that we cannot address all these challenges. Aggregation only addresses estimation error (or more?) and the rest should be in discussion and future work.}
+
 Thus for any practical algorithm, it is a challenge to manage prediction error, which we will elaborate in the following section.
 
 \tightsubsection{AC Aggregation and Challenges}
@@ -97,7 +97,7 @@ Remember that the optimal prediction of this identical group is its mean (see \S
 Then, the optimal AC for this identical group is the degree of aggregation that gives the prediction value closest to the optimal prediction for the finest identical group at $t$-th minute. 
 For instance, in Figure~\ref{fig:example-optimal-ac}, if the optimal prediction of the targeted identical group is 0.2, the optimal AC (colored in red) is the one with the closest prediction to 0.2, i.e., $(ASN, CDN)$. 
 
-Note that optimal AC is not a real algorithm but an oracle analysis because the result depends on the underlying best prediction of sessions under prediction. It reflects the degree of aggregation of historical data that gives the best prediction for future (i.e., next minute's) sessions.
+Note that optimal AC is not a real algorithm but an oracle analysis because the result depends on knowing underlying best prediction of sessions under prediction. However, it reflects the best aggregation of historical data that gives the closest prediction for next minute's sessions.
 To show the dynamics of optimal AC, we present some empirical analysis results over our dataset from three aspects. 
 
 \begin{figure}[h!]
@@ -124,11 +124,11 @@ To show the dynamics of optimal AC, we present some empirical analysis results o
 
  
 \begin{packeditemize}
-	\item {\it No single optimal AC:} Figure~\ref{fig:optimal-ac-dynamics}-(a) shows the coverage of optimal ACs, i.e., the fraction of time for which a given AC is the optimal AC. Note that there is no single optimal AC. For example, the finest group only has coverage about 20\% and no coarsest grain AC (single attribute) is among the top 5. This implies that the optimal AC is often in between.
-	\item {\it No temporally prevalent optimal AC:} Figure~\ref{fig:optimal-ac-dynamics}-(b) shows the prevalence of the $($\emph{session-under-prediction, optimal AC}$)$ pairs, i.e., the fraction of time the fines group of sessions has the same optimal AC. Note that $70\%$ pairs only last for less than $20\%$ of time. This implies that there is no single or a small set of optimal ACs that can cover most sessions.
-	\item {\it Highly dynamic optimal ACs:} Figure~\ref{fig:optimal-ac-dynamics}-(c) shows the persistence of the $($\emph{session-under-prediction, optimal AC}$)$ pairs, i.e., the longest continuous duration where the finest group has the same optimal AC. Only 40\% of pairs last for more than 10 minutes. This suggests that even with a reactive strategy will be challenging to track the optimal ACs.
+	\item {\it No single optimal AC:} Figure~\ref{fig:optimal-ac-dynamics}-(a) shows the coverage of different optimal ACs, i.e., the fraction of sessions under prediction for which a given AC is its optimal AC. Note that there is no single optimal AC that fits for most sessions. For example, the finest group only has coverage about 20\% and no coarsest grain AC (single attribute) is among the top 5. This implies that the optimal AC is often in between.
+	\item {\it No temporally prevalent optimal AC:} Figure~\ref{fig:optimal-ac-dynamics}-(b) shows the session-level prevalence of an optimal AC, i.e., the fraction of time a session has the same AC as its optimal AC. Note that $70\%$ of (session, optimal AC) pairs only last for less than $20\%$ of time. This implies that most sessions, there is no single or a small set of optimal ACs that can cover most of time.
+	\item {\it Highly dynamic optimal ACs:} Figure~\ref{fig:optimal-ac-dynamics}-(c) shows the session-level persistence an optimal AC, i.e., the longest continuous duration where a session under prediction has the same optimal AC. Only 40\% of (session, optimal AC) pairs last for more than 10 minutes. This suggests that even with a reactive strategy will be challenging to track the optimal ACs frequently.
 \end{packeditemize}
 
-To conclude, we find that the optimal AC (the aggregation that gives minimal prediction error) is in many cases neither the finest nor the coarsest one, and, in addition, is highly dynamic. This presents a challenge in designing a practical prediction algorithm to identify the best AC in real-time.
+To conclude, we find that the optimal AC (the aggregation that gives minimal prediction error) is in many cases neither the finest nor the coarsest one, and, in addition, is highly dynamic. This presents a challenge in designing a practical prediction algorithm which must treat different level of aggregation adaptively.
 
 
