@@ -1,15 +1,12 @@
-\tightsection{Prediction algorithms}
+\tightsection{The GO Prediction Algorithm}
 \label{sec:prediction}
 In this section, we present a ``near-optimal" practical algorithm that addresses the challenges presented in the previous section. We show that this algorithm yields to similar prediction as optimal AC does and show that the resulting prediction is much closer to the lower bound introduced in \Section~\ref{subsec:lowerbound} than strawman algorithms. We present the basic algorithm, key improvement techniques and evaluate it against some strawman algorithms. 
-\jc{We don't discuss about temporal attribute aggregation. Need to say something about that.}
+\jc{We don't discuss about temporal attribute aggregation. Need to say something about that. In all experiments, I used 5 minutes time window}
 
 This section begins with the basic algorithm for making prediction (\Section~\ref{subsec:basic}). We then present two techniques and their empirical evaluation to address two limitations of the basic algorithm and further improve the prediction quality (\Section~\ref{subsec:acs}, \Section~\ref{subsec:sudo}). Finally, \Section~\ref{subsec:minieval} compares the prediction accuracy of GO with that of strawman (with static AC) algorithms and the lower bound.
 
-%We use spatial attributes for demonstrating the methodology and evaluation, and the temporal attribute is 5 minute by default in this section.
-%\xil{last sentence lacks context}
-%Having shown that the optimal degree of aggregation is often dynamic, we present a practical prediction algorithm that yields to similar prediction as optimal AC does and show that the resulting prediction is much closer to the lower bound introduced in \Section~\ref{sec:predictability} than the strawman algorithms. We present the basic algorithm, key improvement techniques and evaluate it against some strawman algorithms. We use spatial attributes for demonstrating the methodology and evaluation, and the temporal attribute is 5 minute by default in this section.
 
-\tightsubsection{Basic algorithm}
+\tightsubsection{Basic Algorithm}
 \label{subsec:basic}
 The tradeoff between estimation error and bias via aggregation naturally leads us to consider a class of algorithms that compute average quality outcomes for groups of sessions under different attribute sets, and then {\it dynamically} choose the attribute set that seems to work well for a given session. However, it is difficult to find a globally best AC, it is useful to hedge our bets by taking a weighted combination of averages. \xil{did we prove this?}
 Thus we propse the following basic structure for the algorithm. The algorithm chooses a set of ACs offline (called {\it ACS}), which can consist of all possible ACs $G$, i.e., full ACS, or a subset of them. 
@@ -23,48 +20,19 @@ The next question then becomes how to design a weighting scheme to balance betwe
 Intuitively, we would like to use larger $w_i$ for finer granular groups if they do not have high estimation error. 
 
 
-\comment{
-For a session under prediction having index $i$, let $a_i$ be the tuple of all attributes observed for that session and let $q_i$ be its quality outcome.  For each attribute set $g$ in our collection of attribute sets $G$, define a function $v_g$ that picks out those attributes:
-\xil{do we need to go into this level of details? Simply point users to the paper and we do a summary or intuition.}
 
-\begin{equation*}
-  v_g(\cdot): a \mapsto \text{[the subtuple of $a$ containing attribute values} \\
-  \text{for the attributes in $g$]} .
-\end{equation*}
-We first compute the single-group average quality outcome for each $g$:
-\begin{align*}
-  \bar{q}_{g}(a_i) &= \frac{1}{N_{g}(a_i)} \sum_{j \in N_{g}(a_i)} q_j, \text{ where} \\
-  N_{g}(a_i) &= |\{j: v_g(a_j) = v_g(a_i), j < N\}|
-\end{align*}
-Then, considering $\bar{q}_{g}(a_i)$ as an estimate of $q_i$, estimate its mean squared prediction error $e_{g}(a_i)$.  This estimation step is not simple, so we will briefly postpone its description.  Having computed $\bar{q}_{g}(a_i)$ and $e_{g}(a_i)$ for each attribute set, our final quality prediction, which we denote $\bar{q}(a_i)$, is the weighted average of $\bar{q}_{g}(a_i)$, where the weights are equal to the inverse of $e_{g}(a_i)$, normalized to sum to $1$:
-\begin{align*}
-  \bar{q}(a_i) = (\sum_{g \in G} e_{g}(a_i)^{-1})^{-1} \sum_{g \in G} e_{g}(a_i)^{-1} \bar{q}_{g}(a_i) .
-\end{align*}
-
-$e_{g}(a_i)$ is estimated by separately estimating (squared) bias and estimation error and summing them, plugging them into equation \eqref{eqn:biasvariance}.  Bias is heuristically taken to be the difference between the finest-granularity estimate of $q_i$ (i.e. $\bar{q}_{g'}(a_i)$, where $g'$ is the finest-grained ACS) and $\bar{q}_{g}(a_i)$.  Variance is estimated by a standard formula:
-\begin{align*}
-  \frac{1}{N_{g}(a_i)} \sum_{j \in N_{g}(a_i)} (q_j - \bar{q}_{g}(a_i))^2
-\end{align*}
-}
-
-
-%Furthermore, our estimates of both the bias and variance components of $e_{g}(a_i)$ are imprecise. 
-%While this doesn't allow us to provably guarantee WIMSE's optimality, George et al have found that WIMSE can nevertheless work well in practice.  
-%To optimize the algorithm for out setting we made a few changes, which we now present. 
-
-George et al~\cite{george2008value} consider this problem and the proposed prediction algorithm WIMSE, for Weighted Inverse Mean Squared Error.  Inverse-mean-squared-error weighting has the following desirable property: If the mean quality $p_i$ of each group is statistically independent, then the resulting prediction is an optimal estimator in the sense that it has overall prediction error among all functions of \jc{Henry, fill this!}\cite{george2008value}.
+George et al~\cite{george2008value} consider this problem and the proposed prediction algorithm WIMSE, for Weighted Inverse Mean Squared Error.  Inverse-mean-squared-error weighting has the following desirable property: If the mean quality $p_i$ of each group is statistically independent, then the resulting prediction is an optimal estimator in the sense that it has overall prediction error among all functions of \jc{Henry, fill this!}\cite{}.
 While the algorithm achieves optimality under some assumption and George et al have found that WIMSE can nevertheless work well in most cases, there are two unaddressed questions by this algorithm, which we will present in the following sections.
 \begin{packeditemize}
 	\item {\bf ACS selection:} In our setting (and in the original motivating setting) the $p_i$ values are based on overlapping data and are therefore not independent. For example, the coarser-grained groups are generated by aggregating together finer-grained groups. In that case, both coarser and finer will receive similar weights; including both ACs doubles the weight of the corresponding groups for no principled reason. We present a algorithm to deliberately select an ACS that performs empirically the best with WIMSE in~\Section~\ref{subsec:acs}.
 	\item {\bf Non-normal distribution:}  WIMSE becomes challenging if samples in fine-grained groups are non-normal and very sparse. Especially when predicting for buffering ratio or start failure, the quality of most samples are zero (i.e., no buffering happened or video successfully started), and a  few samples can all be the same and lead to big bias.  We address this by borrowing the idea of pseudocount prior in~\Section~\ref{subsec:sudo}.
 \end{packeditemize}
 
-\tightsubsection{ACS selection}
+\tightsubsection{Efficient ACS Selection}
 \label{subsec:acs}
 The key for WIMSE to work in our use case (with the power set of possible ACs, or in total, $2^k$ in case of $k$ attributes) is to select the right ACS.
 The most straightforward approach of using full ACS does not work well not only because the independence assumption is dramatically violated, 
 but also the computational costs of WIMSE grow exponentially with the more attributes.
-%; we discuss this further in \Section~\ref{sec:impl} \jc{make sure we cover it}.
 
 To pick the best ACS, we take a data-driven approach, where we split our data sets into training and testing data sets. 
 Then, the best ACS is the one that gives the minimal overall prediction error over the test set using WIMSE with this ACS. 
@@ -105,7 +73,7 @@ Figure~\ref{fig:global-acs} shows the CDF of prediction error on each session un
 
 To conclude, based on the above empirical analysis, GO's ACS selection searches for best global ACS using greedy algorithm. 
 
-\tightsubsection{Prediction under non-normal data distribution}
+\tightsubsection{Handling Non-Normal Distribution}
 \label{subsec:sudo}
 The WIMSE algorithm assumes that bias and variance can be computed exactly, while in practice variance cannot be estimated accurately when groups are very small and the sample distribution is not normal. For instance, it is very likely to have all samples in a group with the same values and prediction based on this information will be greatly biased and even worse, WIMSE will treat this group as with zero variance. This is a particularly serious problem for video quality metrics such as buffering ratio and start failure where value of zero is usually dominant.
 To alleviate this, we use a simple idea from Bayesian statistics~\cite{}\jc{Henry, give a pointer}: We incorporate a prior distribution on quality outcomes within each group.  This amounts to adding a few fake ``pseudocount'' observations to each group.  Empirically, we see an improvement of at most 5.6\% in prediction error of buffering ratio and 4.5\% in start failure.
@@ -144,7 +112,7 @@ To alleviate this, we use a simple idea from Bayesian statistics~\cite{}\jc{Henr
 \label{fig:compare-to-naive}
 \end{figure*}
 
-\tightsubsection{Comparison with oracle and strawman}
+\tightsubsection{Evaluation of Prediction Error}
 \label{subsec:minieval}
 
 To conclude the section, we compare GO (with ACS selection and pseudocount prior) against two oracle approaches -- the lower bound (\Section~\ref{subsec:lowerbound}) and the optimal AC (\Section~\ref{subsec:aggregation}).  Recall that the optimal AC reflects the best possible prediction using the best AC of historical data based on the quality informaton of sessions under prediction, while the lower bound represents the best possible prediction in theory with no constraint on the way we use historical data. Figure~\ref{fig:compare-to-naive} shows the distribution of overall prediction error at each minute using different methods. It suggests that GO performs very similarly to optimal AC and close to the lower bound (e.g., a difference of \fillme Kbps in average bitrate). 
@@ -175,6 +143,8 @@ Finally, we revisit the observation on the variability of the lower bound across
 \label{fig:compare-partition}
 \end{figure}
 
+
+%% content below may be put into discussion section
 \comment{
 \tightsubsection{Interactions between decisions\jc{Move to discussion}}
 The reader may be bothered by a simplifying assumption implicit in our characterization of the causes of prediction error.  If we allocated all traffic to a single CDN, its performance might degrade, but our session-wise prediction does not capture that.  We might instead want to know the following: Given a set of decisions about sessions (say, all the sessions we observe in a 1-hour interval), what is the predicted performance for that set of sessions?  We do not wish to say that such a question is impossible to answer, but rather point out some difficulties in answering it, and some reasons why it is less critical to answer it than it may appear.
