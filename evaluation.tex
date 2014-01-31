@@ -18,7 +18,7 @@ However, even with these constraints, we still see arguable improvement.
 
 \begin{figure*}[t!]
 \centering
-\subfigure[Daily improvement (both metrics)]
+\subfigure[Daily improvement (both metrics) \jc{Xi , use the first 10 days only}]
 {
   \includegraphics[width=0.3\textwidth] {figures/eval-perfimp.pdf}
   \label{subfig:buffering-and-bitrate}
@@ -50,6 +50,7 @@ Quality samples are loaded in parallel from an HDFS source~\cite{hadoop} and dis
 Currently it takes GO system 12 seconds to process 500K partitions on a 4-node cluster with \fillme cores and \fillme memory \jc{Xi, fill in the numbers}, without riguous performance optimization.
 It is also worth noting that all steps involved in creating the table are horizontally scalable.
 
+\jc{Hui, remember to add a para on policy constraints}
 
 \myparatight{Broadcasting group table} The resulting table is broadcasted wholesale out to a large number of decision makers (DMs) closer to video clients in multiple POPs by way of a distributed messaging system~\cite{kreps2011kafka}. The bottleneck here is bandwidth, because at minimum, we need to ship one table copy to each POP where we deployed decision makers. We believe this is justified by providing quick response to video players. Our current GO table size is 50MB for 500K entries, with an update frequency of one minute, the bandwidth required is 0.83Mbps per POP. We would like to note that we have not optimized serialization and deserialization in terms of size.
 
@@ -72,6 +73,13 @@ There are three CDNs in this experiement, and 5 bitrate levels (from 700Kbps to 
 \tightsubsection{Quality Improvement}
 \label{subsec:real-world-improvement}
 
+\jc{
+\begin{packeditemize}
+	\item Use Figure~\ref{subfig:buffering-and-bitrate} to show consistent improvement over time
+	\item Use Figure~\ref{subfig:eval-case-study:bufferingratio} and~\ref{subfig:eval-case-study:averagebitrate} to show that GO outperform best CDN's overall performance, suggesting that GO is assigning traffic adaptively.
+\end{packeditemize}
+}
+
 Figure~\ref{subfig:buffering-and-bitrate} shows the performance improvement of GO over randomized baseline on two quality metrics of
 buffering rate and average bitrate over the 25-day period. The overall improvement over the entire 25-day period is 7\% reduction in buffering ratio and 4\% increase in 
 average bitrate. The figure also shows that performance improvement varies by day, depending on how different the performance of each CDN. 
@@ -86,16 +94,15 @@ We can see that in both Day A and B, GO managed to outperform the best-performin
 and buffering ratio. This suggests that GO was not only looking for the globally best CDN, but also 
 differentiated CDN performance in finer granular partition.
 
-%\xil{add a spatial diversity graph}
-
-
 
 \tightsubsection{Adaptive Bitrate Behavior}
 \label{subsec:adaptive-bitrate}
 
-Previous research (e.g., ~\cite{user-adaptive,videoqoe}) shows that bitrate switching rate has an impact on video experience. In this section, we evaluate the adaptive 
-bitrate switching behavior with and without GO. 
+Previous research (e.g., ~\cite{user-adaptive,videoqoe}) shows that bitrate switching rate has an impact on video experience. In this section, we evaluate the adaptive bitrate switching behavior with and without GO. 
 
+\jc{We show that (1) GO can reduce the number of bitrate switches (Figure ~\ref{subfig:reduce-switch}) by (2) selecting the initial bitrate to be close to the ``stablized'' bitrate (Figure ~\ref{subfig:initvsdom})}.
+
+\comment{
 \myparatight{When Do Adaptive Bitrate Switches Happen?}
 We first take a look at when do adaptive bitrate switches happen. Figure~\ref{fig:switch-time-dist} shows that the 
 majority of switches happen at the beginning of the video plays, i.e., around 60\% of the switches 
@@ -112,11 +119,11 @@ In this figure, we include another content provider who provides long-formed con
 \tightcaption{When do adaptive bitrate switches happen? \jc{what's the threshold between long and short form content}}
 \label{fig:switch-time-dist}
 \end{figure}
+}
 
 
-
-\myparatight{Reducing Number of Bitrate Switch}
-Next let us evaluate the switching stability by looking at the number of switches within the first minute of the video play.
+\myparatight{Reducing number of  bitrate switch}
+We evaluate the switching stability by looking at the number of switches within the first minute of the video play.
 We chose one minute because the videos are 5 minutes long and first minute account for 60\% of the switches (see Figure~\ref{fig:switch-time-dist}). 
 Since HLS has 10 second video chunks, the maximum number of switches is 6 in this case.
 Figure~\ref{subfig:reduce-switch} shows the number of bitrate switches for optimized and random decisions. 
