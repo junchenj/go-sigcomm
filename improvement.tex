@@ -61,10 +61,18 @@ of each decision are controlled.
 \tightsubsection{A Simple Example}
 \label{subsec:behavior}
 
-We first explain the GO's prediction-based decision making and use controlled synthetic input to confirm its behavior -- GO identifies the performance changes and switches decision accordingly if needed.
+We first explain the GO's prediction-based decision algorithm and then
+use controlled synthetic input to study its behavior. As expected, GO
+identifies the performance changes and makes decisions to reflect
+these changes.
 
-\myparatight{Prediction-based dececision making} When selecting decisions, GO simply selects for each session under prediction the decision that has the best predicted quality in a certain metric. Note that GO always leaves a small fraction of traffic to be randomly allocated to guarantee that each decision will have at least certain fraction of traffic even when that decision is not the best for every session at this point (but potentially, the best in the future).
-
+\myparatight{Prediction-based dececisions} When making a decision, GO
+simply selects for each session under prediction the decision that has
+the best predicted quality in a certain metric. Note that GO always
+leaves a small fraction of traffic to be randomly allocated to
+guarantee that each decision will have at least certain fraction of
+traffic even when that decision is not the best for every session at
+this point (but potentially, the best in the future).
 
 \begin{figure}[h!]
 \centering
@@ -73,26 +81,55 @@ We first explain the GO's prediction-based decision making and use controlled sy
 \label{fig:behavioral}
 \end{figure}
 
-\myparatight{Case study} We simulate a scenario in which a sudden change in performance of one group causes GO to switch decision accordingly. Figure~\ref{fig:behavioral} shows the behavior of sessions in one ASN when provided with two CDNs to choose from. We only use buffering ratio as quality metric. The mean of buffering ratio of CDN1 is stably at 0.2 and that of CDN2 changes between 0.1 and 0.25, with a random interval. Each quality sample of a CDN is generated so that its buffering ratio has a Guassian noise with standard deviation of 0.01 from mean. This figure shows clearly that under this configuration, GO is able to switch to the best CDN accordingly with an expected delay (as it uses a 30-minute sliding window). Note that there is always a small amount of randomized traffic, so the change on each decision can be detected. %As a side-effect, it takes longer for GO to detect that CDN2 has bad bad quality than when it has good quality, because the number of samples from CDN2 when it has bad quality (only randomized traffic) is smaller than when it has good quality (all traffic).
+\myparatight{Case study} We simulate a scenario in which a sudden
+change in performance of one group causes GO to change its decisions
+accordingly. Figure~\ref{fig:behavioral} shows the behavior of
+sessions in one ASN when provided with two CDNs to choose from. We
+only use buffering ratio as quality metric. The mean of buffering
+ratio of CDN1 is stably at 0.2 and that of CDN2 changes between 0.1
+and 0.25, with a random interval. Each quality sample of a CDN is
+generated so that its buffering ratio has a Guassian noise with
+standard deviation of 0.01 from mean. This figure shows clearly that
+under this configuration, GO is able to switch to the best CDN after
+an expected delay (the quality metric is computed over a 30-minute
+sliding window). Note that there is always a small amount of
+randomized traffic on eeach CDN to make sure that we can measure the
+outcomes of all possible decisions. 
+
+%As a side-effect, it takes longer for GO to detect that CDN2 has bad bad quality than when it has good quality, because the number of samples from CDN2 when it has bad quality (only randomized traffic) is smaller than when it has good quality (all traffic).
 
 %\xil{are we going to do something about that point or ack it is an issue.}
-
-
 
 \tightsubsection{Evaluation of Quality Improvement}
 \label{subsec:go-improve}
 
-We define quality improvement over a set of sessions in two measures: improvement ratio and optimality, which are defined as follows.
+We use two metrics to measure the quality improvement over a set of
+sessions: improvement ratio and optimality, defines as follows:
 
 \begin{align*}
 & ImprovemenRatio=\frac{Q_{GO}-Q_{Baseline}}{Q_{Baseline}}\\
 & Optimality=\frac{Q_{Oracle}-Q_{Baseline}}{Q_{GO}-Q_{Baseline}}
 \end{align*}
 
-Here, $Q$ is the average quality of these sessions. Oracle means to select the best decision based on its true outcome, so the it is only available in augmented trace-driven input and controlled synthetic input.  By default, we use random selection as the baseline which always select a uniformly random decision among all possible ones. Improvement ratio is larger the better and optimality is closer to one the better.
+Here, $Q$ is the average quality of these sessions. Recall that an
+oracle would select the best decision based on its true outcome, which
+is only available in augmented trace-driven inputs and controlled
+synthetic inputs.  By default, we use random selection as the baseline
+which always select a uniformly random decision among all possible
+ones. The higher the improvement ratio, the better, and, similarly,
+the closer the optimality is to one the better.
 
-
-We use counterfactual input to evaluate GO's improvement ratio. Figure~\ref{fig:cross-metrics} shows the improvement ratio on each metric when GO uses different metrics as utility function (i.e., GO makes decision based on the predicted quality of different decisions on this metric). From the figure, we find that the largest improvement happens when GO uses the same metric to be utility function as the one we evaluate it. Surprisingly, we also see arguable improvement on other metrics when they are not explicitly optimized. For example, by using metrics other than average bitrate as utility function, we can still achieve 2\%-25\% improvement in average bitrate.
+We use the counterfactual input method to evaluate GO's improvement
+ratio. Figure~\ref{fig:cross-metrics} shows the improvement ratio on
+each metric when GO uses different metrics as utility function (i.e.,
+GO makes decision based on the predicted quality of different
+decisions on this metric). From the figure, we find that the largest
+improvement happens when GO uses the same metric to be utility
+function as the one we evaluate it. Surprisingly, we also see
+improvements on other metrics even when they are not explicitly
+optimized. For example, by using metrics other than average bitrate as
+utility function, we can still achieve 2\%-25\% improvements of the
+average bitrate.
 
 
 \begin{figure}[h!]
