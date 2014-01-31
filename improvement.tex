@@ -1,7 +1,7 @@
 \tightsection{Improving Quality with GO}
 \label{sec:improvement}
 
-Previous sections have established our prediction algorithm can achieve near-optimal accuracy. In this section, we empirically study the impact of prediction accuracy on video quality improvement, i.e., does a good prediction lead to high improvement. It should be noticed that the possible improvement is bounded by the actual difference between the performance of resources (e.g., CDN or bitrate). As pointed out in \Section~\ref{sec:intro}, current industrial practice however, only allows coarse grain decisions (e.g., CDN-level rather than server-level) and the different at such level is much less significant than finer-grain ones. Therefore, though based on our dataset our quantitative results do not show remarkable improvement under CDN or bitrate selection, we expect to see higher improvement with more fine-grain selection enabled and thus larger room of improvement.
+Previous sections have established our prediction algorithm can achieve low prediction accuracy. In this section, we empirically study if a good prediction lead to high improvement. It should be noticed that the possible improvement is bounded by the actual difference between the performance of resources (e.g., CDN or bitrate). As pointed out in \Section~\ref{sec:intro}, current industrial practice however, only allows coarse grain decisions (e.g., inter-CDN selection) and the difference at such level is much less significant than finer-grain ones (e.g., server selection or even path selection). Therefore, though based on our dataset our quantitative results do not show remarkable improvement under CDN or bitrate selection, we expect to see higher improvement with more fine-grain selection enabled and thus larger room of improvement.
 
 Specifically, we aim to answer three questions:
 \begin{packedenumerate}
@@ -11,12 +11,12 @@ Specifically, we aim to answer three questions:
 \end{packedenumerate}
 
 \tightsubsection{Methodology \jc{This part must be shrinked}}
-We study these questions by using offline analysis methodologies including trace-driven analysis. As we will introduce in next sections, we have built GO system that runs in real world, and we use A/B testing  to demonstrate GO's behavior and its quality improvement in the wild in \Section~\ref{sec:eval}. However, we believe these questions should be better addressed using offline trace-driven analysis because the real world experiments has four limitations.
+We study these questions by using offline trace-driven analysis. As we will introduce in \Section~\ref{sec:eval}, we have built GO system that runs in real world, and we use real world experiments to demonstrate GO's behavior and its quality improvement in the wild. However, we believe these questions should be better addressed using offline trace-driven analysis because the real world experiments has four foundamental limitations.
 \begin{packedenumerate}
-	\item Limited coverage: As we will explain, the real world experiments only have access to the video traffic of one video site on one type of OS. The stricts its coverage of classes of traffic in both video genres and streaming protocol.
-	\item Limited scale of simultaneous expriments: Since we only control one site's traffic in real world experiments, it is not feasible to compare many configurations or algorithms in parallel (empirically, at most 3-4) and ensure each of them receive sufficient traffic to draw confident conclusions.
-	\item Limited diversity in performance: As we will see, the improvement in quality is greatly impacted by the diversity and variability of the performance outcome of different decisions (e.g., different CDNs). However, we can only observe a small number of possible patterns in performance diversity.
-	\item Limited controlled experiments: Finally, it is impossible to conduct sensitivity analysis (as in this section) where we would like to see the impact of changing one parameter (e.g., CDN performance) at a time with controlled amount.
+	\item Limited coverage: The real world experiments only have access to the video traffic of one video site on one type of OS with one streaming protocol. The greatly constraints its coverage on types of traffic.
+	\item Limited scale of simultaneous expriments: The real world experiment only controls one site's traffic, it is infeasible to compare a lot of configurations or algorithms in parallel (empirically, at most 3-4) and ensure each of them receive sufficient traffic to draw confident conclusions.
+	\item Limited diversity in performance: As we will see, quality improvement is greatly impacted by the diversity in the performance outcome among different decisions (e.g., different CDNs). However, we can only observe a limited number of possible patterns of performance diversity in real world expreiments.
+	\item Limited controlled experiments: It is also impossible to conduct sensitivity analysis (e.g., the third question) where we would lik to change one parameter (e.g., CDN performance) at a time with a controlled amount.
 \end{packedenumerate}
 
 
