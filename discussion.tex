@@ -18,6 +18,19 @@ guaranteed to increase the quality, especially if the quality
 degradation is due to the last mile or due to the client inability to
 render at a high bitrate.
 
+\myparatight{Leveraging network and CDN information} GO makes
+decisions based on client side information only. While clients provide
+the most accurate information regarding the quality experienced by
+users, this information is not always optimal when making
+decisions. The decision process can be considerably improved if GO
+were to leverage information from other entities in the distribution
+ecosystem, including CDN servers, caches, and routers. Using such
+information, GO could significantly improve the prediction
+accuracy. For example, GO could learn much faster that a CDN server is
+overloaded by getting load information directly from that server than
+infering this information from clients that experience quality issues
+when connected to that server.
+
 \myparatight{Finer grain selection} Currently, GO selects the resource
  at the CDN granularity. This means that GO can't do much if the CDN
  redirects the client based on its location (e.g., IP address) and the
@@ -33,25 +46,13 @@ render at a high bitrate.
  would be in the perfect position to run a GO like algorithm that
  makes decisions at server granularity.
 
-\myparatight{Leveraging network and CDN information} GO makes
-decisions based on client side information only. While clients provide
-the most accurate information regarding the quality experienced by
-users, this information is not always optimal when making
-decisions. The decision process can be considerably improved if GO
-were to leverage information from other entities in the distribution
-ecosystem, including CDN servers, caches, and routers. Using such
-information, GO could significantly improve the prediction
-accuracy. For example, GO could learn much faster that a CDN server is
-overloaded by getting load information directly from that server than
-infering this information from clients that experience quality issues
-when connected to that server.
-
 \myparatight{Join network optimization} The decisions made by GO are
 oblivious to the network conditions. As such, there is little GO can
 do if the network is congested. GO can perform considerably better if,
 in addition to the endpoints, were able to select the network
-paths. This would make perfect sense in the context of ISP CDNs where
-the ISP controls both the network and the distribution infrastructure.
+paths. Again, this would make perfect sense in the context of an ISP
+CDN where the ISP controls both the network and the distribution
+infrastructure.
 
 
 %\myparatight{Behaviore-related attributes}
