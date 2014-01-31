@@ -1,9 +1,9 @@
 \tightsection{The GO Prediction Algorithm}
 \label{sec:prediction}
-In this section, we present a practical algorithm that addresses the challenges presented in \Section~\ref{subsec:aggregation}. We show that this algorithm yields to similar prediction as optimal AC does and show that the resulting prediction error is much closer to the lower bound introduced in \Section~\ref{subsec:lowerbound} than other strawman algorithms.
-\jc{We don't discuss temporal attribute aggregation. Need to say something about that. In all experiments, I used 30 minutes time window}
+In this section, we present a practical algorithm that addresses the challenges presented in \Section~\ref{subsec:aggregation}. We show that this algorithm makes similar predicted quality to optimal AC, and show that the resulting prediction error is much closer to the lower bound introduced in \Section~\ref{subsec:lowerbound} compared with representative strawman algorithms.
+%\jc{We don't discuss temporal attribute aggregation. Need to say something about that. In all experiments, I used 30 minutes time window}
 
-This section begins with the basic algorithm for making prediction (\Section~\ref{subsec:basic}). We then present two techniques and their empirical evaluation to address the limitations of the basic algorithm and further improve the prediction quality (\Section~\ref{subsec:acs}, \Section~\ref{subsec:sudo}). Finally, \Section~\ref{subsec:minieval} compares the prediction error of GO with that of strawman (with static AC) algorithms as well as the lower bound.
+This section begins with the basic framework of prediction algorithm (\Section~\ref{subsec:basic}). We then present two techniques and their empirical evaluation to address the limitations of the basic algorithm so as to improve the prediction accuracy (\Section~\ref{subsec:acs}, \Section~\ref{subsec:sudo}). Finally, \Section~\ref{subsec:minieval} compares the prediction error of GO with that of strawman algorithms (where ACs are not dynamically chosen) as well as the lower bound.
 
 
 \tightsubsection{Basic Algorithm}
