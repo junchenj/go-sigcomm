@@ -1,41 +1,61 @@
 \tightsection{Prediction Challenges in Practice}
 \label{sec:challenges}
 
-
-Before we delve into algorithms, we first analyze the challenges of performing video quality prediction. We first define the main concepts, and then discuss a method to quantify the lower bound of prediction error (\Section~\ref{subsec:lowerbound}). Then, we categorize the factors that cause the prediction error (\Section~\ref{subsec:challenges}). Based on these understanding, we propose to aggregate data samples as our basic approach and evaluate its potential using empirical analysis (\Section~\ref{subsec:aggregation}).
-
+Before we delve into algorithms, we first analyze the challenges of
+performing video quality prediction. We first define the main
+concepts, and then discuss a method to quantify the lower bound of
+prediction error (\Section~\ref{subsec:lowerbound}). Then, we
+categorize the factors that cause the prediction error
+(\Section~\ref{subsec:challenges}). Based on these understanding, we
+propose to aggregate data samples as our basic approach and evaluate
+its potential using empirical analysis
+(\Section~\ref{subsec:aggregation}).
 
 \tightsubsection{Definitions}
 \label{subsec:lowerbound}
-
 
 \myparatight{Prediction error} 
 %We start with defining the {\it prediction error}.  
 Given a session (which we will call the {\it session under
   prediction}), let $q$ be the actual quality and $p$ be the predicted
 quality\footnote{We consider one quality metric at a time.}. Then, the
-{\it prediction error} on this session is $e_{p,q}=|p-q|$.  For a set of
-session under prediction $S=\{s_1,\dots,s_n\}$, let $P=\{p_i\}$ and
-$Q=\{q_i\}$ be their predicted and actual qualities, respectively,
-where $p_i$ and $q_i$ are the predicted and actual quality of
-$s_i$. The overall prediction error is then the square root of mean
-squre error of $P$ and $Q$,
+{\it prediction error} of this session's quality is $e_{p,q}=|p-q|$.
+For a set of session under prediction $S=\{s_1,\dots,s_n\}$, let
+$P=\{p_i\}$ and $Q=\{q_i\}$ be their predicted and actual qualities,
+respectively, where $p_i$ and $q_i$ are the predicted and actual
+quality of session $s_i$. Then, we define the overall prediction error
+of sessions in $S$ as the square root of the mean square errors:
 \begin{align}
-&E_{P,Q}=\left(\frac{1}{n}\sum e_{p_i,q_i}^2\right)^{1/2}
+&E_{P,Q}=\left(\frac{1}{n}\sum e_{p_i,q_i}^2\right)^{1/2}.
 \end{align}
 
-\myparatight{Attribute combination (AC)} Each session is associated
-with values of multiple attributes (see
-\Section~\ref{subsec:dataset}). We define {\it attribute combination}
-({\it AC}) $g$ as a set of attributes, e.g. $[ASN, CDN]$. Then the
-attribute combination value of session $s$ on AC $g$, denoted as
-$v_g(s)$, is a tuple of values on all attributes in $g$ associated to
-$s$. For example, if $g=[ASN,CDN]$ and $s$ is a session from a host in
-$ASN1$ that streams video from $CDN1$, $v_g(s)=[ASN1, CDN1]$. We say
-two sessions are {\it g-equivalent} with respect to AC $g$, if they
-have identical values for every attribute in $g$. Thus, AC $g$ defines
-a partition on the set of sessions, where all sessions in a partition
-are $g$-equivalent. In addition to the attributes in
+\myparatight{Attribute combination (AC)} An {\it attribute
+  combination} ({\it AC}) is simply a set of attributes we use to
+characterize the sessions in a given dataset, e.g., $[ASN,
+CDN]$. Given AC $g$, a session is represented by its values for all
+the attributes in $g$. We say two sessions are {\it g-equivalent} with
+respect to $g$, if they have identical values for every attribute in
+$g$. For example, if $g=[ASN,CDN]$ then all sessions that are
+connected to the same ASN and stream data from the same CDN are
+$g$-equivalent. Thus, $g$ defines a partition on the set of sessions,
+where all sessions in a partition are $g$-equivalent. In addition to
+the attributes in \Section~\ref{subsec:dataset}, we also consider
+temporal attributes. For instance, given AC $g=[ASN, CDN, 5\,minute]$,
+two sessions are equivalent iff they belong to the same ASN, use the
+same CDN and they were streaming during the same 5-minute
+interval. The temporal attributes are useful according to previous
+research~\cite{sigcomm12} which shows that video quality can vary
+significantly over time.
+
+\comment{
+Then the attribute combination value of session $s$ on AC $g$, denoted
+as $v_g(s)$, is a tuple of values on all attributes in $g$ associated
+to $s$. For example, if $g=[ASN,CDN]$ and $s$ is a session from a host
+in $ASN1$ that streams video from $CDN1$, $v_g(s)=[ASN1, CDN1]$. We
+say two sessions are {\it g-equivalent} with respect to AC $g$, if
+they have identical values for every attribute in $g$. Thus, AC $g$
+defines a partition on the set of sessions, where all sessions in a
+partition are $g$-equivalent. In addition to the attributes in
 \Section~\ref{subsec:dataset}, we also consider temporal
 attributes. For instance, given AC $g=[ASN, CDN, 5\,minute]$, two
 sessions are equivalent iff they belong to the same ASN, use the same
@@ -43,6 +63,7 @@ CDN and they were streaming during the same 5-minute interval. The
 temporal attributes are useful according to previous
 research~\cite{sigcomm12} which shows that video quality can vary
 significantly over time.
+}
 
 \myparatight{Attribute-based prediction algorithm} An {\it
   attribute-based prediction algorithm} takes a session $s$ (with no
@@ -62,17 +83,17 @@ prediction for any two $g$-equivalent sessions.
 Given a $g$-equivalent set of sessions $S=\{s_1,\dots,s_n\}$, the
 overall prediction error $\left(\frac{1}{n}\sum
   e_{p,q_i}^2\right)^{1/2}$ is minimized when the prediction $p$ for
-each of these sessions is equal to the mean of $q_i$. More generally,
-the overall prediction error is minimized when the \emph{prediction}
-for sessions in each partition is the mean of the \emph{actual}
-quality values of the session in that partition.
+each of these sessions is equal to the mean of $q_i$, i.e., $p = (\sum
+q_i)/n$. More generally, the overall prediction error is minimized
+when the \emph{prediction} for sessions in each partition is the mean
+of the \emph{actual} quality values of the sessions in that partition.
 
 Intuitively, this lower bound characterizes the dispersion in quality
 of the sessions which an AC cannot differentiate. Ideally, if the
-attributes selected in AC reflect all the factors that determine the
-quality of a session, the sessions in the same partition should
-produce the same quality and the lower bound is zero. However, given
-the measurement limitations and the inherent noises (see
+attributes selected in AC reflect \emph{all} the factors that
+determine the quality of a session, the sessions in the same partition
+should produce the same quality and the lower bound is zero. However,
+given the measurement limitations and the inherent noises (see
 \Section~\ref{subsec:challenges} for detailed discussion), achieving
 such lower bound is not trivial in practice.
 
@@ -107,9 +128,25 @@ In general, there are four sources of prediction error:
 \label{fig:group-size-impact}
 \end{figure}
 
-\item \emph{Bias} due to missing or unused information: The bias occurs when we do not observe (or use) an attribute that is important for prediction. Bias is not alleviated by gathering data from more session, but by gathering more attributes from each session.
+\item \emph{Bias} due to missing or unused information: The bias
+  occurs when we do not observe (or use) an attribute that is
+  important for prediction. Bias is not alleviated by gathering data
+  from more session, but by gathering more attributes from each
+  session.
 
-\item \emph{Unavailability of recent data:} In a practical system, there are delays in measuring, sending and processing quality samples, so they are not available instantly.  If conditions change rapidly, there may be no quality samples sufficiently close to the session under prediction.  This is an extreme example of estimation error.  In this case it may be necessary to model the evolution of the video ecosystem over time in order to extrapolate to the current time. Figure~\ref{fig:quality-variability} shows per-minute quality variability. It shows that even with sufficient data, the mean value of quality samples belonging to sessions in the same partition could vary significantly. This clearly indicates that any practical algorithm has to be running in real-time (on the order of one minute or less).
+\item \emph{Unavailability of recent data:} In a practical system,
+  there are delays in measuring, sending and processing quality
+  samples, so they are not available instantly.  If conditions change
+  rapidly, there may be no quality samples sufficiently close to the
+  session under prediction.  This is an extreme example of estimation
+  error.  In this case it may be necessary to model the evolution of
+  the video ecosystem over time in order to extrapolate to the current
+  time. Figure~\ref{fig:quality-variability} shows per-minute quality
+  variability. It shows that even with sufficient data, the mean value
+  of quality samples belonging to sessions in the same partition could
+  vary significantly. This clearly indicates that any practical
+  algorithm has to be running in real-time (on the order of one minute
+  or less).
 
 \begin{figure}[h!]
 \centering
@@ -118,26 +155,35 @@ In general, there are four sources of prediction error:
 \label{fig:quality-variability}
 \end{figure}
 
-  \item \emph{Noise:} Even if we observed all conceivable attributes of a session and had infinitely many examples of exactly quality samples, outcomes may be affected by non-deterministic inputs.  For example, performance may be affected by exponentially backoff at the data link layer or the congestion generated by cross traffic at the network layer. This implies that some degree of prediction error is inevitable.
-\xil{can i say this is Bias? because we do not capture this feature, and it is hard for us to extract a feature out of it, we consider it as noise?}
+\item \emph{Noise:} Even if we observed all conceivable attributes of
+  a session and had infinitely many examples of exactly quality
+  samples, outcomes may be affected by non-deterministic inputs.  For
+  example, performance may be affected by exponentially backoff at the
+  data link layer or the congestion generated by cross traffic at the
+  network layer. This implies that some degree of prediction error is
+  inevitable.  \xil{can i say this is Bias? because we do not capture
+    this feature, and it is hard for us to extract a feature out of
+    it, we consider it as noise?}
 \end{packedenumerate}
 
-\jc{In general, we should ack that we cannot address all these challenges. Aggregation only addresses estimation error (or more?) and the rest should be in discussion and future work.}
+%\jc{In general, we should ack that we cannot address all these challenges. Aggregation only addresses estimation error (or more?) and the rest should be in discussion and future work.}
 
-Thus for any practical algorithm, it is a challenge to manage prediction error, which we will elaborate in the following section.
+Thus for any practical algorithm, it is challenging to manage
+prediction error, and in some cases even impossible, for examples, if
+we have no recent data. Next, we discuss how to address the estimation
+error, arguably the main component of prediction error.
 
 \tightsubsection{AC Aggregation and Challenges}
 \label{subsec:aggregation}
 A simple strategy to reduce estimation error is {\it aggregation}.  By
-aggregation we mean putting quality samples into coarser partitions
-that match on only a subset of observed attributes.  Aggregation
-increases the number of samples in each partition by reducing the
-number of attributes, thus reducing estimation error at the cost of
-increased bias.  Intuitively, when estimation error is small (say,
-when a fine-grained partition contains many sessions) we want to
-eliminate bias by using a fine-grained partition.  When estimation
-error is large, we want to aggregate more.  Then the question becomes
-how to determine the best level of aggregation.
+aggregation we mean using ACs with fewer attributes.  Aggregation
+increases the number of samples in each partition, thus reducing
+estimation error at the cost of increased bias.  Intuitively, when
+estimation error is small (say, when a fine-grained partition contains
+many sessions) we want to reduce bias by using a finer grain
+partition.  On the other hand, when estimation error is large, we want
+to increase the level of aggregation.  Then the question becomes how
+to determine the best level of aggregation.
 
 
 \begin{figure}[h!]
@@ -147,18 +193,48 @@ how to determine the best level of aggregation.
 \label{fig:example-optimal-ac}
 \end{figure}
 
-\myparatight{Optimal AC} We use a simple oracle methodology, called {\it optimal AC}, to illustrate the impact of the aggregation granularity on the prediction accuracy. We assume a prediction algorithm with a one-minute window, i.e., it makes prediction based on the quality samples collected during the last minute.
+\myparatight{Optimal AC} 
 
-Figure~\ref{fig:example-optimal-ac} shows an example of optimal AC
-with three attributes. For a finest granularity partition (e.g.,
+To illustrate the impact of the aggregation granularity on the
+prediction accuracy, we use an oracle methodology, called {\it optimal
+  AC}. This methodology aims to determine the optimal AC for each
+session $s$, that is, the AC which provides the best prediction
+quality to $s$.
+
+Recall that given an AC, any prediction algorithm provides the same
+predicted quality for all sessions in the same AC partition (i.e., it
+cannot dscrimnate between two sessions in the same partition), and
+that the prediction error is minimized when the predicted quality for
+a partition is the mean of the actual quality values over all sessions
+in that partition.
+
+To illustrate this methodoly, consider session $s$ at time $t$, where
+$s$ is identified by attributes $[CDN-1, ASN-1, Site-1]$ and has an
+actual quality at time $t$ of $0.2$. Then, the optimal AC for this
+session is the AC that provides the best predition for $s$ based only
+on the information collected \emph{before} time $t$.  In particular,
+Figure~\ref{fig:example-optimal-ac} shows all possible partitions that
+match at least one of the attributes of session $s$. In this case, the
+partition with the predicted quality closest to the actual quality of
+$s$ is the partition defined by attribute values $[CDN-1, Site-1]$
+(shown by the red rectangle). Thus, the optimal AC for $s$ is $[CDN,
+Site]$.
+
+\comment{
+Figure~\ref{fig:example-optimal-ac} shows all possible ACs
+where each layer corresponds to a given level of aggregation, i.e.,
+ACs with one attribute, ACs with two attributes, and so on.
+
+an example of optimal AC
+with three attributes. For the finest granularity partition (e.g.,
 $[CDN1,ASN1,Site1]$) at $t$-th minute, we first build a hierarchy,
 where each layer corresponds to a particular aggregation level: no
 aggregation, aggregation by one attribute, aggregation by two
-attributes, and full aggregation (e.g., see left hands side of
+attributes, and full aggregation (e.g., see left hand side of
 Figure~\ref{fig:example-optimal-ac}).  Remember that the optimal
 prediction of a given partition is the mean of the actual quality
 across all sessions in that partition (see
-\Section~\ref{subsec:lowerbound}).  
+\Section~\ref{subsec:lowerbound}).
 % Then, the optimal AC for this partition is the degree of
 % aggregation that corresponds to the
 % prediction value closest to the optimal prediction for the finest
@@ -167,13 +243,14 @@ For instance, in Figure~\ref{fig:example-optimal-ac}, if the optimal
 prediction of the targeted partition is 0.2, the optimal AC (colored
 in red) is the one with the closest prediction to 0.2, i.e., $(ASN,
 CDN)$.
+}
 
 Note that no practical algorithm can compute the optimal AC as this
 requires an oracle approach that knows the quality information of
-every session under prediction. However, the optimal AC reflects the
-best aggregation of historical data that gives the closest prediction
-for next minute's sessions. Next, we use empirical analysis over our
-data sets to evaluate the characteristics of the optimal ACs.
+every session \emph{after} the predicted. However, the optimal AC reflects
+the best aggregation of historical data that gives the closest
+prediction for next minute's sessions. Next, we use empirical analysis
+over our data sets to evaluate the characteristics of the optimal ACs.
 
 \begin{figure}[h!]
 \centering
