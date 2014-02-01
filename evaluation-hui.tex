@@ -49,42 +49,32 @@ In summary, the current implementation of GO is horizontally scalable and can pr
 \label{subsec:eval_setup}
 
 
-The GO system is currently deployed in multiple premium publishers. However, there are several practical difficulties of evaluating the performance of GO in production deployment environments.  First, most publishers do not want to perform A/B testing when they understand that the performance of some of the streams may not be optimal when they are grouped by the “non-optimized” version of the algorithm. Second, with all publishers, there are usually additional business considerations beyond the goal of optimizing the QoS of the video streams. For example, when using multiple CDNs, a publisher would get a lower price from a particular CDN if it would allocate more than a certain percentage of its total traffic to the CDN.  This “CDN allocation policy” would put additional constraint on the GO optimization algorithm.  Consider a scenario that a publisher has three CDNs $X$, $Y$, and $Z$, and have minimum committed usage percentage on $X$ and $Y$. This would mean that even if CDN $Z$ is the best performing CDN based on the prediction algorithm, beyond certain percentage of traffic, no additional streams would be allocated to it. 
+The GO system is currently deployed in multiple premium publishers. However, there are several practical difficulties of evaluating the performance of GO in production deployment environments.  First, most publishers do not want to perform A/B testing when they understand that the performance of some of the streams may not be optimal when they are grouped by the non-optimized version of the algorithm. Second, with all publishers, there are usually additional business considerations beyond the goal of optimizing the QoS of the video streams. For example, when using multiple CDNs, a publisher would get a lower price from a particular CDN if it would allocate more than a certain percentage of its total traffic to the CDN.  This CDN allocation policy would put additional constraint on the GO optimization algorithm.  Consider a scenario that a publisher has three CDNs $X$, $Y$, and $Z$, and have minimum committed usage percentage on $X$ and $Y$. This would mean that even if CDN $Z$ is the best performing CDN based on the prediction algorithm, beyond certain percentage of traffic, no additional streams would be allocated to it. 
 
 In this section, we are presenting performance results from one publisher who has agreed to allow us to do A/B testing in production with iOS devices (both iPhone and iPad) on their short-form videos (5 minutes).  In this deployment, the publisher utilizes three CDNs with minimum committed percentage usage on each of them and encodes video in 5 bitrate levels (from 700Kbps to 3.5Mbps).The publisher uses the GO system to select the CDN and the nitrate at the start of each session.  The video app is using Apple’s native player for video playback and  HLS protocol as the adaptive 
 bitrate switching algorithm to change the bitrate during the video session (without CDN switch). 
  
 The results are collected from Jan 1st, 2014 to Jan 25th, 2014 (total of 25 days) with 26.1 million sessions (870K sessions on average per day).
-We compare the performances of two algorithms: {\it randomized} baseline and {\it optimized} (by GO).
-:claim such observation apply to all algorithms.
-
-To account for viewers leaving in the middle of the video play, note that the x-axis is chosen as the percentage of actual 
-video play duration instead of content length. 
-In this figure, we include another content provider who provides long-formed content (one hour) on iOS platforms, and we have similar observations. This suggests the importance of initial bitrate selection, through which viewers can have a smoother video playback experience.
-
-\begin{figure}[h!]
-\centering
- \includegraphics[width=0.3\textwidth] {figures/switch-time-dist.pdf}
-\tightcaption{When do adaptive bitrate switches happen? \jc{what's the threshold between long and short form content}}
-\label{fig:switch-time-dist}
-\end{figure}
+We compare the performances of two algorithms:  baseline, which randomly selects the initial bit rate and CDN at the start of each session,  and GO.
 
 
-\myparatight{Reducing number of  bitrate switch}
-We evaluate the switching stability by looking at the number of switches within the first minute of the video play.
-We chose one minute because the videos are 5 minutes long and first minute account for 60\% of the switches (see Figure~\ref{fig:switch-time-dist}). 
-Since HLS has 10 second video chunks, the maximum number of switches is 6 in this case.
-Figure~\ref{subfig:reduce-switch} shows the number of bitrate switches for optimized and random decisions. 
-Overall GO can reduce the number of switches by 16\%, and it also increases the number of non-switching-interrupted sessions 
-(sessions that experience no switching) by 10\%.
-It is possible the reason GO reduces the number of switches is shorter video plays, however, we observed engagement lift
-(viewers watch longer because of better quality) at the same time of reduction in number of switches.
+
+
+\myparatight{Buffering Ratio and Average Bit Rate}
+In Figure~\ref{fig:perf-impr}(a), we show the percentage of improvement of GO over the baseline with two performance metrics: buffering ratio and average bit rate.  In particular, for buffering ratio, we show the percentage of {\em reduction} of buffering ratio for all sessions served by the GO algorithm in each day as compared to all sessions served by the baseline algorithm on the same day; for average bit rate, we show the percentage of {\em increase} of average bitrate over the entire session duration for all sessions served by the GO algorithm in each day as compared to all sessions served by the baseline on the same day.  We present the comparison over a continuous time period of 10 days. There are several points worth noting. First, both metrics are improved simultaneously with GO as compared to the baseline. In contrast, with normal adaptive bitrate protocols without special optimization, the improvement of one metric usually results in the deterioration of the other metric — for example, the reduction of the buffering ratio usually comes together with the reduction of the average bitrate also.   With GO, both metrics are 
+improved simultaneously.  Second, the performance improvement varies daily.  The most likely explanation is that it is due to the CDN performance variation.  To understand this better, we compare the performance of all sessions under GO and the performance of all sessions on each of the three CDNs under the baseline algorithm. This is shown in Figure~\ref{fig:perf-impr}(b) and Figure~\ref{fig:perf-impr}(c) respectively with buffering ratio and average bitrate as performance metrics respectively.  For each Figure, we show the comparison in two separate days.  Some points to note. First, the performances of sessions for different CDNs under the baseline do vary, with respect to both buffering ratio and average bitrate. Second, the sessions under GO performs better than even the sessions for even the best of the three CDNs. This suggests that GO is not only looking for the best CDN on average, but also 
+differentiated CDN performance in finer granular partition across time and space.  In addition, if one compares the relative performance among each individual CDNs, the ranking varies between the two days. In particular, with respect to the buffering ratio, CDN3 is the best on Dec 23, but CDN1 is the best on Jan 9; with respect to the average bitrate, CDN 3 is the best on both days.  
+ 
+\myparatight{Interaction with the Adaptive Bitrate Protocol}
+Since GO in this deployment only selects the bitrate and CDN at the beginning of each session and the HLS protocol controls the bitrate adaptation for the duration of the session, we would like to understand whether how the initial selection decisions by GO impact the future adaptation decisions made by HLS. 
+We look at two metrics: the number of bitrate switches per session made by HLS and the ratio between the initial bitrate selected by GO and the dominant bitrate, which is defined to be the bitrate that the sessions plays for the longest duration. A good initial selection would result in less number of bitrate switches in the future and the initial bitrate to dominant bitrate to be close to 1. 
+Figure~\ref{fig:switch-time-dist}) (a) and (b) show the comparison between Go and the baseline algorithm with respect to both metrics.  As shown in the figure, GO outperforms the baseline algorithm with respect to both metrics. 
 
 
 
 \begin{figure}[h!]
 \centering
-\subfigure[Number of bitrate switches \jc{Xi, revert to last version?}]
+\subfigure[Number of bitrate switches]
 {
   \includegraphics[width=0.24\textwidth] {figures/eval-reduceswitch.pdf}
   \label{subfig:reduce-switch}
@@ -100,22 +90,9 @@ It is possible the reason GO reduces the number of switches is shorter video pla
 \end{figure}
 
 
-\myparatight{Dominant vs. Initial Bitrate}
-Another metric we use to evaluate GO initial bitrate selection is the rate between dominant bitrate and initial bitrate. Dominant bitrate
-is the bitrate that the sessions plays for the longest duration, and ideally this number should be 1. Figure~\ref{subfig:initvsdom} shows the ratio of initial bitrate to dominant bitrate. Overall GO is 19\% closer to the dominant bitrate than randomized bitrate selection. 
-The figure also shows that for 60\% of the GO-optimized sessions, the initial bitrate selected by GO is almost the same as the dominant bitrate.
-%We would like to emphasize again that GO does not make the improvement at the price of engagement, and GO in fact improves engagement.
-
 
 \tightsubsection{Impact of Policy Constraints}
 
-
-\begin{figure}[h!]
-\centering
- \includegraphics[width=0.3\textwidth] {figures/ab-testing-figures/policy-issue}
-\tightcaption{}
-\label{fig:switch-time-dist}
-\end{figure}
 
 
 In summary, our early experience of GO in the real world suggests that it is a promising step towards the global control plane.
