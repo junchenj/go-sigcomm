@@ -12,11 +12,11 @@ Specifically, we aim to answer three questions:
 
 \tightsubsection{Methodology}
 
-We study these questions by using offline trace-driven analysis. While we have built and deployed GO in production (see \Section~\ref{sec:eval} for results), we believe these questions should be better addressed using offline trace-driven analysis, as it excells in several importnat dimensions:
+We study these questions by using offline trace-driven analysis. While we have built and deployed GO in production (see \Section~\ref{sec:eval} for results), we believe these questions should be better addressed using offline trace-driven analysis, as it excells in several important dimensions:
 \begin{packedenumerate}
 	\item Higher overage: The real world experiments only have access to the video traffic of a single video site using a single type of OS and a single streaming protocol. %The greatly constraints its coverage on types of traffic.
 	\item Higher scale of simultaneous expriments: Since the real world experiment only controls one site's traffic, it is infeasible to compare a large number of configurations or algorithms in parallel (in practice we can do at most 3-4) and ensure each of them receives sufficient traffic to get usable confident intervals.
-	\item Higher diversity in performance: As we will see, quality improvement is greatly impacted by the diversity in the performance outcome among different decisions (e.g., different CDNs). However, given our deployment limitations, we can only observe a limited number of patterns or performance diversity in real world expreiments.
+	%\item Higher diversity in performance: As we will see, quality improvement is greatly impacted by the diversity in the performance outcome among different decisions (e.g., different CDNs). However, given our deployment limitations, we can only observe a limited number of patterns or performance diversity in real world expreiments.
 	\item More controlled experiments: In a real deployment is also impossible to conduct sensitivity analysis (e.g., the third question) where we would like to change one parameter (e.g., CDN performance) at a time in a controlled manner.
 \end{packedenumerate}
 
@@ -66,7 +66,7 @@ use controlled synthetic input to study its behavior. As expected, GO
 identifies the performance changes and makes decisions to reflect
 these changes.
 
-\myparatight{Prediction-based dececisions} When making a decision, GO
+\myparatight{Prediction-based decisions} When making a decision, GO
 simply selects for each session under prediction the decision that has
 the best predicted quality in a certain metric. Note that GO always
 leaves a small fraction of traffic to be randomly allocated to
