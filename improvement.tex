@@ -145,11 +145,21 @@ average bitrate.
 \tightsubsubsection{Impact of Prediction Accuracy}
 \label{subsec:impact-accuracy}
 
-To quantify the impact of prediction accuracy, we use the augmented trace-driven testing since we need the true quality so that we can controll prediction error. We change GO's prediction error and evaluate the improvement ratio and optimality. 
+%To quantify the impact of prediction accuracy, we use the augmented
+%trace-driven as it provides us the actual quality which is needed to
+%to quantify the prediction error. We change GO's prediction error and
+%evaluate the improvement ratio and optimality.
 
-
-We use the augmented trace-driven testing to control the prediction error and quantify its impact on quality improvement. Given a session and one decision, if the true quality is $q$ and $p$ is the prediction made by GO, we use a parameter called stretch ratio $r_a$ to change the prediction $p$ to new prediction $p'=q+(p-q)r_a$ so that the prediction error is exactly stretched by $r_a$. 
-In addition, we compare with an oracle which always makes the best decision based on true quality of each decision. To simplify the discussion, we assume each session has two  possible decisions. 
+We use the augmented trace-driven testing to control the prediction
+error and quantify its impact on quality improvement. Given a session
+and a decision, let $q$ and $p$ by the actual quality and the
+prediction quality made by GO, respectively. We then use a parameter
+called stretch ratio $r_a$ to change the prediction $p$ to a new
+prediction $p'=q+(p-q)r_a$ so that the prediction error is exactly
+stretched by $r_a$.  In addition, we compare with an oracle which
+always makes the best decision based on the actual quality of any
+given decision. To simplify the discussion, we assume we can make two
+distinct decisons for each session.
 
 \begin{figure}[h!]
 \centering
@@ -167,7 +177,16 @@ It shows a clear degredation in improvement ratio. When stretch ratio is close t
 \tightsubsubsection{Impact of Quality Diversity}
 \label{subsec:impact-diversity}
 
-To quantify the impact of quality diversity among multiple decisions, we fix the prediction error given by GO, and use a stretch ratio $r_b$ to control the quality diversity between multiple decisions. To simplify the discussion, we again assume each session has two possible decisions. Given a session with the true quality of two decisions being $q_1, q_2$ (assume $q_1\leq q_2$), we change their value to $q_1'=q_1, q_2=q_1+(q_2-q_1)r_b$. We show quality improvement in absolute number over the baseline algorithm, as well as the optimality.
+To quantify the impact of quality diversity among multiple decisions,
+we fix the prediction error given by GO, and use a stretch ratio $r_b$
+to control the quality diversity between multiple decisions. To
+simplify the discussion, we again assume we can only make two distinct
+decisions for each session. Let $q_1, q_2$ be the actual quality
+values corresponding to the two decisions for a given
+session. Assuming $q_1\leq q_2$, we change these actual quality value
+to $q_1'=q_1, q_2=q_1+(q_2-q_1)r_b$. We show quality improvement in
+absolute number over the baseline algorithm, as well as the
+optimality.
 
 %Intuitively, it is expected that with larger quality diversity among multiple decisions, we should see that GO's performance should be closer to the oracle approach since the gap between decisions' outcome is so large that the best decision will be made with any prediction error. 
 
@@ -182,6 +201,7 @@ To quantify the impact of quality diversity among multiple decisions, we fix the
 {
         \includegraphics[width=0.24\textwidth]{figures/newfig/trendDiversity-metricId2-keyGlobal-partition.pdf}
 }
+
 \tightcaption{Impact of stretch of quality diversity $r_b$ on quality improvement. Green lines with values on the left y axis show GO's improvement over the randomized baseline and red lines with values on the right y axis show optimality (GO's improvement/oracle's improvement)}
 \label{fig:trace-diversity}
 \end{figure}
