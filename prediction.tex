@@ -36,10 +36,10 @@ Then, the best ACS is the one that gives the minimal overall prediction error ov
 In this context, we still have two decisions to make: searching complexity (greedy vs. exhaustive search) and granularity of selection.
 
 
-\myparatight{Greedy vs. exhaustive search\jc{This part should be removed or downplayed}} One problem with the exhaustively search is that even in offline analysis, the potential space to search for the best ACS is too huge (with $k$ attributes, there will be $2^k$ ACs, and in total $2^{2^k}$ ACSes). Instead, we examine a greedy algorithm which finds a good ACS in $O(2^k)$ steps, called {\it greedy search}, and compare it against exhaustive search result for $k=3$ attributes on which exhaustive search is possible. The greedy algorithm incrementally adds to an existing ACS one AC at a time which reduces the prediction error with most magnitude.
+\myparatight{Greedy vs. exhaustive search} One problem with the exhaustively search is that even in offline analysis, the potential space to search for the best ACS is too huge (with $k$ attributes, there will be $2^k$ ACs, and in total $2^{2^k}$ ACSes). Instead, we examine a greedy algorithm which finds a good ACS in $O(2^k)$ steps, called {\it greedy search}, and compare it against exhaustive search result for $k=3$ attributes on which exhaustive search is possible. The greedy algorithm incrementally adds to an existing ACS one AC at a time which reduces the prediction error with most magnitude.
 We use our dataset and three attributes of $ASN$, $ConnectionType$ and $OS$ in addition to $Initial CDN$ and $Initial Bitrate$ which are by default selected.
 Table~\ref{tab:greedy-exhaustive} compares the ACS selected by two methods. It shows that in most cases ($\sim$90\% of minutes) the ACS selected by the two methods are identical and that even when different, they are still very similar\footnote{Jaccard index between two sets $A,B$ is $\frac{|A\cap B|}{|A\cup B|}$}. This means that a near-optimal ACS can be identified in tractable steps.
-\xil{a natural question is what if $k>3$, we need to justify why we do not do that experiment. also, since this is offline, we need to justify the contribution here (such as it takes how many days to do exhaustive search on 10 attributes).}
+%\xil{a natural question is what if $k>3$, we need to justify why we do not do that experiment. also, since this is offline, we need to justify the contribution here (such as it takes how many days to do exhaustive search on 10 attributes).}
 
 \begin{table}[t]
 \begin{center}
@@ -56,10 +56,10 @@ Mean of Jaccard & 0.8 & 0.83 & 0.92 & 0.83 \\
 \end{table}
 
 \myparatight{Granular of selection} The ACS selection could be to find one ACS that produces best overall prediction accuracy called global ACS, or to find one ACS for each (non-overlapping) partition that gives best prediction individually, called per-partition ACS. 
-\xil{need an example}
+%\xil{need an example}
 It is hard to theoretically justify which one is better. However, we use our dataset to demonstrate that global ACS is sufficiently good and sometimes better than per-partition ACS.
 Figure~\ref{fig:global-acs} shows the CDF of prediction error on buffering ratio on each session under prediction and use it to compare global ACS and per-partition ACS. For per-group ACS, we consider the finest group (i.e., the selected ACS can vary across the finest groups). It shows that they perform similarly and the global ACS performs even slightly better, possibly because per-finest-group ACS has side-effect of overfitting.
-\xil{again we need to justify more because this is offline. a related question is what if things change?}
+%\xil{again we need to justify more because this is offline. a related question is what if things change?}
 
 \begin{figure}[h!]
 \centering
