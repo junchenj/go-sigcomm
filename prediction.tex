@@ -112,7 +112,7 @@ To alleviate this, we use a simple idea from Bayesian statistics~\cite{flach2012
 \tightsubsection{Evaluation of Prediction Error}
 \label{subsec:minieval}
 
-To conclude the section, we compare GO (with ACS selection and pseudocount prior) against two oracle approaches -- the lower bound (\Section~\ref{subsec:lowerbound}) and the optimal AC (\Section~\ref{subsec:aggregation}).  Recall that the optimal AC reflects the best possible prediction using an appropriate AC of historical data if quality informaton of sessions under prediction is known. The lower bound represents the best possible prediction in theory with no constraint on the way we use historical data. Figure~\ref{fig:compare-to-naive} shows the distribution of overall prediction error at each minute using different methods. It suggests that GO performs very similarly to optimal AC (e.g., with a difference of 80 Kbps in average bitrate) and close to the lower bound (e.g., a difference of 300 Kbps in average bitrate). 
+To conclude the section, we compare GO (with ACS selection and pseudocount prior) against two oracle approaches -- the lower bound (\Section~\ref{subsec:lowerbound}) and the optimal AC (\Section~\ref{subsec:aggregation}). We use the approximation rate to lower bound defined by the ratio between a prediction error and the lower bound to see if GO prediction algorithm is close to the lower bound. Recall that the optimal AC reflects the best possible prediction using an appropriate AC of historical data if quality informaton of sessions under prediction is known. The lower bound represents the best possible prediction in theory with no constraint on the way we use historical data. Figure~\ref{fig:compare-to-naive} shows the distribution of overall prediction error at each minute using different methods. It suggests that GO gives very similar prediction error to optimal AC (with less than 10\% difference in all metrics) and always close to the lower bound (e.g., with a difference of less than 30\% in buffering ratio). 
 
 To put this prediction accuracy into context, we also consider two strawman prediction algorithms that do not use adaptive degree of aggregation.
 \begin{packeditemize}
@@ -120,10 +120,11 @@ To put this prediction accuracy into context, we also consider two strawman pred
 	\item Finest AC: Predict using average of the finest partition that has any data.
 \end{packeditemize}
 
-All these results indicate that GO performs better than both strawman, with reduction in prediction accuracy of almost 25+\% from coarsest AC and 1-10\% from finest AC all four metrics. This confirms the observation in \Section~\ref{subsec:aggregation} that the best level of aggregation is often dynamic and in between the coarsest and finest aggregation.
+All these results indicate that GO performs better than both strawman, with almost 25+\% closer to the lower bound than coarsest AC and 1-10\% closer to the lower bound than finest AC in all four metrics. 
+This confirms the observation in \Section~\ref{subsec:aggregation} that the best level of aggregation is often dynamic and in between the coarsest and finest aggregation.
 
 
-Finally, we look into the result in more details. Figure~\ref{fig:compare-partition} partitions the results by different Sites and picks the largest 3 Sites in which we compare GO's prediction error in buffering ratio and average bitrate with the strawman (Coarsest) as well as the lower bound. As shown, with the lower bound varying across different Site, GO can always achieve closer-to-optimal prediction accuracy (i.e., low overall prediction error) than the strawman.
+Finally, we look into the result in more details. Figure~\ref{fig:compare-partition} partitions the results by different Sites and picks the largest 3 Sites of our dataset, and we compare GO's prediction error in buffering ratio and average bitrate with the strawman (Coarsest). As shown, GO can always achieve much closer-to-optimal prediction accuracy (i.e., low overall prediction error) in these popular Sites than the strawman.
 
 \begin{figure}[h!]
 \centering
