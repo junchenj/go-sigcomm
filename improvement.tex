@@ -156,13 +156,12 @@ also provide a lower buffering ratio or lower join time than $B$.
 
 We use the augmented trace-driven testing to control the prediction
 error and quantify its impact on the quality improvement. Given a
-session and a decision, let $q$ and $p$ by the actual quality and the
-prediction quality for that decision, respectively. We then use a parameter
-called stretch ratio $r_a$ to change the prediction $p$ to a new
-prediction $p'=q+(p-q)r_a$ so that the prediction error is exactly
-stretched by $r_a$.  In addition, we compare with an oracle which
-always makes the best decision based on the actual quality of any
-given decision. To simplify the discussion, we assume we can make two
+session and a decision, let $q$ be the actual quality and let $p$ be
+the predicted quality for that session and decision. We then use a
+stretch parameter $r_a$ to control the prediction error by changing
+the predicted quality from $p$ to $p'=q+(p-q)r_a$.  We compare then
+the quality improvement with an oracle which always makes the best
+decision. To simplify the discussion, we assume we can make two
 distinct decisons for each session.
 
 \begin{figure}[h!]
@@ -172,8 +171,20 @@ distinct decisons for each session.
 \label{fig:trace-accuracy-2}
 \end{figure}
 
-Figure~\ref{fig:trace-accuracy-2} shows GO's improvement ratio when average bitrate is used as utility function and evaluated metric.
-It shows a clear degredation in improvement ratio. When stretch ratio is close to zero, GO gives perfect prediction and thus GO gives the same quality as the oracle (i.e., GO's optimality is one). With stretch ratio larger than 0.7, every 10\% decrease in prediction error gives 20Kbp increase in improvement ratio of average bitrate. It suggests that the improvement is sensitive to accuracy -- if current prediction error is reduced by 30\%, GO will have 12.5\% more improvement. 
+Figure~\ref{fig:trace-accuracy-2} shows GO's improvement ratio when
+average bitrate is used both as utility function and evaluation
+metric.  It shows a clear degredation of the improvement ratio as the
+strecth parameter, $r_a$ increases, and, consequently as the predicted
+error increases. When stretch ratio is close to zero, GO achieves
+perfect prediction matching the oracle (i.e., GO's optimality is
+one). 
+%With stretch ratio larger than 0.7, every 10\% decrease in the
+%prediction error leads to a 20Kbp increase in the improvement ratio of
+%average bitrate. 
+These results illustrate that, as expected, the quality improvement is
+sensitive to accuracy. 
+%For example, if the prediction error is reduced
+%by 30\%, GO will achieve 12.5\% better quality improvement.
 %Also, note that with smaller stretch rate, the improvement stablizes as the improvement converges to oracle improvement with accurate prediction.
 
 
@@ -210,8 +221,13 @@ optimality.
 \label{fig:trace-diversity}
 \end{figure}
 
-Figure~\ref{fig:trace-diversity} shows the result with average bitrate and join time as the utility function and evaluation metrics. The left y axis shows the improvement of GO. In both figures, they show a close-to-linear relationship between improvement and quality diversity among decisions. 
-The right y axis gives the optimality. Both figures show that when the diversity increases for 100\%, GO will give almost the same improvement as oracle approach. 
+Figure~\ref{fig:trace-diversity} shows the results when the average
+bitrate and join time are used as utility functions as well as
+evaluation metrics. Both figures show a close-to-linear relationship
+between the improvement and the quality diversity across decision
+outcomes.  In addition, both figures show that when the diversity
+approaches 100\%, GO approaches the performance of the oracle
+approach.
 
 
 
