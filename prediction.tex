@@ -1,7 +1,6 @@
 \tightsection{The GO Prediction Algorithm}
 \label{sec:prediction}
-In this section, we present a practical algorithm that addresses the challenges presented in \Section~\ref{subsec:aggregation}. We show that this algorithm makes similar predicted quality to optimal AC, and show that the resulting prediction error is much closer to the lower bound introduced in \Section~\ref{subsec:lowerbound} compared with representative strawman algorithms.
-%\jc{We don't discuss temporal attribute aggregation. Need to say something about that. In all experiments, I used 30 minutes time window}
+In this section, we present a practical algorithm that addresses the challenges presented in \Section~\ref{subsec:aggregation}. We show that this algorithm yields predictions similar to those of the (unattainable) optimal AC, and we show that the resulting prediction error is much closer to the lower bound introduced in \Section~\ref{subsec:lowerbound} than other strawman algorithms.
 
 This section begins with the basic framework of prediction algorithm (\Section~\ref{subsec:basic}). We then present two techniques and their empirical evaluation to address the limitations of the basic algorithm so as to improve the prediction accuracy (\Section~\ref{subsec:acs}, \Section~\ref{subsec:sudo}). Finally, \Section~\ref{subsec:minieval} compares the prediction error of GO with that of strawman algorithms (where ACs are not dynamically chosen) as well as the lower bound.
 
@@ -10,31 +9,31 @@ This section begins with the basic framework of prediction algorithm (\Section~\
 \label{subsec:basic}
 The tradeoff between estimation error and bias via aggregation naturally leads us to consider a class of algorithms that compute average quality outcomes for partitions of sessions under different attribute sets, and then {\it dynamically} choose the attribute set that seems to work well for a given session. 
 %However, it is difficult to find a globally best AC, it is useful to hedge our bets by taking a weighted combination of averages. \xil{did we prove this?}
-We propse the following basic structure for the algorithm. The algorithm chooses a set of ACs offline (called {\it ACS}), which can consist of all possible ACs $G$, i.e., full ACS, or a subset of them. 
-We explain why full ACS is not the best choice and how we select the ACS in \Section~\ref{subsec:acs}. When an ACS is chosen offline, the algorithm starts collecting quality metrics for all the identical partitions of each AC in the ACS 
-(of which Figure~\ref{fig:example-optimal-ac} gives an example when ACS consists of all ACs of the three attributes). Based on the quality metrics collected, each identical partition will be given a weight so that the weights reflect statistical properties of the identical groups and are thus updated when new quality samples are collected.
-Finally, when receiving a session $s$ under prediction, for $g_i\in G$, let $w_i$ be the weight given to the identical partition of $g_i$ that includes $s$, and the mean quality of this identical group is $p_i$,
-the prediction is an weighted sum of the mean quality of each partition, $p=\frac{1}{\sum_{g_i\in G} w_i}\sum_{g_i\in G} w_ip_i$.
+We propose the following basic structure for the algorithm. The algorithm chooses a set of ACs offline (called {\it ACS}), which can consist of all possible ACs $G$, i.e., full ACS, or a subset of them. 
+We explain why full ACS is not the best choice and how we select the ACS in \Section~\ref{subsec:acs}. When an ACS is chosen offline, the algorithm starts collecting quality metrics for all the identical groups of each AC in the ACS 
+(of which Figure~\ref{fig:example-optimal-ac} gives an example when ACS consists of all ACs of the three attributes). Based on the quality metrics collected, each identical group will be given a weight so that the weights reflect statistical properties of the identical groups and are thus updated when new quality samples are collected.
+Finally, when receiving a session $s$ under prediction, for $g_i\in G$, let $w_i$ be the weight given to the identical group of $g_i$ that includes $s$, and the mean quality of this identical group is $p_i$,
+the prediction is an weighted sum of the mean quality of each group, $p=\frac{1}{\sum_{g_i\in G} w_i}\sum_{g_i\in G} w_i p_i$.
 
 The next question then becomes how to design a weighting scheme to balance between estimation error and bias to minimize overall prediction error. 
 %Intuitively, we would like to use larger $w_i$ for finer granular partitions if they do not have high estimation error. 
 
-George et al~\cite{george2008value} consider this problem and the proposed prediction algorithm WIMSE, for Weighted Inverse Mean Squared Error.  Inverse-mean-squared-error weighting has the following desirable property: If the mean quality $p_i$ of each partition is statistically independent, then the resulting prediction is an optimal estimator in the sense that it has the minimal overall prediction error among all samples drawn from the same distribution~\cite{george2008value}.
-While the algorithm achieves optimality under some assumption and George et al have found that WIMSE can nevertheless work well in most cases, there are two problems with this algorithm, which we will try to address in the following sections.
+George et al~\cite{george2008value} consider this problem and proposed an algorithm called WIMSE (short for Weighted Inverse Mean Squared Error).  As the name suggests, the weights $w_i$ are chosen to be the inverse of an estimate of the mean squared error (MSE) defined in \Section~\ref{sec:challenges}.  Inverse-MSE weighting has the following desirable property: If the mean quality $p_i$ of each group is statistically independent and the mean squared error is estimated exactly, then the resulting prediction is an optimal estimator in the sense that it has the minimal overall prediction error among all samples drawn from the same distribution~\cite{george2008value}.
+In practice neither condition is met.  George et al have found that WIMSE can nevertheless work well in most cases, but there are two problems with this algorithm, which we will try to address in the following sections.
 \begin{packeditemize}
-	\item {\bf ACS selection:} In our setting the $p_i$ values are based on overlapping data and are therefore not always independent. For example, if a coarser-grained partition is generated by aggregating together finer-grained groups, both the coarser and finer groups will receive similar weights as their mean qualities are dependent; including both ACs doubles the weight of the corresponding groups for no principled reason. We present a algorithm to efficiently select an ACS that performs empirically the best with WIMSE in~\Section~\ref{subsec:acs}.
-	\item {\bf Non-normal distribution:}  WIMSE becomes challenging if samples in fine-grained partitions follow a non-normal distribution and very sparse. Especially when predicting for buffering ratio or start failure, where the quality of most samples are zero (i.e., no buffering happened or video successfully started), it is very likely to have a few samples with the same value and thus, lead to large bias.  We address this by borrowing the idea of pseudocount prior in~\Section~\ref{subsec:sudo}.
+	\item {\bf ACS selection:} In our setting the $p_i$ values are based on overlapping data and are therefore not always independent. For example, if a coarser-grained group is generated by aggregating together finer-grained groups, both the coarser and finer groups will receive similar weights as their mean qualities are dependent; including both ACs doubles the weight of the corresponding groups for no principled reason. We present a algorithm to efficiently select an ACS that performs empirically the best with WIMSE in~\Section~\ref{subsec:acs}.
+	\item {\bf Misestimation of MSE:}  Estimating the MSE becomes challenging if samples in fine-grained groups are very sparse and if quality outcomes follow a skewed distribution. Especially when predicting for buffering ratio or start failure, where the quality of most samples are zero (i.e., no buffering happened or video successfully started), it is very likely that the prediction error estimated from data is wrong.  We address this by borrowing the idea of a pseudocount prior in~\Section~\ref{subsec:sudo}.
 \end{packeditemize}
 
 \tightsubsection{Efficient ACS Selection}
 \label{subsec:acs}
 The key for WIMSE to work in our use case (with the power set of possible ACs, or in total, $2^k$ in case of $k$ attributes) is to select the right ACS.
-The most straightforward approach of using full ACS does not work well not only because the independence assumption is dramatically violated, 
-but also the computational costs of WIMSE grow exponentially with the more attributes.
+The most straightforward approach of using the full power set of ACs does not work well not only because the independence assumption is dramatically violated, 
+but also the computational costs of WIMSE grow exponentially with the number of attributes.
 
 To pick the best ACS, we take a data-driven approach, where we split our data sets into training and testing data sets. 
 Then, the best ACS is the one that gives the minimal overall prediction error over the test set using WIMSE with this ACS. 
-In this context, we still have two decisions to make: searching complexity (greedy vs. exhaustive search) and granular of selection.
+In this context, we still have two decisions to make: searching complexity (greedy vs. exhaustive search) and granularity of selection.
 
 
 \myparatight{Greedy vs. exhaustive search\jc{This part should be removed or downplayed}} One problem with the exhaustively search is that even in offline analysis, the potential space to search for the best ACS is too huge (with $k$ attributes, there will be $2^k$ ACs, and in total $2^{2^k}$ ACSes). Instead, we examine a greedy algorithm which finds a good ACS in $O(2^k)$ steps, called {\it greedy search}, and compare it against exhaustive search result for $k=3$ attributes on which exhaustive search is possible. The greedy algorithm incrementally adds to an existing ACS one AC at a time which reduces the prediction error with most magnitude.
