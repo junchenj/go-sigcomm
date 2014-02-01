@@ -11,7 +11,7 @@ In this section, we present the high level GO implementation. While there are mu
 Our implementation uses Spark~\cite{spark} as the underlying compute framework, and the problem can be captured in a single map-reduce stage. 
 Data samples are loaded in parallel from an HDFS source and distributed amongst the cluster. Each node then maps its share of samples to a set of 
 preliminary buckets. Common buckets are then shuffled across the cluster and the results are aggregated and collected onto a master machine. 
-Currently it takes GO system 12 seconds to process 500K identical groups on a 4-node cluster, without riguous performance optimization.
+Currently it takes GO system 12 seconds to process 500K identical groups on a 4-node cluster, without rigorous performance optimization.
 It is also worth noting that all steps involved in creating the table are horizontally scalable.
 
 \comment{
