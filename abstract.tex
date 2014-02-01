@@ -8,13 +8,17 @@ With more and more interactive and video applications being deployed
   as they may take too long to converge, or react long after the
   quality has been already impacted. 
 
-  In this paper we make two arguments. First, we argue that to
-  achieve better quality, one needs to accurately predict the
-  outcomes of the available choices (e.g., would a streaming
-  video client be able to sustain a particular bitrate?). Second, we argue that to
+  In this paper we make three arguments. First, we argue that 
+  being able to accurately predict the outcomes of the available choices 
+  (e.g., would a streaming video client be able to sustain a particular bitrate?) 
+  can greatly help to achieve better QoS. Second, we argue that to
   accurately predict the outcome of a given choice, we need to
-  leverage the information available from other streams or
-  connections. We further propose a global control architecture that
+  leverage the information available from other sessions, streams or
+  connections. Third, to make a prediciton on a new session, 
+  there may not have enough sessions that are exactly the same, we need
+  to use information from ``similar" sessions using aggregation.
+
+  We further propose a global control architecture that
   continuously collects performance information of ongoing sessions
   and uses this information to accurately predict the performance
   outcome of sessions for a given choice. In particular, we present
@@ -22,12 +26,14 @@ With more and more interactive and video applications being deployed
   called Video Global Optimization (GO). GO instruments each client
   streaming video to send quality-related information to a backend,
   which processes the quality information in real-time and provides
-  hints to clients about the best bitrate or CDN to start with or
-  switch to. Using standard quality metrics, we demonstrate that by
-  making initial bitrate and CDN selections, GO can simultaneously
+  hints to clients about the best bitrate or CDN to start with.
+  We implemented GO and deployed it on one video site, and demonstrated 
+  that by making initial bitrate and CDN selections, GO can simultaneously
   increase the average bitrate and reduce the amount of time spent
   buffering.  Improvement is 10-20\% on average, and up to 30\% for certain
-  classes of clients.
+  classes of clients. While our first GO deployment cannot achieve its potential
+  due to business policies and incremental deployment constraints, 
+  we demonstrated that it is a promising first step towards a full control platform.
 
 %Despite the increasing demand for better Quality of Service, today's Internet applications and protocols (e.g., TCP and various media/video protocols) are designed to react to congestion and/or changes in the resource availability. However, these reactive protocols typically makes suboptimal decision (e.g., static initial configurations) and takes relatively long time to converge by reaction both negatively impacting quality and user experience. This paper makes two arguements. First, we argue that to achieve of better quality, one needs to accurately predict the outcome of making a particular choice (e.g., whould a stream be able to sustain a particular bitrate?). Second, we argue that to accurately predict the outcome of a given choice, we need to leverage the information available from other streams or connections. We further propose a global control architecture that continuously collects performance information of ongoing sessions and uses this information to accurately predict the performance outcome of a sessions for a given choice.
 
